@@ -1,0 +1,48 @@
+[project]
+name = "aaar-tutorial"
+version = "0.1.0"
+description = "Helpers for the AAAR 2026 photochemical box-modeling tutorial notebooks (TOMAS-JAX)"
+readme = "README.md"
+# jax/jaxlib 0.11.2 and scipy >= 1.15 need Python 3.12 or newer.
+requires-python = ">=3.12"
+dependencies = [
+    "tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@87537364420e76cd50203049e4d74cb23660327d",
+    "jax==0.11.2",
+    "jaxlib==0.11.2",
+    "diffrax==0.7.2",
+    "equinox==0.13.8",
+    "lineax==0.1.1",
+    "optimistix==0.1.0",
+    "numpy>=2.1",
+    "plotly>=5.20",
+    "ipywidgets>=7.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "nbmake>=1.5",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
+    "jupyterlab>=4.0",
+    "ipykernel>=6.29",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["aaar_tutorial"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The notebooks take about 5 minutes on a laptop; run them with: pytest -m notebooks
+addopts = "-m 'not notebooks'"
+markers = [
+    "smoke: runs the real box model (about 10-60 s including JIT compilation)",
+    "notebooks: executes every notebook top to bottom (about 5 minutes on a laptop)",
+]
