@@ -31,7 +31,8 @@ def setup(warmup: bool = False, verbose: bool = True) -> None:
         for key, value in info.items():
             print(f"{key:<{width}}  {value}")
         if not info["tomas-jax"].startswith(config.TOMAS_JAX_COMMIT[:7]):
-            print(f"Note: the tutorial was tested with tomas-jax {config.TOMAS_JAX_COMMIT[:7]}.")
+            print(f"Note: these helpers expect tomas-jax {config.TOMAS_JAX_COMMIT[:7]}. On Colab, "
+                  "Runtime > Disconnect and delete runtime, then Run all, installs it fresh.")
     if warmup:
         from tomas_jax.box import driver
         t0 = time.perf_counter()

@@ -124,9 +124,20 @@ Every version lives in one place per file, and the tests check that they agree.
   pytest && pytest -m notebooks          # unit tests, then every notebook (about 5 min)
   ```
 
-  Also update `VBS_JAX_COMMIT` and `TESTED_VERSIONS` in `aaar_tutorial/config.py` if the model
-  changed them, and reread the notebook text: it quotes numbers from the current model
-  (e.g. SOA amounts, OH peaks, nitrate) that a model change can shift.
+  Also raise the helpers' version (below), update `VBS_JAX_COMMIT` and `TESTED_VERSIONS` in
+  `aaar_tutorial/config.py` if the model changed them, and reread the notebook text: it quotes numbers from the current model
+  (e.g. SOA amounts, OH peaks, nitrate) that a model change can shift. A Colab runtime that is
+  already open keeps its old model (pip does not reinstall a git dependency whose version number
+  is unchanged); `at.setup()` then prints a note, and *Runtime › Disconnect and delete runtime*
+  gives a fresh install. Tell students to start a fresh runtime after a model change.
+
+- **The helpers' version** (`version` in `pyproject.toml`, `__version__` in
+  `aaar_tutorial/__init__.py` and `HELPERS_VERSION` in every install cell; the tests check that
+  they agree): raise it with every change to `aaar_tutorial` that students need (new functions,
+  fixes, changed defaults, new pins). pip keeps an installed package whose version has not
+  changed, so without a raise, open Colab runtimes keep the old helpers silently. With it, the
+  install cell replaces older helpers by itself, and a session that already imported them is
+  asked to restart.
 
 - **JAX and the other numerical packages** are pinned in `pyproject.toml` and `requirements.txt`
   (keep both the same; `tests/test_config.py` checks).

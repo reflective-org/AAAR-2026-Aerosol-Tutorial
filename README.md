@@ -32,8 +32,8 @@ students straight away: run the tests before pushing (see the end of this README
 2. *Runtime › Run all*, or run the cells one by one with Shift+Enter.
 3. The first code cell installs the model and the tutorial helpers (1–2 minutes). Red pip
    "dependency conflicts" lines are expected on Colab and do not matter here.
-4. If the next cell asks you to restart, click *Runtime › Restart session*, then
-   *Runtime › Run all* again. That happens at most once per runtime.
+4. If a cell asks you to restart, click *Runtime › Restart session*, then *Runtime › Run all*
+   again: after the first install, or after the helpers were updated while a runtime was open.
 
 To keep your changes, use *File › Save a copy in Drive*.
 
@@ -72,8 +72,13 @@ notebook and pick the `.venv` kernel.
 - **"Installed, but this Python session still has the old versions loaded".** The install cell
   upgraded numpy, jax or plotly after Python had loaded the old version. Restart the session
   (Colab: *Runtime › Restart session*) and run the notebook again from the top.
-- **`ModuleNotFoundError: aaar_tutorial is not installed`** on your own computer: install the
-  repository as above, then pick the kernel of that environment and restart it.
+- **`ModuleNotFoundError: This notebook needs the tutorial helpers ...`** on your own computer:
+  pick the kernel of the repository's `.venv` (the usual cause of "found none"), or update the
+  repository (`git pull`, then `uv sync` or `pip install -e .`), then restart the kernel.
+- **"This session still has older tutorial helpers loaded"** or **`AttributeError: module
+  'aaar_tutorial.plots' has no attribute ...`**: the helpers were updated after this session imported
+  them. Colab: *Runtime › Restart session*, then *Runtime › Run all* (the install cell updates the
+  helpers first). Locally: `git pull`, `uv sync`, then *Kernel › Restart Kernel*.
 - **A run is slow or seems stuck.** Colab is about twice as slow as a laptop. Every run stops with a
   `TimeoutError` after 15 minutes (`at.run(..., timeout_s=None)` turns the limit off). Notebooks 2
   and 3 have a `USE_PRECOMPUTED = True` switch that loads a stored result of the preset instead of

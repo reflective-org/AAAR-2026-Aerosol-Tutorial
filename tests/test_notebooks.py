@@ -45,6 +45,16 @@ def test_install_cell_uses_config_ref():
     assert '"google.colab" in sys.modules' in cell or '"google.colab" not in sys.modules' in cell
 
 
+def test_helpers_version_is_the_same_everywhere():
+    import tomllib
+
+    import aaar_tutorial
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version), "the install cells compare plain X.Y.Z versions"
+    assert aaar_tutorial.__version__ == version
+    assert f'HELPERS_VERSION = "{version}"' in _install_cell(NOTEBOOKS[0])
+
+
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
 def test_colab_badge_matches_config_ref(path):
     first = _source(_cells(path)[0])

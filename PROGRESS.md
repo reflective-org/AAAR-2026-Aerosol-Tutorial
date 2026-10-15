@@ -1,5 +1,23 @@
 # Progress
 
+## 2026-10-15: helpers version 0.2.0; install cells update old helpers
+
+Ali hit two errors with the new partitioning plot: on Colab `NameError: plots` (the cell ran
+without the setup cells, e.g. after a restart), locally `AttributeError: ... no attribute
+'partitioning'` (the kernel had imported the helpers before the update).
+
+- The partitioning cell imports `plots` itself, so it runs on its own.
+- Install cells (identical in all four notebooks) now check the installed helper version against
+  `HELPERS_VERSION = "0.2.0"`. On Colab an older install is replaced (pip replaces a different
+  version by itself); elsewhere the error says to pick the `.venv` kernel or `git pull` + `uv sync`
+  and restart. If older helpers are already imported, the cell asks for a restart instead of
+  failing later on a missing function.
+- Verified in simulated Colab runtimes (fresh; older helpers installed; older helpers imported)
+  and local ones (old, empty and current environments), plus all tests and all four notebooks.
+  The Setup text no longer promises "at most one restart per runtime".
+- Version 0.2.0 in `pyproject.toml` and `aaar_tutorial.__version__`; a test checks all three agree.
+- `setup()` says how to get a fresh install when the installed tomas-jax is not the pinned one.
+
 ## 2026-10-15: partitioning explainer; work on `main` only
 
 - `plots.partitioning()`: equilibrium partitioning F_p = 1/(1 + c*/C_OA) for c* = 0.01–10⁴ µg m⁻³
