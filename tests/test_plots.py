@@ -143,3 +143,13 @@ def test_partitioning_explainer():
     assert halves >= 3
     assert min(config.PARTITIONING_COA_UGM3) == 0.1 and max(config.PARTITIONING_COA_UGM3) == 1000
     assert np.all(np.diff(np.asarray(fig.frames[0].data[0].y)) < 0)   # less volatile: more in particles
+
+
+def test_compare_runs_on_different_size_grids():
+    coarse = at.run("level1_volatility", duration_h=0.5, numerics={"nbins": 40}, progress=False, name="40 bins")
+    fine = at.load_example("level1_volatility")
+    assert len(coarse.diameter_nm) != len(fine.diameter_nm)
+    fig = plots.compare_size_distributions([coarse, fine])
+    assert len(fig.data) == 4                       # one initial and one final curve per run (different grids)
+    lo, hi = fig.layout.xaxis.range
+    assert lo < np.log10(60) < hi

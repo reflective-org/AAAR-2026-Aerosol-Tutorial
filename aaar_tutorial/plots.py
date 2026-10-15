@@ -80,9 +80,11 @@ def compare_size_distributions(results, labels=None, quantity: str = "number",
                                      line=dict(color=_color(j), dash="dot", width=1.5)))
         name = label if same_time else f"{label} (t = {_hours(t_i)} h)"
         fig.add_trace(_dist_trace(d, z_i, name, _color(j)).update(legendgroup=label))
-    all_z = np.array([p[2] for p in picked] + [p[3] for p in picked])
-    fig.update_xaxes(title=config.DIAMETER_AXIS_TITLE, range=_diameter_range(runs[0], all_z),
-                     **_LOG_DIAMETER)
+    # runs may use different size grids (e.g. 40 and 160 bins): union of their ranges
+    ranges = [_diameter_range(r, np.array([p[2], p[3]])) for r, p in zip(runs, picked)]
+    all_z = np.concatenate([np.ravel(p[k]) for p in picked for k in (2, 3)])
+    fig.update_xaxes(title=config.DIAMETER_AXIS_TITLE,
+                     range=[min(lo for lo, _ in ranges), max(hi for _, hi in ranges)], **_LOG_DIAMETER)
     fig.update_yaxes(title=_DIST[quantity][1], **_fixed_y(all_z, log_y))
     if same_time:
         when = f"t = {_hours(picked[0][0])} h"
