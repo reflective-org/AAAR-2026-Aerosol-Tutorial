@@ -67,3 +67,12 @@ def test_progress_callable_gets_fractions():
     seen = []
     at.run("level1_volatility", duration_h=0.5, progress=seen.append)
     assert seen[-1] == pytest.approx(1.0) and len(seen) == 6
+
+
+def test_presets_run_on_the_notebook_bin_count():
+    from tomas_jax.box.scenario import load_preset
+    s = at.scenario_from("level3_day_night")
+    assert s.numerics.nbins == at.config.NBINS
+    assert s.numerics.coupling_dt_s == load_preset("level3_day_night").numerics.coupling_dt_s
+    assert at.scenario_from("level3_day_night", numerics={"nbins": 40}).numerics.nbins == 40
+    assert at.scenario_from(load_preset("level1_volatility")).numerics.nbins == 40    # a Scenario keeps its own

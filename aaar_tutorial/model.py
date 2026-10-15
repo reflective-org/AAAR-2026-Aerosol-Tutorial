@@ -109,7 +109,11 @@ def run(scenario, *, progress=True, timeout_s: float | None = config.RUN_TIMEOUT
 
 
 def scenario_from(scenario, **overrides):
-    """Scenario from a preset name, Scenario, RunResult or scenario dict, with run()'s overrides."""
+    """Scenario from a preset name, Scenario, RunResult or scenario dict, with run()'s overrides.
+
+    A preset name gets ``config.NBINS`` size bins (the presets themselves have 40); a Scenario,
+    RunResult or dict keeps its own. ``numerics={"nbins": ...}`` overrides either.
+    """
     from tomas_jax.box.result import RunResult
     from tomas_jax.box.scenario import Scenario, from_dict, list_presets, load_preset
 
@@ -120,7 +124,7 @@ def scenario_from(scenario, **overrides):
     elif isinstance(scenario, str):
         if scenario not in list_presets():
             raise ValueError(f"unknown preset {scenario!r}; choose one of {list_presets()}")
-        s = load_preset(scenario)
+        s = load_preset(scenario).replace(numerics={"nbins": config.NBINS})
     elif isinstance(scenario, Scenario):
         s = scenario
     else:

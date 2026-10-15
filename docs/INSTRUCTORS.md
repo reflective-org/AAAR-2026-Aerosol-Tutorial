@@ -42,10 +42,10 @@ installation, with the TUV-x data already downloaded. Colab is about twice as sl
 
 | Notebook | Model runs | Whole notebook | One run |
 |---|---|---|---|
-| 01 Volatility | 14 Level 1 runs | 35 s | 2–3 s |
-| 02 Limonene SOA | 12 Level 2 runs | 1.5 min | 7–11 s |
-| 03 Day & Night | 7 Level 3 runs | 1.75 min | 12–15 s |
-| 04 Inside the model | 1 hand-written Level 3 loop | 30 s | about 15 s |
+| 01 Volatility | 14 Level 1 runs | 1.5 min | 6–8 s |
+| 02 Limonene SOA | 12 Level 2 runs | 2 min | 8–13 s |
+| 03 Day & Night | 7 Level 3 runs | 3 min | 20–25 s |
+| 04 Inside the model | 1 hand-written Level 3 loop | 40 s | about 25 s |
 
 The first run of each level in a session also compiles the model with JAX (a few seconds for
 Level 1; for Levels 2 and 3 compiling plus building the TUV-x table adds about 5–10 s on this
@@ -83,7 +83,7 @@ The ones students will run into:
   also count as sulfate for density, while the reported diameters assume 1400 kg m⁻³.
 - **Nucleation is H₂SO₄–H₂O only (A13).** At the Level 1 temperature (298 K) it produces no new
   particles even at 10⁷ molec cm⁻³ s⁻¹ of H₂SO₄; notebook 1 compares 298 K with 265 K. With
-  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 600 cm⁻³ at 270 K and 34 000 cm⁻³ at 265 K. The web
+  10⁶ molec cm⁻³ s⁻¹, N peaks at about 6 500 cm⁻³ at 270 K and 27 000 cm⁻³ at 265 K (7 600 and 34 000 with the web app's 40 size bins). The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
 - **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
   (300 s in Levels 1–2, 900 s in Level 3). ASSUMPTIONS.md quotes ≤ 3 % between 900 s and 600 s;
@@ -95,8 +95,11 @@ The ones students will run into:
 ## The web app's instructor guide
 
 The tomas-api guide's numbers were re-measured on 2026-10-14 with the same tomas-jax commit the
-notebooks pin (8753736), so the two agree: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2),
-nitrate 4.96 µg m⁻³ at γ = 0.02. The guide counts the 725 species of the MCM file; the notebooks
+notebooks pin (8753736). The notebooks run the presets with 80 size bins, the web app with 40 (same
+range, 1.7 nm to 17.5 µm). OH agrees: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). SOA
+agrees within 1 %. Particle size and nitrate differ: at the end of Level 3 (γ = 0.02) the web app
+has nitrate 4.96 µg m⁻³ and a geometric mean diameter of 162 nm, the notebooks 5.08 µg m⁻³ and
+176 nm. The guide counts the 725 species of the MCM file; the notebooks
 say 726 because the model adds the `NA_HET` counter.
 
 ## Updating pins
@@ -121,7 +124,7 @@ Every version lives in one place per file, and the tests check that they agree.
   python scripts/set_pins.py --tomas-jax <40-character commit> [--tuvx-jax <commit>]
   uv sync --extra dev                    # or: pip install -e ".[dev]"
   python scripts/make_examples.py        # regenerates aaar_tutorial/examples/ (about 1 min)
-  pytest && pytest -m notebooks          # unit tests, then every notebook (about 5 min)
+  pytest && pytest -m notebooks          # unit tests, then every notebook (about 7 min)
   ```
 
   Also raise the helpers' version (below), update `VBS_JAX_COMMIT` and `TESTED_VERSIONS` in
@@ -146,7 +149,7 @@ Every version lives in one place per file, and the tests check that they agree.
 
 ```bash
 uv run pytest                          # unit tests and notebook checks, about 30 s
-uv run pytest -m notebooks             # every notebook top to bottom, about 5 min on a laptop
+uv run pytest -m notebooks             # every notebook top to bottom, about 7 min on a laptop
 ```
 
 GitHub Actions (`.github/workflows/notebooks.yml`) runs both on every push.

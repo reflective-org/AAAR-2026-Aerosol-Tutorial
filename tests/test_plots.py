@@ -141,4 +141,5 @@ def test_partitioning_explainer():
             halves += 1
         assert frame.data[2].x[0] == pytest.approx(np.log10(coa))
     assert halves >= 3
+    assert min(config.PARTITIONING_COA_UGM3) == 0.1 and max(config.PARTITIONING_COA_UGM3) == 1000
     assert np.all(np.diff(np.asarray(fig.frames[0].data[0].y)) < 0)   # less volatile: more in particles

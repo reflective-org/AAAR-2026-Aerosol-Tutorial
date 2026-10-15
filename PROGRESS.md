@@ -1,5 +1,20 @@
 # Progress
 
+## 2026-10-15: 80 size bins, C_OA slider to 1000, labels without emojis (helpers 0.3.0)
+
+- Runs started from a preset name use 80 size bins (`config.NBINS`; see DECISIONS.md for the
+  40/80/160 measurements). Stored examples regenerated at 80 bins; the notebook text was checked
+  number by number against 80-bin runs (one agent per notebook).
+- Partitioning slider: C_OA from 0.1 to 1000 µg m⁻³ (wildfire smoke) in 81 steps.
+- Notebook 1: emoji labels replaced by coloured uppercase labels, two key sentences highlighted,
+  Colab form titles without emojis; α = 1 explained; wildfire range in the slider caption.
+- Helpers version 0.3.0 so open Colab runtimes replace the 0.2.0 helpers.
+- Checked against the Reflective brand guidelines: banner eyebrow now Open Sans Regular with 6 %
+  tracking and subtitle Open Sans Light (headline Gambarino, Blue→Gold gradient, logo ≥ 100 px).
+- Text audit at 80 bins: about 300 claims checked in the four notebooks, README and INSTRUCTORS;
+  42 edits (run times, diameters, nitrate 5.0 → 5.1, nucleation peaks, the raw-API cells that
+  keep the preset's 40 bins). All four notebooks run top to bottom (6.3 min on a laptop).
+
 ## 2026-10-15: helpers version 0.2.0; install cells update old helpers
 
 Ali hit two errors with the new partitioning plot: on Colab `NameError: plots` (the cell ran

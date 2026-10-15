@@ -28,7 +28,7 @@ COLAB_URL = f"https://colab.research.google.com/github/{TUTORIAL_REPO}/blob/{TUT
 # (scripts/make_banners.py). Linked at the commit that added them, so the URLs work on every
 # branch and in Colab and never change. After regenerating the images, commit them first, then
 # set ASSET_COMMIT to that commit and update the notebook links (tests/test_notebooks.py checks).
-ASSET_COMMIT = "a38cb227b9f5c43bb0ce7ff65e82a4514e3905a1"
+ASSET_COMMIT = "520b58ef28d16cd1fa2a7bdbf7573365fd88aaec"
 ASSET_URL = f"https://raw.githubusercontent.com/{TUTORIAL_REPO}/{ASSET_COMMIT}/assets"
 REFLECTIVE_URL = "https://www.reflective.org"
 NOTEBOOKS = ("01_volatility.ipynb", "02_limonene_soa.ipynb", "03_day_and_night.ipynb",
@@ -67,6 +67,11 @@ DOWNLOAD_CHUNK_BYTES = 1 << 16
 # --- Model runs -----------------------------------------------------------------------------
 PRESETS = ("level1_volatility", "level2_limonene_soa", "level3_day_night")
 RUN_TIMEOUT_S = 900.0              # run() stops a model run after this wall time (None = never)
+# Size bins for runs started from a preset name (the presets and the web app use 40). Same range,
+# 1.7 nm to 17.5 µm; 80 bins halve the numerical spreading of growing modes for ~1.4-3.6x the run
+# time (measured 2026-10-15: Level 1/2/3 take 6/8/23 s at 80 bins vs 2/6/13 s at 40 and
+# 20/16/52 s at 160). numerics={"nbins": ...} in run() overrides it.
+NBINS = 80
 PROGRESS_MIN_INTERVAL_S = 0.25     # throttle for progress display updates
 CSTAR_TABLE_DIR = CACHE_DIR / "cstar_tables"   # c* tables written by run(cstar_ugm3=...)
 
@@ -110,8 +115,9 @@ SLIDER_FRAME_MS = 150              # play-button speed
 
 # plots.partitioning(): volatility classes and the C_OA values on its slider (µg/m³).
 PARTITIONING_LOG10_CSTAR = tuple(range(-2, 5))          # c* = 0.01 ... 10 000 µg/m³
-PARTITIONING_COA_UGM3 = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100)
-PARTITIONING_START_COA_UGM3 = 1
+# 0.1 (clean air) to 1000 µg/m³ (wildfire smoke), 20 steps per decade, 2 significant digits.
+PARTITIONING_COA_UGM3 = tuple(float(f"{10 ** (k / 20):.2g}") for k in range(-20, 61))
+PARTITIONING_START_COA_UGM3 = 1.0
 
 # Categorical palette of the tomas-web tutorial (light theme), fixed order.
 SERIES_COLORS = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",

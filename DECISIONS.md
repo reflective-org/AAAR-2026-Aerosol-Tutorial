@@ -2,6 +2,18 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
+## 80 size bins in the notebooks (2026-10-15)
+
+The PyCHAM comparison showed that the 40-bin grid spreads growing modes numerically (mean
+diameter too small by 15–25 % after a few hours of growth), while mass is right. Measured on the
+presets (repeat runs, laptop): 40 / 80 / 160 bins take 1.7 / 6.2 / 19.9 s (Level 1), 6.1 / 8.3 /
+15.6 s (Level 2) and 13.5 / 22.8 / 52.3 s (Level 3); the final mean diameter is 86 / 98 / 107 nm,
+158 / 183 / 198 nm and 162 / 176 / 185 nm; SOA does not change and nitrate rises 2–4 %. 160 bins
+would make the Level 1 run panel take about 40 s per click on Colab, so the notebooks use 80
+(`config.NBINS`, applied to runs started from a preset name); `numerics={"nbins": ...}` overrides
+it. The presets, the web app and its instructor guide keep 40, so their numbers differ slightly
+from the notebooks'. Helpers version 0.3.0.
+
 ## One branch: `main` (2026-10-15)
 
 Ali's call: everything is on `main`, so work happens there and `feat/aaar-tutorial` was deleted
@@ -20,8 +32,14 @@ what every renderer (Colab, JupyterLab, VS Code, GitHub; light and dark themes) 
   (Blue #466F8D → #939280 → Gold #A47F52), Gambarino title, Open Sans text, level progress and
   "Supported by" with the white Reflective logo. Drawn by `scripts/make_banners.py` from the
   brand asset pack; the alt text carries the title.
-- **Callouts are markdown blockquotes** with an icon label: 🧭 how to use, 🎯 goals, 🔑 key
-  idea, 🧪 Try this, 👀 what to notice, 💬 questions, ⚙️ setup, 📦 the box.
+- **Callouts are markdown blockquotes with a coloured uppercase label** (`<font color>`, which
+  Colab keeps). Colour means something: gold = do something (TRY THIS, YOUR TURN, EXPLORE), green =
+  look at this (WHAT TO NOTICE), slate = information (HOW TO USE IT, SETUP, LEARNING GOALS, KEY
+  IDEA, THE BOX). These three read in light and dark themes; brand Blue and Clay Red are too dark
+  on Colab's dark background. Two or three key sentences are highlighted with `<mark>` (Colab draws
+  it yellow in light mode, amber in dark). No emojis (Ali: they look machine-made). Tested in Colab
+  and JupyterLab, light and dark: coloured table cells (`bgcolor`) survive too, but Colab does not
+  wrap table text and JupyterLab centres small tables, so boxes are not built from tables.
 - **Collapsible extras** (`<details>`): run times, references.
 - **Colab forms:** experiment cells start with `#@title` and mark their input with `#@param`,
   so Colab shows a titled section and an input box; elsewhere these are plain comments.

@@ -49,11 +49,15 @@ def test_night_intervals():
     assert 8.0 < start < 10.0 and 17.0 < end < 19.0          # Buffalo, 1 July, from noon EDT
 
 
-def test_summary_matches_instructor_guide():
-    s = at.summary(at.load_example("level1_volatility"))      # c* = 1: GMD 54 -> 86 nm
+def test_summary_of_the_stored_level1_example():
+    # The stored examples use the notebooks' bin count (80): GMD 54 -> 98 nm. The web app's 40-bin
+    # preset gives 86 nm (more numerical spreading); SOA is the same.
+    r = at.load_example("level1_volatility")
+    assert all(at.load_example(p).scenario["numerics"]["nbins"] == at.config.NBINS for p in at.config.PRESETS)
+    s = at.summary(r)
     assert s["gmd_nm_start"] == pytest.approx(54, abs=1)
-    assert s["gmd_nm_end"] == pytest.approx(86, abs=1)
-    assert s["SOA_ugm3_end"] == pytest.approx(4.93, abs=0.05)
+    assert s["gmd_nm_end"] == pytest.approx(98, abs=1)
+    assert s["SOA_ugm3_end"] == pytest.approx(4.94, abs=0.05)
     assert "runtime_s" not in s                                 # nothing ran in this session
 
 
