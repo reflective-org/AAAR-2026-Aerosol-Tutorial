@@ -9,6 +9,8 @@
 - First attempt (inline HTML styles) dropped: Colab strips `style` attributes.
 - `scripts/make_banners.py` draws the banner and badge from the Reflective brand assets;
   `config.ASSET_COMMIT` pins the image links; a test checks every image link.
+- Checked in headless Chrome: Colab (logged out; all images, boxes, forms and the badge render)
+  and JupyterLab, light and dark themes. Notebook 1 still runs top to bottom.
 - Next: the same design for notebooks 2–4 once Ali approves Level 1.
 
 ## 2026-10-15: published on `main`, public, MIT licence
