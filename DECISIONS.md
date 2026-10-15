@@ -2,19 +2,27 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
-## Notebook design: Reflective palette that works in light and dark themes (2026-10-15)
+## Notebook design: images and blockquotes, because Colab strips HTML styles (2026-10-15)
 
-Level 1 has a header card (brand gradient bar, title, topic pills, "Supported by Reflective" with
-the logo), coloured callouts (blue: how to use, goals, key idea; gold: Try this and questions;
-green: what to notice; grey: setup and the box), collapsible run times and references, and
-Colab form titles (`#@title`, `#@param`) on the experiment cells. The colours are the Reflective
-palette (Blue #466F8D, Gold #A47F52, Green #858F6A, Slate #8B8D8E) used only as borders,
-gradients and translucent tints; text keeps the theme's colour, so the cells read well in Colab
-and JupyterLab, light and dark (Colab follows the system theme, so many students see dark). The
-logo sits on a white pill so it stays visible in dark mode. Styling is inline HTML in markdown
-cells: no `<style>` blocks or classes, which Colab strips. Plots keep the web app's palette so
-students see the same colours in both places. On GitHub's notebook preview the styles are
-dropped and the text reads as plain markdown.
+The first attempt styled the markdown cells with inline HTML (`<div style=...>` cards, pills).
+JupyterLab drew it well, but Colab removes `style` attributes from text cells, so on Colab, where
+most students work, it fell apart into plain text and a full-size logo. The design now uses only
+what every renderer (Colab, JupyterLab, VS Code, GitHub; light and dark themes) draws the same:
+
+- **Header banner image** per notebook (`assets/banner-level1.png`): Reflective brand gradient
+  (Blue #466F8D → #939280 → Gold #A47F52), Gambarino title, Open Sans text, level progress and
+  "Supported by" with the white Reflective logo. Drawn by `scripts/make_banners.py` from the
+  brand asset pack; the alt text carries the title.
+- **Callouts are markdown blockquotes** with an icon label: 🧭 how to use, 🎯 goals, 🔑 key
+  idea, 🧪 Try this, 👀 what to notice, 💬 questions, ⚙️ setup, 📦 the box.
+- **Collapsible extras** (`<details>`): run times, references.
+- **Colab forms:** experiment cells start with `#@title` and mark their input with `#@param`,
+  so Colab shows a titled section and an input box; elsewhere these are plain comments.
+- **Footer badge** (`assets/supported-by-reflective.png`): white pill with the black logo,
+  readable on light and dark backgrounds.
+
+Images are linked at a fixed commit (`config.ASSET_COMMIT`) so the links work on every branch and
+never change. Plots keep the web app's palette so students see the same colours in both places.
 
 ## Publish from `main`, public, MIT (2026-10-15)
 

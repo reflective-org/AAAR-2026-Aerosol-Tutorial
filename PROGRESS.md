@@ -1,14 +1,14 @@
 # Progress
 
-## 2026-10-15: Level 1 notebook design, Reflective logo
+## 2026-10-15: Level 1 notebook design, "Supported by Reflective"
 
-- Notebook 1 restyled with the Reflective palette (see DECISIONS.md): header card with
-  "Supported by Reflective", callouts, collapsible run times and references, Colab form titles
-  and fields on the experiment cells. Text and code unchanged apart from labels and the
-  `#@title`/`#@param` annotations.
-- `assets/reflective-logo.png` (official black logo, cropped); `config.LOGO_URL` links it at
-  the commit that added it; a test keeps the notebooks on that URL.
-- Checked renders: JupyterLab light and dark, Colab light and dark (headless Chrome).
+- Notebook 1 redesigned (see DECISIONS.md): header banner image with the Reflective logo,
+  blockquote callouts with icons, collapsible run times and references, Colab form titles and
+  input fields on the experiment cells, a "Supported by Reflective" badge at the end. Text and
+  code are unchanged apart from labels and the `#@title`/`#@param` annotations.
+- First attempt (inline HTML styles) dropped: Colab strips `style` attributes.
+- `scripts/make_banners.py` draws the banner and badge from the Reflective brand assets;
+  `config.ASSET_COMMIT` pins the image links; a test checks every image link.
 - Next: the same design for notebooks 2–4 once Ali approves Level 1.
 
 ## 2026-10-15: published on `main`, public, MIT licence

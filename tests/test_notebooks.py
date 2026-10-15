@@ -56,11 +56,12 @@ def test_tutorial_ref_opens_in_colab():
     assert "/" not in config.TUTORIAL_REF
 
 
-def test_logo_links_use_config_url():
-    assert (ROOT / config.LOGO_FILE).is_file()
+def test_image_links_use_the_asset_commit():
     for path in NOTEBOOKS:
-        text = path.read_text()
-        assert text.count("reflective-logo.png") == text.count(config.LOGO_URL), path.name
+        text = "\n".join(_source(cell) for cell in _cells(path))
+        for url in re.findall(r"https://raw\.githubusercontent\.com/[^\s\"')]+", text):
+            assert url.startswith(config.ASSET_URL + "/"), f"{path.name}: {url}"
+            assert (ROOT / "assets" / url.rsplit("/", 1)[1]).is_file(), f"{path.name}: {url}"
 
 
 def test_readme_badges_match_config_ref():
