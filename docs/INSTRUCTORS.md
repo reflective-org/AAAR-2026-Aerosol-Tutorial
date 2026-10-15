@@ -6,10 +6,11 @@ tomas-api repository, `docs/aaar/INSTRUCTOR_GUIDE.md`).
 
 ## Before the session
 
-1. Make the repository public and replace the branch in the badges and install cells by a tag
-   (see "Updating pins"). Then open every notebook from its badge in a fresh Colab runtime,
-   *Runtime › Run all*, and check that it finishes. Without a public repository Colab cannot open
-   the notebooks or install the helpers.
+1. The repository is public and the badges and install cells point at `main`. Before the
+   workshop, tag the version you tested and point them at the tag (see "Updating pins"), so a
+   later push cannot change what students run. Then open every notebook from its badge in a fresh
+   Colab runtime, *Runtime › Run all*, and check that it finishes. The ref must not contain a
+   `/` (Colab cannot open `feat/...` branches); `scripts/set_pins.py` refuses such refs.
 2. Tell students to open the notebook a few minutes early and run the first two cells: the install
    takes 1–2 minutes on Colab, and they may have to restart the session once.
 3. Each Colab notebook is its own runtime and installs separately. Students who move to the next

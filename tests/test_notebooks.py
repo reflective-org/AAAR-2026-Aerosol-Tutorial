@@ -51,6 +51,11 @@ def test_colab_badge_matches_config_ref(path):
     assert f"{config.COLAB_URL}/{path.name}" in first
 
 
+def test_tutorial_ref_opens_in_colab():
+    # Colab splits github/<repo>/blob/<ref>/<path> at the first "/": "feat/x" opens as ref "feat".
+    assert "/" not in config.TUTORIAL_REF
+
+
 def test_readme_badges_match_config_ref():
     readme = (ROOT / "README.md").read_text()
     for name in config.NOTEBOOKS:

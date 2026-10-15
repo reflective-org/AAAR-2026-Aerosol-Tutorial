@@ -2,6 +2,17 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
+## Publish from `main`, public, MIT (2026-10-15)
+
+Colab opens `github/<owner>/<repo>/blob/<ref>/<path>` by splitting at the first `/`, so the badges
+for the branch `feat/aaar-tutorial` asked GitHub for ref `feat` and failed with "Notebook not
+found". `main` is now the published version that the badges and install cells use; work continues
+on `feat/aaar-tutorial` and is fast-forwarded into `main` after the tests pass. Before the
+workshop the ref becomes a tag. `scripts/set_pins.py` refuses refs containing `/` and
+`tests/test_notebooks.py` checks `config.TUTORIAL_REF`. The repository is public (Colab and the
+install cell's `pip install git+https://...` need anonymous access) and MIT-licensed, the simplest
+licence for teaching material that students copy and change.
+
 ## A separate repository for the notebooks (2026-10-14)
 
 The notebooks live here, not in TOMAS-JAX:
@@ -26,7 +37,7 @@ JAX, diffrax, equinox, lineax and optimistix are pinned to the tested versions b
 numerics change between releases.
 
 The same applies to this repository's own ref: the Colab badges and the install cell use
-`config.TUTORIAL_REF` (now the branch `feat/aaar-tutorial`). Before the workshop it should become
+`config.TUTORIAL_REF` (now `main`). Before the workshop it should become
 a tag, so the notebooks and the helpers they install cannot drift apart. `scripts/set_pins.py`
 changes it in every file at once and the tests check that all places agree.
 

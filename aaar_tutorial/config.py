@@ -21,7 +21,7 @@ TESTED_VERSIONS = {
 # change all of them together with scripts/set_pins.py (tests/test_notebooks.py checks).
 TUTORIAL_REPO = "reflective-org/AAAR-2026-Aerosol-Tutorial"
 TUTORIAL_REPO_URL = f"https://github.com/{TUTORIAL_REPO}"
-TUTORIAL_REF = "feat/aaar-tutorial"
+TUTORIAL_REF = "main"
 TUTORIAL_REQUIREMENT = f"aaar-tutorial @ git+{TUTORIAL_REPO_URL}@{TUTORIAL_REF}"
 COLAB_URL = f"https://colab.research.google.com/github/{TUTORIAL_REPO}/blob/{TUTORIAL_REF}/notebooks"
 NOTEBOOKS = ("01_volatility.ipynb", "02_limonene_soa.ipynb", "03_day_and_night.ipynb",

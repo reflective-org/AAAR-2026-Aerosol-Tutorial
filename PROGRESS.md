@@ -1,5 +1,16 @@
 # Progress
 
+## 2026-10-15: published on `main`, public, MIT licence
+
+- The Colab badges failed ("Notebook not found"): Colab cannot open a ref with a `/` such as
+  `feat/aaar-tutorial`. Badges, install cells and README now use `main` (`set_pins.py --tutorial-ref
+  main`); `main` was fast-forwarded to the branch. `set_pins.py` refuses refs with `/`, and a test
+  checks `config.TUTORIAL_REF`. Fixed `set_pins.py`'s README phrase so it matches on the next run.
+- Repository made public; MIT `LICENSE` added (`pyproject.toml` `license = "MIT"`).
+- Checked that the local install in the README works from a fresh clone (`uv sync --extra dev`,
+  notebook 1 top to bottom in 43 s with an empty data cache).
+- Next: a real Colab run of every badge (needs a Google login), then a tag before the workshop.
+
 ## 2026-10-14: notebooks complete, review findings applied
 
 **State.** Four notebooks (Level 1 volatility, Level 2 limonene SOA, Level 3 day and night,

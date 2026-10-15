@@ -43,11 +43,13 @@ def main() -> None:
     pairs = []
     if args.tutorial_ref:
         old, new = config.TUTORIAL_REF, args.tutorial_ref
+        if "/" in new:      # Colab splits github/<repo>/blob/<ref>/<path> at the first "/"
+            parser.error("Colab cannot open a ref that contains '/'; use a tag or a branch without '/'")
         repo = "AAAR-2026-Aerosol-Tutorial"
         pairs += [(f'TUTORIAL_REF = "{old}"', f'TUTORIAL_REF = "{new}"'),
                   (f"{repo}@{old}", f"{repo}@{new}"),
                   (f"{repo}/blob/{old}/", f"{repo}/blob/{new}/"),
-                  (f"notebooks from the `{old}` branch", f"notebooks from `{new}`")]
+                  (f"notebooks from `{old}`", f"notebooks from `{new}`")]
     for flag, old in (("tomas_jax", config.TOMAS_JAX_COMMIT), ("tuvx_jax", config.TUVX_JAX_COMMIT)):
         new = getattr(args, flag)
         if new:
