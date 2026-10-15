@@ -2,6 +2,20 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
+## Notebook design: Reflective palette that works in light and dark themes (2026-10-15)
+
+Level 1 has a header card (brand gradient bar, title, topic pills, "Supported by Reflective" with
+the logo), coloured callouts (blue: how to use, goals, key idea; gold: Try this and questions;
+green: what to notice; grey: setup and the box), collapsible run times and references, and
+Colab form titles (`#@title`, `#@param`) on the experiment cells. The colours are the Reflective
+palette (Blue #466F8D, Gold #A47F52, Green #858F6A, Slate #8B8D8E) used only as borders,
+gradients and translucent tints; text keeps the theme's colour, so the cells read well in Colab
+and JupyterLab, light and dark (Colab follows the system theme, so many students see dark). The
+logo sits on a white pill so it stays visible in dark mode. Styling is inline HTML in markdown
+cells: no `<style>` blocks or classes, which Colab strips. Plots keep the web app's palette so
+students see the same colours in both places. On GitHub's notebook preview the styles are
+dropped and the text reads as plain markdown.
+
 ## Publish from `main`, public, MIT (2026-10-15)
 
 Colab opens `github/<owner>/<repo>/blob/<ref>/<path>` by splitting at the first `/`, so the badges

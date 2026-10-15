@@ -24,6 +24,12 @@ TUTORIAL_REPO_URL = f"https://github.com/{TUTORIAL_REPO}"
 TUTORIAL_REF = "main"
 TUTORIAL_REQUIREMENT = f"aaar-tutorial @ git+{TUTORIAL_REPO_URL}@{TUTORIAL_REF}"
 COLAB_URL = f"https://colab.research.google.com/github/{TUTORIAL_REPO}/blob/{TUTORIAL_REF}/notebooks"
+# Reflective logo in the notebooks ("Supported by Reflective"). Linked at the commit that added
+# it, so the URL works on every branch and in Colab, and never changes.
+LOGO_FILE = "assets/reflective-logo.png"
+LOGO_COMMIT = "2a022c0f062df2330dbb63d4471b2222f5ffb100"
+LOGO_URL = f"https://raw.githubusercontent.com/{TUTORIAL_REPO}/{LOGO_COMMIT}/{LOGO_FILE}"
+REFLECTIVE_URL = "https://www.reflective.org"
 NOTEBOOKS = ("01_volatility.ipynb", "02_limonene_soa.ipynb", "03_day_and_night.ipynb",
              "04_inside_the_model.ipynb")
 

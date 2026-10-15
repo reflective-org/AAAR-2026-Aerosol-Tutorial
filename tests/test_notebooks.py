@@ -56,6 +56,13 @@ def test_tutorial_ref_opens_in_colab():
     assert "/" not in config.TUTORIAL_REF
 
 
+def test_logo_links_use_config_url():
+    assert (ROOT / config.LOGO_FILE).is_file()
+    for path in NOTEBOOKS:
+        text = path.read_text()
+        assert text.count("reflective-logo.png") == text.count(config.LOGO_URL), path.name
+
+
 def test_readme_badges_match_config_ref():
     readme = (ROOT / "README.md").read_text()
     for name in config.NOTEBOOKS:

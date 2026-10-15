@@ -1,5 +1,16 @@
 # Progress
 
+## 2026-10-15: Level 1 notebook design, Reflective logo
+
+- Notebook 1 restyled with the Reflective palette (see DECISIONS.md): header card with
+  "Supported by Reflective", callouts, collapsible run times and references, Colab form titles
+  and fields on the experiment cells. Text and code unchanged apart from labels and the
+  `#@title`/`#@param` annotations.
+- `assets/reflective-logo.png` (official black logo, cropped); `config.LOGO_URL` links it at
+  the commit that added it; a test keeps the notebooks on that URL.
+- Checked renders: JupyterLab light and dark, Colab light and dark (headless Chrome).
+- Next: the same design for notebooks 2–4 once Ali approves Level 1.
+
 ## 2026-10-15: published on `main`, public, MIT licence
 
 - The Colab badges failed ("Notebook not found"): Colab cannot open a ref with a `/` such as
