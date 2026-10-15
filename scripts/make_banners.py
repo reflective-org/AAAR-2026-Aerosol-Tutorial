@@ -39,6 +39,7 @@ def px(v: float) -> int:
 
 def font(brand: Path, name: str, size_css: float) -> ImageFont.FreeTypeFont:
     paths = {"title": "02_Fonts/Gambarino_Complete/Fonts/OTF/Gambarino-Regular.otf",
+             "light": "02_Fonts/OpenSans/OpenSans-Light.ttf",
              "regular": "02_Fonts/OpenSans/OpenSans-Regular.ttf",
              "medium": "02_Fonts/OpenSans/OpenSans-Medium.ttf",
              "semibold": "02_Fonts/OpenSans/OpenSans-SemiBold.ttf"}
@@ -89,9 +90,10 @@ def banner(brand: Path, title: str, subtitle: str, level: int) -> Image.Image:
     im.alpha_composite(mark, (w - mark.width + px(40), (h - mark.height) // 2))
 
     d = ImageDraw.Draw(im)
-    tracked(d, (px(PAD), px(46)), KICKER.upper(), font(brand, "semibold", 13), BEIGE_50, 2.2)
+    # Brand eyebrow: Open Sans Regular, all caps, 6 % tracking; headline Gambarino; body Open Sans Light.
+    tracked(d, (px(PAD), px(46)), KICKER.upper(), font(brand, "regular", 13), BEIGE_50, 0.06 * 13)
     d.text((px(PAD - 3), px(72)), title, font=font(brand, "title", 64), fill=WHITE)
-    d.text((px(PAD), px(162)), subtitle, font=font(brand, "regular", 24), fill=BEIGE_10)
+    d.text((px(PAD), px(162)), subtitle, font=font(brand, "light", 24), fill=BEIGE_10)
 
     y_dots, r = px(BANNER_H - 50), px(5.5)                                   # progress: Level k of N
     for k in range(N_LEVELS):
