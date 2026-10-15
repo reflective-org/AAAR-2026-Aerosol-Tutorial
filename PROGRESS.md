@@ -1,5 +1,16 @@
 # Progress
 
+## 2026-10-15: partitioning explainer; work on `main` only
+
+- `plots.partitioning()`: equilibrium partitioning F_p = 1/(1 + c*/C_OA) for c* = 0.01–10⁴ µg m⁻³
+  with C_OA (0.1–100 µg m⁻³) on a slider and play button; no model run, so it reacts instantly
+  and works in a saved notebook. One class can be outlined and named (`highlight_cstar`,
+  `highlight_label`). In notebook 1 it follows the absorptive-partitioning equation (section 1),
+  with a Try this (which C_OA puts the surrogate 90 % in the particles?). Test added.
+- `_add_time_slider` takes a prefix, suffix, label function and start step, so it drives this
+  slider too; time sliders are unchanged.
+- Branches: `feat/aaar-tutorial` merged into `main` and deleted (Ali's call); see DECISIONS.md.
+
 ## 2026-10-15: Level 1 notebook design, "Supported by Reflective"
 
 - Notebook 1 redesigned (see DECISIONS.md): header banner image with the Reflective logo,

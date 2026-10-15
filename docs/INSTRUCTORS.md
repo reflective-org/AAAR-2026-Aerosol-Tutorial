@@ -25,7 +25,7 @@ changing the code.
 | Block | Time | Content |
 |---|---|---|
 | Intro | 15 min | The box model in one picture: gas chemistry, photolysis, aerosol, coupling. Start the Level 1 install. |
-| Level 1 | 40 min | c\*, partitioning, H₂SO₄ vs organic, coagulation, nucleation. Notebook sections 3–7; nucleation (8) if time allows. |
+| Level 1 | 40 min | c\*, partitioning, H₂SO₄ vs organic, coagulation, nucleation. Notebook sections 3–7; nucleation (8) if time allows. The partitioning slider in section 1 (no model run) makes a good 3-minute live demo. |
 | Level 2 | 50 min | Explicit chemistry, oxidant shares, c\* from composition, top contributors. Discuss the c\* placeholder openly (below). Experiments 6a and 6c are the most instructive. |
 | Break | 10 min | |
 | Level 3 | 50 min | Sunlight, day–night radicals, N₂O₅ uptake and the γ sweep, holding NO₂ constant. |

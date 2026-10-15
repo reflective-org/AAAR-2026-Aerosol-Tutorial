@@ -2,6 +2,13 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
+## One branch: `main` (2026-10-15)
+
+Ali's call: everything is on `main`, so work happens there and `feat/aaar-tutorial` was deleted
+(it was merged first). A push to `main` reaches students at once (the badges and install cells
+point at it), so the unit tests and the notebook run come before every push. The other repositories
+(TOMAS-JAX, tuvx-jax, tomas-api, tomas-fe) keep their `feat/aaar-tutorial` branches.
+
 ## Notebook design: images and blockquotes, because Colab strips HTML styles (2026-10-15)
 
 The first attempt styled the markdown cells with inline HTML (`<div style=...>` cards, pills).
@@ -28,8 +35,7 @@ never change. Plots keep the web app's palette so students see the same colours 
 
 Colab opens `github/<owner>/<repo>/blob/<ref>/<path>` by splitting at the first `/`, so the badges
 for the branch `feat/aaar-tutorial` asked GitHub for ref `feat` and failed with "Notebook not
-found". `main` is now the published version that the badges and install cells use; work continues
-on `feat/aaar-tutorial` and is fast-forwarded into `main` after the tests pass. Before the
+found". `main` is now the published version that the badges and install cells use. Before the
 workshop the ref becomes a tag. `scripts/set_pins.py` refuses refs containing `/` and
 `tests/test_notebooks.py` checks `config.TUTORIAL_REF`. The repository is public (Colab and the
 install cell's `pip install git+https://...` need anonymous access) and MIT-licensed, the simplest

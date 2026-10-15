@@ -108,6 +108,11 @@ LOG_AXIS_LINEAR_BELOW_DECADES = 0.5   # narrower log axes get evenly spaced tick
 PLOT_FONT_SIZE = 13
 SLIDER_FRAME_MS = 150              # play-button speed
 
+# plots.partitioning(): volatility classes and the C_OA values on its slider (µg/m³).
+PARTITIONING_LOG10_CSTAR = tuple(range(-2, 5))          # c* = 0.01 ... 10 000 µg/m³
+PARTITIONING_COA_UGM3 = (0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100)
+PARTITIONING_START_COA_UGM3 = 1
+
 # Categorical palette of the tomas-web tutorial (light theme), fixed order.
 SERIES_COLORS = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",
                  "#e87ba4", "#008300", "#6250d6", "#e34948")

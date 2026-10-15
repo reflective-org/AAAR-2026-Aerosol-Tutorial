@@ -2,6 +2,7 @@
 
 Every function takes a RunResult (or a list of them for comparisons) and returns a
 ``plotly.graph_objects.Figure``; show it with ``fig.show()`` or by ending a cell with it.
+``partitioning()`` needs no run: it draws the equilibrium partitioning equation.
 Time is hours since the run start; shaded bands mark night (solar zenith angle > 90 deg).
 ``style(fig, title)`` gives your own figures the same look.
 """
@@ -295,6 +296,50 @@ def volatility(result) -> go.Figure:
     return style(fig, f"{_name(r)}: organic mass by volatility class")
 
 
+def partitioning(coa_ugm3=config.PARTITIONING_COA_UGM3, log10_cstar=config.PARTITIONING_LOG10_CSTAR,
+                 start_coa_ugm3=config.PARTITIONING_START_COA_UGM3,
+                 highlight_cstar: float | None = None, highlight_label: str | None = None) -> go.Figure:
+    """How the organic aerosol mass C_OA sets each volatility class's particle share (no model run).
+
+    Equilibrium absorptive partitioning (Pankow, 1994), F_p = 1 / (1 + c*/C_OA): one bar per
+    c* class, particle share (green) under gas share (blue). The slider (and play button) sets
+    C_OA; the dashed line marks c* = C_OA, where a class is half in the particles.
+    ``highlight_cstar`` outlines one class and ``highlight_label`` names it under its tick.
+    """
+    x = np.asarray(log10_cstar, dtype=float)
+    coa = np.asarray(coa_ugm3, dtype=float)
+    marked = np.zeros(x.size, bool) if highlight_cstar is None else np.isclose(x, np.log10(highlight_cstar))
+    outline = dict(color="#282C2E", width=np.where(marked, 3, 0).tolist())
+
+    def traces(c):
+        share = 100.0 / (1.0 + 10.0 ** x / c)
+        hover = "c* = 10<sup>%{x:.0f}</sup> µg m⁻³: %{y:.0f} %<extra>%{fullData.name}</extra>"
+        return [go.Bar(x=x, y=share, name="in the particles", width=0.6, hovertemplate=hover,
+                       marker=dict(color=config.PARTICLE_COLOR, line=outline)),
+                go.Bar(x=x, y=100.0 - share, name="in the gas", width=0.6, hovertemplate=hover,
+                       marker=dict(color=config.GAS_COLOR, line=outline)),
+                go.Scatter(x=[np.log10(c)] * 2, y=[0, 100], mode="lines",
+                           name=f"c* = C_OA = {c:g} µg m⁻³: half in the particles",
+                           line=dict(color="#444444", dash="dash", width=2), hoverinfo="skip")]
+
+    start = int(np.argmin(np.abs(np.log10(coa / start_coa_ugm3))))
+    fig = go.Figure(traces(coa[start]))
+    frames = [go.Frame(name=str(i), data=traces(c), traces=[0, 1, 2]) for i, c in enumerate(coa)]
+    _add_time_slider(fig, coa, frames, prefix="C_OA = ", suffix=" µg m⁻³", label=lambda c: f"{c:g}",
+                     active=start)
+    lo, hi = min(x.min(), np.log10(coa.min())) - 0.6, max(x.max(), np.log10(coa.max())) + 0.6
+    ticks = np.arange(np.ceil(lo), np.floor(hi) + 1)
+    labels = [f"10<sup>{int(k)}</sup>" for k in ticks]
+    if highlight_label and marked.any():
+        labels = [f"{t}<br><b>{highlight_label}</b>" if np.isclose(k, x[marked][0]) else t
+                  for t, k in zip(labels, ticks)]
+    fig.update_xaxes(title="Saturation concentration c* (µg m⁻³)", range=[lo, hi], tickvals=ticks,
+                     ticktext=labels)
+    fig.update_yaxes(title="Share of each class (%)", range=[0, 100], tickvals=[0, 25, 50, 75, 100])
+    fig.update_layout(barmode="stack", legend_traceorder="normal")
+    return style(fig, "Equilibrium partitioning: F<sub>p</sub> = 1 / (1 + c*/C<sub>OA</sub>)")
+
+
 def top_contributors(result, n: int = 15) -> go.Figure:
     """Organic products with the most particle-phase mass at the end of the run."""
     r = as_result(result)
@@ -390,16 +435,21 @@ def _every(t, step_h):
     return sorted({int(i) for i in np.searchsorted(t, targets - 1e-9) if i < t.size})
 
 
-def _add_time_slider(fig, t, frames):
+def _hours(t):
+    return f"{t:.2f}".rstrip("0").rstrip(".")
+
+
+def _add_time_slider(fig, t, frames, prefix="t = ", suffix=" h", label=_hours, active=None):
+    """Slider (one step per frame) and play/pause buttons; the defaults are for time in hours."""
     fig.frames = frames
-    steps = [dict(method="animate", label=_hours(ti),
+    steps = [dict(method="animate", label=label(ti),
                   args=[[str(i)], dict(mode="immediate", frame=dict(duration=0, redraw=True),
                                        transition=dict(duration=0))])
              for i, ti in enumerate(t)]
     fig.update_layout(
-        sliders=[dict(active=len(steps) - 1, steps=steps, x=0.1, len=0.9, xanchor="left", y=0,
-                      yanchor="top", pad=dict(t=50, b=10), ticklen=2,
-                      currentvalue=dict(prefix="t = ", suffix=" h", xanchor="right",
+        sliders=[dict(active=len(steps) - 1 if active is None else active, steps=steps, x=0.1, len=0.9,
+                      xanchor="left", y=0, yanchor="top", pad=dict(t=50, b=10), ticklen=2,
+                      currentvalue=dict(prefix=prefix, suffix=suffix, xanchor="right",
                                         font=dict(size=14, color="#333")),
                       font=dict(color="rgba(0,0,0,0)"))],            # hide the crowded step labels
         updatemenus=[dict(type="buttons", direction="left", x=0.1, y=0, xanchor="right", yanchor="top",
@@ -445,10 +495,6 @@ def _name(r):
 
 def _color(i):
     return config.SERIES_COLORS[i % len(config.SERIES_COLORS)]
-
-
-def _hours(t):
-    return f"{t:.2f}".rstrip("0").rstrip(".")
 
 
 def _positive(y):

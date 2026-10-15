@@ -23,8 +23,8 @@ Run times are for running every cell once on a laptop (Apple Silicon), after ins
 and older laptops are about twice as slow. The first model run in each session also compiles the
 model with JAX (a few seconds for Level 1, up to about 30–40 s for Levels 2 and 3).
 
-The Colab badges open the notebooks from `main`, the published version. Work in progress lives
-on the branch `feat/aaar-tutorial` and is merged into `main` once it passes the tests.
+The Colab badges open the notebooks from `main`. All work happens on `main`, so every push reaches
+students straight away: run the tests before pushing (see the end of this README).
 
 ## Run on Colab
 

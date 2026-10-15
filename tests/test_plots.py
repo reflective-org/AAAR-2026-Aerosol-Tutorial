@@ -1,3 +1,4 @@
+import numpy as np
 import plotly.graph_objects as go
 import pytest
 
@@ -119,3 +120,25 @@ def test_same_name_runs_get_numbered_labels():
     r = at.load_example("level1_volatility")
     fig = plots.totals([r, r])
     assert {t.name for t in fig.data if t.showlegend} == {"run 1", "run 2"}
+
+
+def test_partitioning_explainer():
+    fig = plots.partitioning(highlight_cstar=1.0, highlight_label="surrogate")
+    widths = list(fig.data[0].marker.line.width)
+    assert widths[list(fig.data[0].x).index(0)] > 0 and sum(w > 0 for w in widths) == 1
+    assert any("surrogate" in t for t in fig.layout.xaxis.ticktext)
+    assert len(fig.frames) == len(config.PARTITIONING_COA_UGM3)
+    start = config.PARTITIONING_COA_UGM3.index(config.PARTITIONING_START_COA_UGM3)
+    assert fig.layout.sliders[0].active == start
+    x = list(fig.data[0].x)
+    halves = 0
+    for frame, coa in zip(fig.frames, config.PARTITIONING_COA_UGM3):
+        particle, gas = (np.asarray(trace.y) for trace in frame.data[:2])
+        np.testing.assert_allclose(particle + gas, 100.0)
+        k = round(float(np.log10(coa)))
+        if np.isclose(10.0 ** k, coa) and k in x:                # c* = C_OA is split half and half
+            assert particle[x.index(k)] == pytest.approx(50.0)
+            halves += 1
+        assert frame.data[2].x[0] == pytest.approx(np.log10(coa))
+    assert halves >= 3
+    assert np.all(np.diff(np.asarray(fig.frames[0].data[0].y)) < 0)   # less volatile: more in particles
