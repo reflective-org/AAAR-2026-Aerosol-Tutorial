@@ -1,4 +1,4 @@
-"""The "reflective" Plotly template: the look of Reflective's presentation figures.
+"""The "reflective" Plotly template: the chart style of the tutorial web app.
 
 Importing this module registers ``plotly.io.templates["reflective"]`` (config.PLOT_TEMPLATE);
 ``plots.style()`` applies it. It does not change Plotly's global default template, so figures
@@ -7,9 +7,11 @@ HTML renderers (the ones ``fig.show()`` uses in Jupyter and Colab): it loads the
 (config.FONT_CSS_URLS) and redraws the figure once they are there, so text is measured in
 the real font. For other figures it only loads the fonts (and redraws them once).
 
-    White background; Open Sans text and Gambarino titles, all in Charcoal; left and bottom
-    axis lines only, ticks outside, faint grid; frameless legend; thick lines in the brand
-    colours (config.SERIES_COLORS); sand buttons and slider with Gold accents.
+    White background; Open Sans, SemiBold Charcoal titles, secondary text (subtitle, ticks,
+    legend) in TEXT_2; left and bottom axis lines and short outside ticks in Slate, no grid;
+    frameless legend with short samples; thin lines in the brand colours (config.SERIES_COLORS)
+    and the app's dashes (config.SERIES_DASHES), no markers; Sand buttons; a white slider rail
+    with a Blue outline and a white thumb.
 """
 from __future__ import annotations
 
@@ -23,42 +25,50 @@ from . import config
 
 def build_template() -> go.layout.Template:
     """The template as a new object (register() stores it under config.PLOT_TEMPLATE)."""
-    ink = config.CHARCOAL
+    ink, ink2, axis_ink = config.CHARCOAL, config.TEXT_2, config.AXIS_COLOR
     axis = dict(
-        showline=True, linecolor=ink, linewidth=config.PLOT_AXIS_LINE_WIDTH, mirror=False,
-        ticks="outside", ticklen=5, tickwidth=config.PLOT_AXIS_LINE_WIDTH, tickcolor=ink,
-        tickfont=dict(size=config.PLOT_FONT_SIZE - 0.5, color=ink),
-        showgrid=True, gridcolor=config.PLOT_GRID_COLOR, gridwidth=1, zeroline=False,
-        title=dict(font=dict(size=config.PLOT_FONT_SIZE + 1.5, color=ink), standoff=12),
+        showline=True, linecolor=axis_ink, linewidth=config.PLOT_AXIS_LINE_WIDTH, mirror=False,
+        ticks="outside", ticklen=config.PLOT_TICK_LENGTH, tickwidth=config.PLOT_AXIS_LINE_WIDTH,
+        tickcolor=axis_ink, ticklabelstandoff=2,
+        tickfont=dict(size=config.PLOT_TICK_FONT_SIZE, color=ink2),
+        showgrid=False, zeroline=False,
+        title=dict(font=dict(size=config.PLOT_AXIS_TITLE_FONT_SIZE, color=ink2), standoff=8),
         automargin=True)
-    colorbar = dict(outlinewidth=0, ticks="outside", ticklen=4, tickcolor=ink, thickness=16,
-                    tickfont=dict(color=ink), title=dict(font=dict(color=ink)))
+    colorbar = dict(outlinewidth=0, ticks="", thickness=config.HEATMAP_COLORBAR_PX[1],
+                    tickfont=dict(color=ink2, size=config.PLOT_NOTE_FONT_SIZE),
+                    title=dict(font=dict(color=ink2, size=config.PLOT_NOTE_FONT_SIZE)))
     layout = go.Layout(
         font=dict(family=config.PLOT_FONT_FAMILY, size=config.PLOT_FONT_SIZE, color=ink),
         title=dict(font=dict(family=config.PLOT_TITLE_FONT_FAMILY, size=config.PLOT_TITLE_FONT_SIZE,
-                             color=ink),
-                   subtitle=dict(font=dict(family=config.PLOT_FONT_FAMILY, size=config.PLOT_FONT_SIZE + 1,
-                                           color=ink)),
-                   # starts over the left axis line, as in the presentation figures
-                   x=0, xref="paper", xanchor="left", y=1, yref="container", yanchor="top",
-                   pad=dict(t=16)),
+                             weight=config.PLOT_TITLE_FONT_WEIGHT, color=ink),
+                   subtitle=dict(font=dict(family=config.PLOT_FONT_FAMILY,
+                                           size=config.PLOT_SUBTITLE_FONT_SIZE, color=ink2)),
+                   # 16 px in from the left edge and 12 px down from the top, as in the app's cards
+                   x=0, xref="container", xanchor="left", y=1, yref="container", yanchor="top",
+                   # (Plotly draws a two-line title about 6 px above its pad)
+                   pad=dict(l=16, t=config.PLOT_TITLE_TOP + 6)),
         paper_bgcolor="white", plot_bgcolor="white",
         colorway=list(config.SERIES_COLORS),
         xaxis=axis, yaxis=axis,
-        legend=dict(bgcolor="rgba(0,0,0,0)", borderwidth=0, itemwidth=44,
-                    font=dict(size=config.PLOT_FONT_SIZE, color=ink)),
-        hoverlabel=dict(bgcolor="white", font=dict(family=config.PLOT_FONT_FAMILY,
-                                                   size=config.PLOT_FONT_SIZE - 0.5, color=ink)),
+        legend=dict(bgcolor="rgba(0,0,0,0)", borderwidth=0, itemwidth=30, tracegroupgap=0,
+                    font=dict(size=config.PLOT_LEGEND_FONT_SIZE, color=ink2)),
+        hoverlabel=dict(bgcolor="white", bordercolor=config.LINE,
+                        font=dict(family=config.PLOT_FONT_FAMILY, size=config.PLOT_TICK_FONT_SIZE,
+                                  color=ink)),
         hovermode="closest",
         bargap=0.25,
-        # Linear/Log and play buttons, all Sand: the menus set showactive=False (Plotly would
-        # draw the pressed one in a fixed pale blue); the pressed label is bold Charcoal instead.
-        updatemenudefaults=dict(bgcolor=config.SAND, bordercolor=config.BEIGE, borderwidth=1,
-                                font=dict(size=config.PLOT_FONT_SIZE - 1, color=ink)),
-        sliderdefaults=dict(bgcolor=config.SAND, bordercolor=config.GOLD, borderwidth=1,
-                            activebgcolor=config.GOLD, ticklen=0, minorticklen=0,
-                            tickcolor="rgba(0,0,0,0)", font=dict(color=ink),
-                            currentvalue=dict(font=dict(color=ink, size=config.PLOT_FONT_SIZE + 1))),
+        # Linear/Log and play buttons, Sand: the menus set showactive=False (Plotly would draw
+        # the pressed one in a fixed pale blue); the pressed label is bold Charcoal instead.
+        updatemenudefaults=dict(bgcolor=config.SAND, bordercolor=config.SAND, borderwidth=1,
+                                font=dict(size=config.PLOT_LEGEND_FONT_SIZE, color=ink)),
+        # White rail with a Blue outline and a white round thumb with a Blue ring (Plotly draws
+        # rail and thumb with the same colours); Sand while pressed.
+        sliderdefaults=dict(bgcolor="white", bordercolor=config.BLUE, borderwidth=2,
+                            activebgcolor=config.SAND, ticklen=0, minorticklen=0,
+                            tickcolor="rgba(0,0,0,0)",
+                            font=dict(color=ink2, size=config.PLOT_NOTE_FONT_SIZE),
+                            currentvalue=dict(font=dict(color=ink, size=config.PLOT_READOUT_FONT_SIZE,
+                                                        family=config.PLOT_MONO_FONT_FAMILY))),
         annotationdefaults=dict(font=dict(color=ink)),
         coloraxis=dict(colorbar=colorbar),
     )
@@ -81,6 +91,7 @@ _FONTS_LOADED_MARK = "aaar-webfonts-loaded"     # a font family no system has
 def font_script() -> str:
     """JavaScript for a figure's ``post_script``: load the web fonts once per page, then redraw.
 
+    Figures in the template also get the card frame (1 px config.LINE border, rounded corners).
     Adds the config.FONT_CSS_URLS stylesheets to the page (unless there already), waits for
     config.FONT_FACES (at most config.FONT_LOAD_TIMEOUT_MS: offline, the fallback fonts stay),
     then redraws the figure, so legend, buttons and slider are measured in the real font.
@@ -89,6 +100,16 @@ def font_script() -> str:
     return f"""(function () {{
   var gd = document.getElementById('{{plot_id}}');
   if (!gd || !window.Plotly || !document.fonts) {{ return; }}
+  // The card frame of the app's charts, on figures in the "reflective" template only (they
+  // start with its font family): a style set on the figure's own element (not a stylesheet).
+  var family = (gd._fullLayout && gd._fullLayout.font && gd._fullLayout.font.family) || '';
+  if (family.indexOf({json.dumps(config.PLOT_FONT_FAMILY)}) === 0 && !gd.dataset.reflectiveCard) {{
+    gd.dataset.reflectiveCard = '1';
+    gd.style.boxSizing = 'border-box';
+    gd.style.border = '1px solid {config.LINE}';
+    gd.style.borderRadius = '{config.PLOT_CARD_RADIUS_PX}px';
+    gd.style.overflow = 'hidden';
+  }}
   if (!window.__reflectiveFonts) {{
     window.__reflectiveFonts = new Promise(function (done) {{
       setTimeout(done, {config.FONT_LOAD_TIMEOUT_MS});

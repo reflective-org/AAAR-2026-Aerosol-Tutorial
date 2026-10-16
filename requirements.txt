@@ -10,5 +10,5 @@ equinox==0.13.8
 lineax==0.1.1
 optimistix==0.1.0
 numpy>=2.1
-plotly>=5.20
+plotly>=5.23
 ipywidgets>=7.6

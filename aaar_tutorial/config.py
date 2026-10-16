@@ -108,63 +108,85 @@ SUNLIGHT_J = ("J_NO2", "J_O3_O1D")  # sunlight_over_day() default
 SUNLIGHT_STEP_H = 0.25
 
 # --- Plots ------------------------------------------------------------------------------------
-# The look follows Reflective's presentation figures (Ali's comparison/figures/style.py): white
-# background, Charcoal text and axis lines, left and bottom axes only, faint grid, frameless
-# legend, thick lines, brand colours, and per-series dash and marker patterns. theme.py builds
-# the Plotly template from these constants.
+# The look follows the chart cards of the tutorial web app (Figma file jpQseImg7KrgCoMl5tQQyj,
+# "X01 tokens and shared rules" and the results frames), on the Reflective brand palette: white
+# background; Open Sans, SemiBold titles in Charcoal, secondary text in TEXT_2; left and bottom
+# axis lines in Slate, short ticks outside, no grid; thin lines without markers, told apart by
+# dash and a label at the line end; units in the subtitle and on the first tick, not in axis
+# titles. theme.py builds the Plotly template from these constants.
 PLOT_TEMPLATE = "reflective"       # registered in plotly.io.templates by aaar_tutorial.theme
 PLOT_HEIGHT = 420
 PLOT_HEIGHT_PER_PANEL = 260        # stacked time-series panels
-LOG_AXIS_DETAIL_DECADES = 3.0      # log axes spanning fewer decades also get 2 and 5 ticks
+LOG_AXIS_DETAIL_DECADES = 2.2      # log axes spanning fewer decades also get 3 (or 2 and 5) ticks
 LOG_AXIS_LINEAR_BELOW_DECADES = 0.5   # narrower log axes get evenly spaced ticks
-PLOT_FONT_SIZE = 13
+LOG_AXIS_MAX_TICKS = 6             # wider log axes: every 2nd, 3rd, ... decade, at most this many (incl. ends)
 SLIDER_FRAME_MS = 150              # play-button speed
+# Pixel sizes. The app's cards are about 480 px wide, a notebook figure about twice that, so the
+# sizes are the app's plus 1 px (titles plus 2 px); 10 px is the app's floor.
+PLOT_FONT_SIZE = 12                # annotations and other text without its own size
+PLOT_TITLE_FONT_SIZE = 15
+PLOT_TITLE_FONT_WEIGHT = 600       # Open Sans SemiBold (needs plotly >= 5.23)
+PLOT_SUBTITLE_FONT_SIZE = 12
+PLOT_TICK_FONT_SIZE = 11
+PLOT_LEGEND_FONT_SIZE = 11.5
+PLOT_LABEL_FONT_SIZE = 11.5        # labels at line ends, bar values, C_OA label
+PLOT_NOTE_FONT_SIZE = 11           # "night", colour-bar ends, captions, slider ticks
+PLOT_AXIS_TITLE_FONT_SIZE = 11     # axis titles, kept only where a figure has several y axes
+PLOT_PANEL_TITLE_FONT_SIZE = 13    # subplot titles (make_subplots), SemiBold
+PLOT_READOUT_FONT_SIZE = 13        # slider readout, JetBrains Mono
+PLOT_LINE_WIDTH = 1.8              # px
+PLOT_SELECTED_LINE_WIDTH = 2.2     # the snapshot at the slider time
+PLOT_COMPARE_LINE_WIDTH = 2.0      # runs A and B
+PLOT_AXIS_LINE_WIDTH = 1.0
+PLOT_TICK_LENGTH = 3
+PLOT_MARKER_SIZE = 7               # only for figures of your own that ask for markers
+PLOT_CARD_RADIUS_PX = 10           # card frame round the figure (border LINE)
+# Space at the top of every figure (px from the top edge): title, subtitle, legend rows.
+PLOT_TITLE_TOP = 12
+PLOT_SUBTITLE_SPACE = 18
+PLOT_LEGEND_ROW = 20
+PLOT_LEGEND_WIDTH_ESTIMATE = 760   # px the legend may fill per row (estimate, sets the margin)
 
-# Reflective brand palette (assets/03_Colors of the brand kit). Never use Yellow for text.
-CHARCOAL = "#282C2E"               # all text, axis lines and ticks
+# Reflective brand palette (assets/03_Colors of the brand kit) and the app's tokens (X01 53:370).
+# Never use Yellow, Slate, Gold or Green for text: text uses CHARCOAL, TEXT_2 or the *_INK hues.
+CHARCOAL = "#282C2E"               # titles, labels, run A
+TEXT_2 = "#5A5E61"                 # subtitles, ticks, legends, captions
 BLUE = "#466F8D"
 GREEN = "#858F6A"
 CLAY = "#A0503C"
 GOLD = "#A47F52"
-SLATE = "#8B8D8E"
+SLATE = "#8B8D8E"                  # axis lines and ticks; never text (3.3:1 on white)
 SAGE = "#BBC2BD"
 BEIGE = "#E1CBBA"
-SAND = "#F5EFEA"                   # Beige lightened: button and slider fills
+SAND = "#F6EFEA"                   # night bands, slider band, buttons
+LINE = "#E8E3DE"                   # card border, label-box border, hover border
+GOLD_INK = "#7A5C38"               # text in a Gold series' colour
+GREEN_INK = "#5F6748"              # text in a Green series' colour
 # Non-brand accents for the 6th to 9th series (as in the presentation's extra model lines).
 PLUM, RUST, TEAL, AMBER = "#6B4C8A", "#B5651D", "#3E6B6B", "#E69F00"
+AXIS_COLOR = SLATE
 
-# Fonts: Open Sans (body) and Gambarino (display, titles). Most students have neither installed
-# (Colab, JupyterHub, most laptops), so the figures load them as web fonts (FONT_CSS_URLS):
-# widget_iframe() puts the links into its page, and theme.register() adds a script to Plotly's
-# HTML renderers (fig.show() in Jupyter and Colab) that loads them and redraws the figure once
-# they have arrived. Open Sans and Libre Caslon Text: Google Fonts (SIL OFL). Gambarino:
-# Fontshare (ITF Free Font License: free for personal and commercial use in any medium incl.
-# web, served from ITF's own servers through the Fontshare API; the font files themselves must
-# not be redistributed, so they are linked, never copied into this repository). Without network
-# the stacks fall back to installed fonts; the title stack tries serifs with lining figures
-# before Georgia, whose old-style figures make "1" look like "ı".
+# Fonts: Open Sans for all chart text, JetBrains Mono for the slider readout and the species
+# codes in plots.top_contributors (as in the app). Most students have neither installed (Colab,
+# JupyterHub, most laptops), so the figures load them as web fonts (FONT_CSS_URLS, Google Fonts,
+# SIL OFL): widget_iframe() puts the links into its page, and theme.register() adds a script to
+# Plotly's HTML renderers (fig.show() in Jupyter and Colab) that loads them and redraws the
+# figure once they have arrived. Without network the stacks fall back to installed fonts.
 FONT_CSS_URLS = (
     "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700"
-    "&family=Libre+Caslon+Text&display=swap",
-    "https://api.fontshare.com/v2/css?f[]=gambarino@400&display=swap",
+    "&family=JetBrains+Mono:wght@400;500&display=swap",
 )
 FONT_CSS = "".join(f'<link rel="stylesheet" href="{url.replace("&", "&amp;")}">'
                    for url in FONT_CSS_URLS)
 # Faces the redraw script waits for (CSS font shorthand); at most FONT_LOAD_TIMEOUT_MS.
 FONT_FACES = ('400 16px "Open Sans"', '600 16px "Open Sans"', '700 16px "Open Sans"',
-              '400 16px Gambarino')
+              '400 16px "JetBrains Mono"')
 FONT_LOAD_TIMEOUT_MS = 8000
 PLOT_FONT_FAMILY = "'Open Sans', 'Helvetica Neue', Arial, sans-serif"
-PLOT_TITLE_FONT_FAMILY = ("Gambarino, 'Libre Caslon Text', 'Iowan Old Style', 'Palatino Linotype', "
-                          "Palatino, Georgia, serif")
-PLOT_PANEL_TITLE_FONT_SIZE = 17    # subplot titles (make_subplots), in the title font
-PLOT_SUBTITLE_SPACE = 22           # px of top margin added for a subtitle (plots.style)
-PLOT_TITLE_FONT_SIZE = 21
-PLOT_LINE_WIDTH = 2.5              # px
-PLOT_AXIS_LINE_WIDTH = 1.2
-PLOT_GRID_COLOR = "rgba(40, 44, 46, 0.08)"
-PLOT_MARKER_SIZE = 7
-PLOT_MARKERS_PER_LINE = 10         # markers drawn per line (marker.maxdisplayed): sparse, staggered
+# Chart titles are Open Sans SemiBold, as in the app (a serif only heads its pages: in a
+# notebook the markdown headings do that).
+PLOT_TITLE_FONT_FAMILY = PLOT_FONT_FAMILY
+PLOT_MONO_FONT_FAMILY = "'JetBrains Mono', Menlo, Consolas, monospace"
 
 # plots.partitioning(): volatility classes and the C_OA values on its slider (µg/m³).
 PARTITIONING_LOG10_CSTAR = tuple(range(-2, 5))          # c* = 0.01 ... 10 000 µg/m³
@@ -176,26 +198,43 @@ PARTITIONING_START_COA_UGM3 = 1.0
 # before Green so that SERIES_COLORS[1] ("contains N") differs from PARTICLE_COLOR (Green) in
 # plots.top_contributors and notebook 2. Plum, Rust, Teal, Amber follow in the order that keeps
 # neighbours apart for colour-blind readers (dataviz validate_palette.js, 2026-10-16). Each series
-# also gets its own dash and marker (SERIES_DASHES, SERIES_MARKERS), so lines stay separable
-# without colour. Amber is below 3:1 contrast on white: always drawn with its marker and dash.
+# also gets its own dash (SERIES_DASHES, in the app's dash vocabulary: solid, 5-3 dashes, dots),
+# so lines stay separable without colour. Amber is below 3:1 contrast on white: never text.
 SERIES_COLORS = (BLUE, CLAY, GREEN, CHARCOAL, GOLD, PLUM, RUST, TEAL, AMBER)
-SERIES_DASHES = ("solid", "dashdot", "dot", "16px,5px", "9px,3px,3px,3px,3px,3px", "longdashdot",
-                 "6px,4px", "20px,4px,6px,4px", "3px,4px,3px,4px,12px,4px")
-# One marker more than colours and dashes: the (colour, dash, marker) triple repeats only after
-# 90 series (the 10th gas would otherwise look exactly like the 1st).
+SERIES_DASHES = ("solid", "5px,3px", "1.5px,2.5px", "10px,3px,2px,3px", "6px,3px,1.5px,3px,1.5px,3px",
+                 "12px,4px", "3px,3px", "16px,3px,4px,3px", "2px,5px")
+# Markers: none on the plots (the app has none); kept for figures of your own (plots._style).
 SERIES_MARKERS = ("circle", "square", "triangle-up", "diamond", "triangle-down", "cross", "x",
                   "hexagon", "star", "pentagon")
-INITIAL_COLOR = SLATE              # t = 0 size distribution (dotted)
+# Label colour for a series colour (labels at line ends, peak labels).
+INK = {SLATE: TEXT_2, GOLD: GOLD_INK, GREEN: GREEN_INK, AMBER: GOLD_INK, SAGE: GREEN_INK,
+       BEIGE: GOLD_INK}
+INITIAL_COLOR = SLATE              # t = 0 size distribution (dotted; notebook 1: "grey dotted")
+SNAPSHOT_COLOR = BEIGE             # hourly snapshots in plots.size_distribution (faint)
+SELECTED_COLOR = BLUE              # the snapshot at the slider time (bold)
 PARTICLE_COLOR = GREEN             # notebook 1 text: "green: in the particles, blue: in the gas"
+# plots.top_contributors: the "no N" bars (Green) are also hatched, since Green and Clay ("contains
+# N") are a red-green pair that colour-blind readers see as close.
+NO_N_PATTERN = dict(shape="/", fillmode="overlay", fgcolor="white", fgopacity=0.55, size=7, solidity=0.3)
 GAS_COLOR = BLUE
 REFERENCE_LINE_COLOR = CHARCOAL    # dashed reference lines (C_OA, SZA = 90°)
-NIGHT_COLOR = "rgba(139, 141, 142, 0.16)"   # Slate, light: night bands
-# Night bands drawn over the stacked composition areas (which would hide NIGHT_COLOR below them).
-NIGHT_OVERLAY_COLOR = "rgba(139, 141, 142, 0.10)"
+REFERENCE_DASH = "4px,3px"
+# Comparing two runs (the app's compare view): A Charcoal solid, B Blue dashed.
+RUN_A_COLOR, RUN_B_COLOR = CHARCOAL, BLUE
+RUN_B_DASH = "6px,3px"
+# Night bands: Sand, with the word "night" at the top. Beige at 30 % gives Sand on white and stays
+# see-through, so a band drawn over lines (e.g. by add_vrect's default layer) does not hide them.
+NIGHT_COLOR = "rgba(225, 203, 186, 0.3)"
+NIGHT_LABEL = "night"
+# composition(fraction=True): the 100 % stack fills the plot and would hide a band behind it, so
+# there the night band is drawn over the stack, Sand at 30 %, and "night" goes above the plot.
+NIGHT_OVERLAY_COLOR = "rgba(246, 239, 234, 0.3)"
+NIGHT_LABEL_CLEARANCE_PX = 6       # least space between the "night" label and a line
+COMPOSITION_FILL_OPACITY = 0.85    # stacked areas: the night bands behind them show faintly
 # Banana plot: ColorBrewer YlGnBu (pale yellow -> green -> blue -> navy; lightness falls
 # monotonically, colour-blind safe), with white below it, so empty and near-empty cells blend into
-# the white background (Ali's choice, 2026-10-16, over a one-hue blue ramp, inferno, YlOrBr and a
-# Reflective-brand ramp).
+# the white background (Ali's choice, 2026-10-16, over a one-hue blue ramp, inferno, YlOrBr, a
+# Reflective-brand ramp and the app's beige-to-navy steps).
 HEATMAP_COLORSCALE = [
     [0.0, "#ffffff"],
     [0.02, "#ffffd9"],
@@ -208,12 +247,15 @@ HEATMAP_COLORSCALE = [
     [0.8775, "#253494"],
     [1.0, "#081d58"],
 ]
+HEATMAP_COLORBAR_PX = (100, 8)     # small horizontal colour bar at the top right (length, height)
 SCALE_BUTTON_LABELS = ("Linear", "Log")   # scale buttons on the plots (top right)
 HEATMAP_DECADES = 4                # banana plot colour range below its maximum
 
 # Composition stack, bottom to top (keys of RunResult.totals). Brand versions of the AMS
 # convention (sulfate red, nitrate blue, ammonium orange, organics green); POA light Sage under
-# the SOA Green, so the two organic layers read as one family. White lines separate the layers.
+# the SOA Green, so the two organic layers read as one family and SOA has the Green of "particle
+# phase" in the volatility plots (the app uses slate, clay, green and gold and has no ammonium).
+# White lines separate the layers.
 COMPOSITION_LAYERS = (
     ("SO4_ugm3", "Sulfate", CLAY),
     ("NIT_ugm3", "Nitrate", BLUE),
@@ -224,28 +266,44 @@ COMPOSITION_LAYERS = (
 
 # Line colour of each quantity in a single-run time series (one panel per quantity): the
 # composition colours, so SOA is Green and sulfate Clay in totals() as in composition(); totals
-# in Charcoal; any other quantity SERIES_COLORS[0].
+# in Charcoal (Blue is nitrate's); nucleation rate Clay and condensation sink Green as in the app;
+# gases and radicals as in SPECIES_STYLE; any other quantity SERIES_COLORS[0].
 QUANTITY_COLORS = {key: color for key, _, color in COMPOSITION_LAYERS}
-QUANTITY_COLORS.update({"N_cm3": CHARCOAL, "dry_ugm3": CHARCOAL})
+QUANTITY_COLORS.update({"N_cm3": CHARCOAL, "dry_ugm3": CHARCOAL, "nucleation_rate_cm3_s": CLAY,
+                        "cs_per_s": GREEN})
+
+# Gases, radicals and photolysis frequencies: one colour and dash per species, as in the app
+# (X01 81:117). NO2 held constant (scenario "hold_constant") is drawn Slate dashed instead.
+SPECIES_STYLE = {
+    "OH": (BLUE, "solid"), "HO2": (GREEN, "5px,3px"), "NO3": (CLAY, "1.5px,2.5px"),
+    "O3": (BLUE, "solid"), "NO2": (CLAY, "5px,3px"), "HNO3": (GOLD, "5px,3px"),
+    "N2O5": (CLAY, "solid"), "LIMONENE": (GREEN, "solid"), "NO": (SLATE, "1.5px,2.5px"),
+    "J_NO2": (BLUE, "solid"), "J_O3_O1D": (GOLD, "5px,3px"),
+}
+HELD_STYLE = (SLATE, "4px,3px")
+# Species the app does not style, in this order (pairs already used in a plot are skipped).
+SPECIES_FALLBACK_STYLES = ((PLUM, "solid"), (TEAL, "5px,3px"), (RUST, "1.5px,2.5px"),
+                           (CHARCOAL, "10px,3px,2px,3px"), (PLUM, "5px,3px"), (TEAL, "solid"),
+                           (RUST, "5px,3px"), (CHARCOAL, "3px,3px"))
 
 DEFAULT_TOTALS = ("N_cm3", "SOA_ugm3", "SO4_ugm3", "NIT_ugm3", "dry_ugm3")
 DEFAULT_GASES = {1: (), 2: ("LIMONENE", "O3", "NO", "NO2"), 3: ("O3", "NO2", "N2O5", "HNO3")}
 DEFAULT_RADICALS = ("OH", "HO2", "NO3")
 DEFAULT_J = ("J_NO2", "J_O3_O1D")
 
-# Axis labels: series key -> (display name, unit).
+# Axis labels: series key -> (display name, unit). Units written as in the app (µg/m³).
 SERIES_LABELS = {
     "N_cm3": ("Particle number", "cm⁻³"),
     "gmd_nm": ("Geometric mean diameter", "nm"),
-    "org_gas_ugm3": ("Organic vapor", "µg m⁻³"),
-    "SO4_ugm3": ("Sulfate", "µg m⁻³"),
-    "NIT_ugm3": ("Nitrate", "µg m⁻³"),
-    "SOA_ugm3": ("SOA", "µg m⁻³"),
-    "POA_ugm3": ("POA", "µg m⁻³"),
-    "NH4_ugm3": ("Ammonium", "µg m⁻³"),
-    "H2O_ugm3": ("Particle water", "µg m⁻³"),
-    "dry_ugm3": ("Dry mass", "µg m⁻³"),
-    "h2so4_cm3": ("Gas-phase H₂SO₄", "molec cm⁻³"),
+    "org_gas_ugm3": ("Organic vapor", "µg/m³"),
+    "SO4_ugm3": ("Sulfate", "µg/m³"),
+    "NIT_ugm3": ("Nitrate", "µg/m³"),
+    "SOA_ugm3": ("SOA", "µg/m³"),
+    "POA_ugm3": ("POA", "µg/m³"),
+    "NH4_ugm3": ("Ammonium", "µg/m³"),
+    "H2O_ugm3": ("Particle water", "µg/m³"),
+    "dry_ugm3": ("Dry mass", "µg/m³"),
+    "h2so4_cm3": ("Gas-phase H₂SO₄", "molec/cm³"),
     "cs_per_s": ("Condensation sink", "s⁻¹"),
     "nucleation_rate_cm3_s": ("Nucleation rate", "cm⁻³ s⁻¹"),
     "LIMONENE": ("Limonene", "ppb"),
@@ -258,9 +316,9 @@ SERIES_LABELS = {
     "CO": ("CO", "ppb"),
     "SO2": ("SO₂", "ppb"),
     "H2O2": ("H₂O₂", "ppb"),
-    "OH": ("OH", "molec cm⁻³"),
-    "HO2": ("HO₂", "molec cm⁻³"),
-    "NO3": ("NO₃", "molec cm⁻³"),
+    "OH": ("OH", "molec/cm³"),
+    "HO2": ("HO₂", "molec/cm³"),
+    "NO3": ("NO₃", "molec/cm³"),
     "J_NO2": ("J(NO₂)", "s⁻¹"),
     "J_O3_O1D": ("J(O¹D)", "s⁻¹"),
     "J_HCHO_H": ("J(HCHO→H)", "s⁻¹"),
@@ -269,5 +327,6 @@ SERIES_LABELS = {
 }
 # Series that the time-series plots show in another unit than series() returns: key -> factor.
 DISPLAY_SCALE = {"N2O5": 1e3}      # ppb -> ppt
+# Axis titles for figures of your own (the plots put units in the subtitle and on the ticks).
 TIME_AXIS_TITLE = "Time since start (h)"
 DIAMETER_AXIS_TITLE = "Dry diameter Dp (nm)"
