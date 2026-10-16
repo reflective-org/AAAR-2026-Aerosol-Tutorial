@@ -108,7 +108,11 @@ SUNLIGHT_J = ("J_NO2", "J_O3_O1D")  # sunlight_over_day() default
 SUNLIGHT_STEP_H = 0.25
 
 # --- Plots ------------------------------------------------------------------------------------
-PLOT_TEMPLATE = "plotly_white"
+# The look follows Reflective's presentation figures (Ali's comparison/figures/style.py): white
+# background, Charcoal text and axis lines, left and bottom axes only, faint grid, frameless
+# legend, thick lines, brand colours, and per-series dash and marker patterns. theme.py builds
+# the Plotly template from these constants.
+PLOT_TEMPLATE = "reflective"       # registered in plotly.io.templates by aaar_tutorial.theme
 PLOT_HEIGHT = 420
 PLOT_HEIGHT_PER_PANEL = 260        # stacked time-series panels
 LOG_AXIS_DETAIL_DECADES = 3.0      # log axes spanning fewer decades also get 2 and 5 ticks
@@ -116,19 +120,78 @@ LOG_AXIS_LINEAR_BELOW_DECADES = 0.5   # narrower log axes get evenly spaced tick
 PLOT_FONT_SIZE = 13
 SLIDER_FRAME_MS = 150              # play-button speed
 
+# Reflective brand palette (assets/03_Colors of the brand kit). Never use Yellow for text.
+CHARCOAL = "#282C2E"               # all text, axis lines and ticks
+BLUE = "#466F8D"
+GREEN = "#858F6A"
+CLAY = "#A0503C"
+GOLD = "#A47F52"
+SLATE = "#8B8D8E"
+SAGE = "#BBC2BD"
+BEIGE = "#E1CBBA"
+SAND = "#F5EFEA"                   # Beige lightened: button and slider fills
+# Non-brand accents for the 6th to 9th series (as in the presentation's extra model lines).
+PLUM, RUST, TEAL, AMBER = "#6B4C8A", "#B5651D", "#3E6B6B", "#E69F00"
+
+# Fonts: Open Sans (body) and Gambarino (display, titles). Most students have neither installed
+# (Colab, JupyterHub, most laptops), so the figures load them as web fonts (FONT_CSS_URLS):
+# widget_iframe() puts the links into its page, and theme.register() adds a script to Plotly's
+# HTML renderers (fig.show() in Jupyter and Colab) that loads them and redraws the figure once
+# they have arrived. Open Sans and Libre Caslon Text: Google Fonts (SIL OFL). Gambarino:
+# Fontshare (ITF Free Font License: free for personal and commercial use in any medium incl.
+# web, served from ITF's own servers through the Fontshare API; the font files themselves must
+# not be redistributed, so they are linked, never copied into this repository). Without network
+# the stacks fall back to installed fonts; the title stack tries serifs with lining figures
+# before Georgia, whose old-style figures make "1" look like "ı".
+FONT_CSS_URLS = (
+    "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700"
+    "&family=Libre+Caslon+Text&display=swap",
+    "https://api.fontshare.com/v2/css?f[]=gambarino@400&display=swap",
+)
+FONT_CSS = "".join(f'<link rel="stylesheet" href="{url.replace("&", "&amp;")}">'
+                   for url in FONT_CSS_URLS)
+# Faces the redraw script waits for (CSS font shorthand); at most FONT_LOAD_TIMEOUT_MS.
+FONT_FACES = ('400 16px "Open Sans"', '600 16px "Open Sans"', '700 16px "Open Sans"',
+              '400 16px Gambarino')
+FONT_LOAD_TIMEOUT_MS = 8000
+PLOT_FONT_FAMILY = "'Open Sans', 'Helvetica Neue', Arial, sans-serif"
+PLOT_TITLE_FONT_FAMILY = ("Gambarino, 'Libre Caslon Text', 'Iowan Old Style', 'Palatino Linotype', "
+                          "Palatino, Georgia, serif")
+PLOT_PANEL_TITLE_FONT_SIZE = 17    # subplot titles (make_subplots), in the title font
+PLOT_SUBTITLE_SPACE = 22           # px of top margin added for a subtitle (plots.style)
+PLOT_TITLE_FONT_SIZE = 21
+PLOT_LINE_WIDTH = 2.5              # px
+PLOT_AXIS_LINE_WIDTH = 1.2
+PLOT_GRID_COLOR = "rgba(40, 44, 46, 0.08)"
+PLOT_MARKER_SIZE = 7
+PLOT_MARKERS_PER_LINE = 10         # markers drawn per line (marker.maxdisplayed): sparse, staggered
+
 # plots.partitioning(): volatility classes and the C_OA values on its slider (µg/m³).
 PARTITIONING_LOG10_CSTAR = tuple(range(-2, 5))          # c* = 0.01 ... 10 000 µg/m³
 # 0.1 (clean air) to 1000 µg/m³ (wildfire smoke), 20 steps per decade, 2 significant digits.
 PARTITIONING_COA_UGM3 = tuple(float(f"{10 ** (k / 20):.2g}") for k in range(-20, 61))
 PARTITIONING_START_COA_UGM3 = 1.0
 
-# Categorical palette of the tomas-web tutorial (light theme), fixed order.
-SERIES_COLORS = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",
-                 "#e87ba4", "#008300", "#6250d6", "#e34948")
-INITIAL_COLOR = "#9a9a9a"          # t = 0 size distribution
-PARTICLE_COLOR = "#008300"
-GAS_COLOR = "#2a78d6"
-NIGHT_COLOR = "rgba(60, 70, 120, 0.12)"
+# Series colours, in order. Blue, Clay, Green, Charcoal, Gold are the brand hues; Clay comes
+# before Green so that SERIES_COLORS[1] ("contains N") differs from PARTICLE_COLOR (Green) in
+# plots.top_contributors and notebook 2. Plum, Rust, Teal, Amber follow in the order that keeps
+# neighbours apart for colour-blind readers (dataviz validate_palette.js, 2026-10-16). Each series
+# also gets its own dash and marker (SERIES_DASHES, SERIES_MARKERS), so lines stay separable
+# without colour. Amber is below 3:1 contrast on white: always drawn with its marker and dash.
+SERIES_COLORS = (BLUE, CLAY, GREEN, CHARCOAL, GOLD, PLUM, RUST, TEAL, AMBER)
+SERIES_DASHES = ("solid", "dashdot", "dot", "16px,5px", "9px,3px,3px,3px,3px,3px", "longdashdot",
+                 "6px,4px", "20px,4px,6px,4px", "3px,4px,3px,4px,12px,4px")
+# One marker more than colours and dashes: the (colour, dash, marker) triple repeats only after
+# 90 series (the 10th gas would otherwise look exactly like the 1st).
+SERIES_MARKERS = ("circle", "square", "triangle-up", "diamond", "triangle-down", "cross", "x",
+                  "hexagon", "star", "pentagon")
+INITIAL_COLOR = SLATE              # t = 0 size distribution (dotted)
+PARTICLE_COLOR = GREEN             # notebook 1 text: "green: in the particles, blue: in the gas"
+GAS_COLOR = BLUE
+REFERENCE_LINE_COLOR = CHARCOAL    # dashed reference lines (C_OA, SZA = 90°)
+NIGHT_COLOR = "rgba(139, 141, 142, 0.16)"   # Slate, light: night bands
+# Night bands drawn over the stacked composition areas (which would hide NIGHT_COLOR below them).
+NIGHT_OVERLAY_COLOR = "rgba(139, 141, 142, 0.10)"
 # Banana plot: ColorBrewer YlGnBu (pale yellow -> green -> blue -> navy; lightness falls
 # monotonically, colour-blind safe), with white below it, so empty and near-empty cells blend into
 # the white background (Ali's choice, 2026-10-16, over a one-hue blue ramp, inferno, YlOrBr and a
@@ -148,14 +211,22 @@ HEATMAP_COLORSCALE = [
 SCALE_BUTTON_LABELS = ("Linear", "Log")   # scale buttons on the plots (top right)
 HEATMAP_DECADES = 4                # banana plot colour range below its maximum
 
-# Composition stack, bottom to top (keys of RunResult.totals).
+# Composition stack, bottom to top (keys of RunResult.totals). Brand versions of the AMS
+# convention (sulfate red, nitrate blue, ammonium orange, organics green); POA light Sage under
+# the SOA Green, so the two organic layers read as one family. White lines separate the layers.
 COMPOSITION_LAYERS = (
-    ("SO4_ugm3", "Sulfate", "#e34948"),
-    ("NIT_ugm3", "Nitrate", "#2a78d6"),
-    ("NH4_ugm3", "Ammonium", "#eda100"),
-    ("POA_ugm3", "POA", "#e87ba4"),
-    ("SOA_ugm3", "SOA", "#008300"),
+    ("SO4_ugm3", "Sulfate", CLAY),
+    ("NIT_ugm3", "Nitrate", BLUE),
+    ("NH4_ugm3", "Ammonium", GOLD),
+    ("POA_ugm3", "POA", SAGE),
+    ("SOA_ugm3", "SOA", GREEN),
 )
+
+# Line colour of each quantity in a single-run time series (one panel per quantity): the
+# composition colours, so SOA is Green and sulfate Clay in totals() as in composition(); totals
+# in Charcoal; any other quantity SERIES_COLORS[0].
+QUANTITY_COLORS = {key: color for key, _, color in COMPOSITION_LAYERS}
+QUANTITY_COLORS.update({"N_cm3": CHARCOAL, "dry_ugm3": CHARCOAL})
 
 DEFAULT_TOTALS = ("N_cm3", "SOA_ugm3", "SO4_ugm3", "NIT_ugm3", "dry_ugm3")
 DEFAULT_GASES = {1: (), 2: ("LIMONENE", "O3", "NO", "NO2"), 3: ("O3", "NO2", "N2O5", "HNO3")}

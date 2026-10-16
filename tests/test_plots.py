@@ -1,5 +1,8 @@
+import re
+
 import numpy as np
 import plotly.graph_objects as go
+import plotly.io as pio
 import pytest
 
 import aaar_tutorial as at
@@ -114,6 +117,14 @@ def test_style_is_public():
     import plotly.graph_objects as go
     fig = plots.style(go.Figure(), "my figure", legend_right=True)
     assert fig.layout.title.text == "my figure" and fig.layout.legend.x == 1.02
+    assert not fig.layout.title.subtitle.text
+    sub = plots.style(go.Figure(), "my figure", subtitle="details")
+    assert sub.layout.title.subtitle.text == "details" and sub.layout.margin.t > fig.layout.margin.t
+
+
+def test_long_titles_put_details_in_the_subtitle():
+    fig = plots.top_contributors(at.load_example("level2_limonene_soa"))
+    assert "N-containing" in fig.layout.title.subtitle.text and "N-containing" not in fig.layout.title.text
 
 
 def test_same_name_runs_get_numbered_labels():
@@ -155,8 +166,16 @@ def test_compare_runs_on_different_size_grids():
     assert lo < np.log10(60) < hi
 
 
+def _plain(label):
+    return re.sub(r"<[^>]+>", "", label)
+
+
+def _labels(menu):
+    return [_plain(b.label) for b in menu.buttons]
+
+
 def _scale_menu(fig):
-    menus = [m for m in fig.layout.updatemenus if m.buttons and m.buttons[-1].label.startswith("Log")]
+    menus = [m for m in fig.layout.updatemenus if m.buttons and _plain(m.buttons[-1].label).startswith("Log")]
     assert len(menus) == 1
     return menus[0]
 
@@ -167,7 +186,7 @@ def test_banana_white_floor_and_colour_buttons():
     assert fig.data[0].colorscale[0][1].lower() == "#ffffff"
     assert not np.isnan(np.asarray(fig.data[0].z, dtype=float)).any()      # empty cells drawn white
     menu = _scale_menu(fig)
-    assert [b.label for b in menu.buttons] == ["Linear colour", "Log colour"] and menu.active == 1
+    assert _labels(menu) == ["Linear colour", "Log colour"] and menu.active == 1
     lin, log = (b.args[0] for b in menu.buttons)
     assert lin["zmin"] == [0.0]
     assert log["zmax"][0] == pytest.approx(np.log10(np.nanmax(np.asarray(r.dndlog10dp_cm3, dtype=float))))
@@ -183,7 +202,7 @@ def test_banana_white_floor_and_colour_buttons():
 def test_linear_log_buttons(make, n_axes, log_first):
     r = at.load_example("level3_day_night")
     menu = _scale_menu(make(r))
-    assert [b.label for b in menu.buttons] == ["Linear", "Log"] and menu.active == int(log_first)
+    assert _labels(menu) == ["Linear", "Log"] and menu.active == int(log_first)
     layouts = [b.args[0] if b.method == "relayout" else b.args[1] for b in menu.buttons]
     assert sum(k.endswith(".type") for k in layouts[1]) == n_axes
     assert all(v == "log" for k, v in layouts[1].items() if k.endswith(".type"))
@@ -225,3 +244,148 @@ def test_show_in_widget_uses_the_iframe_only_on_colab(monkeypatch):
     assert len(shown) == 1 and len(displayed) == 2
     assert displayed[0].data.startswith("<div><iframe srcdoc=")
 
+
+
+def test_reflective_template_is_registered_and_applied():
+    assert config.PLOT_TEMPLATE == "reflective" and "reflective" in pio.templates
+    template = pio.templates[config.PLOT_TEMPLATE]
+    assert template.layout.font.color == config.CHARCOAL
+    assert "Open Sans" in template.layout.font.family and "Gambarino" in template.layout.title.font.family
+    assert list(template.layout.colorway) == list(config.SERIES_COLORS)
+    assert template.layout.xaxis.showline and not template.layout.xaxis.mirror
+    assert template.layout.xaxis.ticks == "outside" and template.layout.legend.borderwidth == 0
+    fig = plots.style(go.Figure(go.Scatter(y=[1, 2])), "mine")
+    assert fig.layout.template.layout.font.family == template.layout.font.family
+    for fig in (plots.totals(at.load_example("level1_volatility")), plots.partitioning()):
+        assert fig.layout.template.layout.title.font.family == config.PLOT_TITLE_FONT_FAMILY
+    assert pio.templates.default != config.PLOT_TEMPLATE        # Plotly's global default is untouched
+
+
+def test_series_differ_in_colour_dash_and_marker():
+    n = len(config.SERIES_COLORS)
+    assert len(config.SERIES_DASHES) == n and len(config.SERIES_MARKERS) == n + 1   # cycles of different length
+    assert len(set(config.SERIES_COLORS)) == len(set(config.SERIES_DASHES)) == n
+    assert len(set(config.SERIES_MARKERS)) == n + 1
+    assert config.SERIES_COLORS[1] != config.PARTICLE_COLOR      # "contains N" vs "no N" bars
+    r = at.load_example("level3_day_night")
+    fig = plots.time_series([r, r, r], ["N_cm3"], labels=["a", "b", "c"])
+    lines = [t for t in fig.data if t.name in ("a", "b", "c")]
+    assert len({t.line.color for t in lines}) == len({t.line.dash for t in lines}) == 3
+    assert len({t.marker.symbol for t in lines}) == 3
+    assert all(0 < t.marker.maxdisplayed <= 20 for t in lines)                # sparse markers
+    assert list(fig.layout.xaxis.range) == [r.time_h[0], r.time_h[-1]]      # no padding for markers
+
+
+def test_scale_buttons_mark_the_pressed_one():
+    r = at.load_example("level3_day_night")
+    fig = plots.size_distribution(r)                       # play/pause menu first, then Linear/Log
+    menu = _scale_menu(fig)
+    assert menu.showactive is False                         # no pale-blue pressed button
+    assert all(m.showactive is False for m in fig.layout.updatemenus)
+    index = list(fig.layout.updatemenus).index(menu)
+    assert menu.buttons[0].label == "<b>Linear</b>" and "<b>" not in menu.buttons[1].label
+    to_log = menu.buttons[1].args[0]
+    assert to_log[f"updatemenus[{index}].buttons[1].label"] == "<b>Log</b>"
+    assert "<b>" not in to_log[f"updatemenus[{index}].buttons[0].label"]
+
+
+def _triple(trace):
+    return (trace.line.color, trace.line.dash, trace.marker.symbol)
+
+
+@pytest.mark.parametrize("make", [plots.gases, plots.radicals])
+def test_every_species_line_has_its_own_style(example, make):
+    fig = make(example)
+    lines = [t for t in fig.data if "night" not in (t.name or "")]
+    if not example.gases_ppb:
+        return                                              # Level 1: message figure
+    triples = [_triple(t) for t in lines]
+    assert len(set(triples)) == len(triples), triples
+
+
+def test_single_run_totals_use_the_composition_colours():
+    r = at.load_example("level3_day_night")
+    fig = plots.totals(r)
+    by_panel = {t.yaxis: t.line.color for t in fig.data if t.mode == "lines"}
+    colors = dict(zip(config.DEFAULT_TOTALS, (by_panel[f"y{i if i > 1 else ''}"]
+                                              for i in range(1, len(config.DEFAULT_TOTALS) + 1))))
+    layers = {key: color for key, _, color in config.COMPOSITION_LAYERS}
+    for key in ("SOA_ugm3", "SO4_ugm3", "NIT_ugm3"):
+        assert colors[key] == layers[key]
+    assert colors["N_cm3"] == config.CHARCOAL
+    comp = {t.name: t.fillcolor for t in plots.composition(r).data if t.fillcolor}
+    assert comp["SOA"] == colors["SOA_ugm3"] and comp["Sulfate"] == colors["SO4_ugm3"]
+    assert all(t.line.dash == "solid" for t in fig.data if t.mode == "lines")
+
+
+def test_template_cycles_dashes_and_internal_lines_stay_solid():
+    template = pio.templates[config.PLOT_TEMPLATE]
+    assert [t.line.dash for t in template.data.scatter] == list(config.SERIES_DASHES)
+    r = at.load_example("level3_day_night")
+    fig = plots.size_distribution(r)
+    assert all(t.line.dash in ("solid", "dot") for t in fig.data)
+    for fig in (plots.composition(r), plots.photolysis(r)):
+        assert all(t.line.dash is not None for t in fig.data)
+
+
+def test_subplot_titles_use_the_title_font():
+    from plotly.subplots import make_subplots
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("A", "B"))
+    fig.add_annotation(text="note", x=1, y=1, showarrow=True)
+    plots.style(fig, "panels")
+    titles = [a for a in fig.layout.annotations if a.text in ("A", "B")]
+    assert all(a.font.family == config.PLOT_TITLE_FONT_FAMILY for a in titles)
+    assert all(a.font.size == config.PLOT_PANEL_TITLE_FONT_SIZE for a in titles)
+    note = next(a for a in fig.layout.annotations if a.text == "note")
+    assert note.font.family is None
+
+
+def test_web_fonts_are_shipped_with_the_figures():
+    import html as html_mod
+    from aaar_tutorial import theme
+    fig = plots.totals(at.load_example("level1_volatility"))
+    page = html_mod.unescape(re.search(r'srcdoc="([^"]*)"', plots.widget_iframe(fig)).group(1))
+    head = page[:page.index("</head>")]
+    assert all(url.replace("&", "&amp;") in head for url in config.FONT_CSS_URLS)
+    assert "__reflectiveFonts" in page and "{plot_id}" not in page
+    for name in ("notebook", "notebook_connected", "colab", "iframe", "browser"):
+        scripts = pio.renderers[name].post_script
+        assert sum("__reflectiveFonts" in s for s in scripts) == 1
+    theme.register()                                        # registering again adds no copy
+    assert sum("__reflectiveFonts" in s for s in pio.renderers["colab"].post_script) == 1
+    assert "Iowan Old Style" in config.PLOT_TITLE_FONT_FAMILY.split("Georgia")[0]
+
+
+def test_composition_night_bands_show_over_the_stack():
+    r = at.load_example("level3_day_night")
+    fig = plots.composition(r, fraction=True)
+    assert fig.layout.shapes and all(sh.layer == "above" for sh in fig.layout.shapes)
+    assert list(fig.layout.yaxis.range) == [0, 100]
+
+
+def test_log_size_distribution_ticks_match_the_other_axes():
+    r = at.load_example("level2_limonene_soa")
+    fig = plots.size_distribution(r, quantity="mass", log_y=True)
+    assert fig.layout.yaxis.type == "log" and fig.layout.yaxis.ticktext
+    assert fig.layout.yaxis.exponentformat is None
+    log = _scale_menu(fig).buttons[1].args[0]
+    assert list(log["yaxis.ticktext"]) == list(fig.layout.yaxis.ticktext)
+    assert fig.layout.sliders[0].ticklen == 0
+
+
+def test_custom_figures_cycle_dashes_unless_they_use_dashes_themselves():
+    plain = plots.style(go.Figure([go.Scatter(y=[1, 2]), go.Scatter(y=[2, 3])]), "plain")
+    assert [t.line.dash for t in plain.data] == [None, None]            # template cycle applies
+    coded = plots.style(go.Figure([go.Scatter(y=[1, 2], line=dict(color="red")),
+                                   go.Scatter(y=[2, 3], line=dict(color="red", dash="dash")),
+                                   go.Scatter(y=[3, 4])]), "solid: model, dashed: formula")
+    assert [t.line.dash for t in coded.data] == ["solid", "dash", "solid"]
+
+
+def test_top_legend_clears_the_subplot_titles():
+    from plotly.subplots import make_subplots
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("A", "B"))
+    fig.add_trace(go.Scatter(y=[1, 2], name="a"))
+    plots.style(fig, "panels")
+    assert fig.layout.legend.yref == "container" and fig.layout.legend.yanchor == "top"
+    assert fig.layout.margin.t > 90

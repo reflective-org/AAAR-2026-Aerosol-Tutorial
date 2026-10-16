@@ -16,7 +16,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from . import config
+from . import config, theme  # noqa: F401  (theme registers the template)
 from .results import as_result, has_nitrogen, night_intervals, series
 
 _LOG_DIAMETER = dict(type="log", tickvals=[m * 10.0 ** e for e in range(0, 5) for m in (1, 2, 5)],
@@ -25,6 +25,8 @@ _DIST = {
     "number": ("dndlog10dp_cm3", "dN/dlog₁₀Dp (cm⁻³)", "number"),
     "mass": ("dmdlog10dp_ugm3", "dM/dlog₁₀Dp (µg m⁻³)", "dry mass"),
 }
+_INITIAL_LINE = dict(color=config.INITIAL_COLOR, dash="dot", width=2.2)
+_NIGHT_SZA_LINE = dict(color=config.SLATE, dash="dash", width=1.2)       # SZA = 90°
 
 
 # --- size distributions -----------------------------------------------------------------------
@@ -33,23 +35,23 @@ def size_distribution(result, quantity: str = "number", log_y: bool = False,
                       snapshots_every_h: float | None = 1.0) -> go.Figure:
     """Number or dry-mass size distribution with a time slider and play button.
 
-    Grey: initial distribution; faint lines: snapshots every ``snapshots_every_h`` hours;
+    Grey dotted: initial distribution; faint lines: snapshots every ``snapshots_every_h`` hours;
     bold: the time selected on the slider.
     """
     r = as_result(result)
     t, d, z = _dist(r, quantity)
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=d, y=z[0], name="initial", line=dict(color=config.INITIAL_COLOR,
-                                                                      dash="dot", width=2)))
+    fig.add_trace(go.Scatter(x=d, y=z[0], name="initial", line=_INITIAL_LINE))
     if snapshots_every_h:
         for k, i in enumerate(_every(t, snapshots_every_h)):
             fig.add_trace(go.Scatter(x=d, y=z[i], name=f"every {snapshots_every_h:g} h",
                                      legendgroup="snapshots", showlegend=k == 0, hoverinfo="skip",
-                                     line=dict(color=config.SERIES_COLORS[0], width=1), opacity=0.25))
+                                     line=dict(color=_color(0), width=1.2, dash="solid"), opacity=0.3))
     current = len(fig.data)
-    fig.add_trace(_dist_trace(d, z[-1], f"t = {_hours(t[-1])} h", config.SERIES_COLORS[0]))
+    bold = dict(line=dict(color=_color(0), width=3.2, dash="solid"))
+    fig.add_trace(_dist_trace(d, z[-1], f"t = {_hours(t[-1])} h", bold))
     frames = [go.Frame(name=str(i), traces=[current],
-                       data=[_dist_trace(d, z[i], f"t = {_hours(t[i])} h", config.SERIES_COLORS[0])])
+                       data=[_dist_trace(d, z[i], f"t = {_hours(t[i])} h", bold)])
               for i in range(t.size)]
     _add_time_slider(fig, t, frames)
     label = _DIST[quantity][1]
@@ -64,7 +66,7 @@ def compare_size_distributions(results, labels=None, quantity: str = "number",
     """Size distributions of several runs at one time (default: the end), and where they started.
 
     Dotted: the initial distribution, one grey curve if all runs start the same, else one
-    per run in its colour.
+    per run in its colour. Each run has its own colour, dash and marker.
     """
     runs, labels = _runs(results, labels)
     picked = []                                    # (time, diameters, initial, selected)
@@ -77,14 +79,13 @@ def compare_size_distributions(results, labels=None, quantity: str = "number",
     same_time = all(abs(p[0] - picked[0][0]) < 1e-9 for p in picked)
     fig = go.Figure()
     if same_start:
-        fig.add_trace(go.Scatter(x=picked[0][1], y=picked[0][2], name="initial",
-                                 line=dict(color=config.INITIAL_COLOR, dash="dot", width=2)))
+        fig.add_trace(go.Scatter(x=picked[0][1], y=picked[0][2], name="initial", line=_INITIAL_LINE))
     for j, ((t_i, d, z0, z_i), label) in enumerate(zip(picked, labels)):
         if not same_start:
             fig.add_trace(go.Scatter(x=d, y=z0, name=f"{label}: initial", legendgroup=label,
-                                     line=dict(color=_color(j), dash="dot", width=1.5)))
+                                     line=dict(color=_color(j), dash="dot", width=1.6)))
         name = label if same_time else f"{label} (t = {_hours(t_i)} h)"
-        fig.add_trace(_dist_trace(d, z_i, name, _color(j)).update(legendgroup=label))
+        fig.add_trace(_dist_trace(d, z_i, name, _style(j)).update(legendgroup=label))
     # runs may use different size grids (e.g. 40 and 160 bins): union of their ranges
     ranges = [_diameter_range(r, np.array([p[2], p[3]])) for r, p in zip(runs, picked)]
     all_z = np.concatenate([np.ravel(p[k]) for p in picked for k in (2, 3)])
@@ -129,9 +130,9 @@ def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DEC
                       tickmode=first["tickmode"], tickvals=first["tickvals"], ticktext=first["ticktext"]),
         hovertemplate=(f"t = %{{x:.2f}} h<br>Dp = %{{y:.3g}} nm<br>value = %{{customdata:.3g}} {unit}"
                        "<extra></extra>")))
-    fig.update_xaxes(title=config.TIME_AXIS_TITLE)
+    fig.update_xaxes(title=config.TIME_AXIS_TITLE, mirror=True, showgrid=False)
     fig.update_yaxes(title=config.DIAMETER_AXIS_TITLE, range=_diameter_range(r, z, floor / top),
-                     **_LOG_DIAMETER)
+                     mirror=True, showgrid=False, **_LOG_DIAMETER)
     colour = {key: (lin[key], log[key]) for key in ("z", "zmin", "zmax")}
     colour.update({f"colorbar.{k}": (lin[k], log[k]) for k in ("tickmode", "tickvals", "ticktext")})
     _add_scale_buttons(fig, {}, log_color, labels=tuple(f"{s} colour" for s in config.SCALE_BUTTON_LABELS),
@@ -143,6 +144,9 @@ def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DEC
 
 def time_series(results, keys, labels=None, log_y: bool = False, title: str | None = None) -> go.Figure:
     """One panel per series name (see results.series), one line per run; shared time axis.
+
+    One run: each panel in its quantity's colour (config.QUANTITY_COLORS: SOA Green, sulfate
+    Clay, ... as in composition()). Several runs: each run has its own colour, dash and marker.
 
     ``log_y`` sets the starting scale; the Linear/Log buttons switch every panel. On a log axis
     zeros (e.g. radicals at t = 0) are left out instead of drawn at the bottom of the axis.
@@ -163,16 +167,18 @@ def time_series(results, keys, labels=None, log_y: bool = False, title: str | No
             panel.append(y)
             if log_y:
                 y = _positive(y)
-            color = _color(j) if len(runs) > 1 else _color(row - 1)
+            look = _style(j) if len(runs) > 1 else dict(mode="lines", line=dict(
+                color=config.QUANTITY_COLORS.get(key, _color(0)), dash="solid"))
             fig.add_trace(go.Scatter(
                 x=r.time_h, y=y, name=label if len(runs) > 1 else name,
-                legendgroup=label, showlegend=len(runs) > 1 and row == 1, line=dict(color=color),
+                legendgroup=label, showlegend=len(runs) > 1 and row == 1, **look,
                 hovertemplate=f"{label}<br>t = %{{x:.2f}} h<br>{name} = %{{y:.3g}} {unit}<extra></extra>"),
                 row=row, col=1)
         axis = _log_axis(*panel) if log_y else {}
         fig.update_yaxes(title=f"{name}<br>({unit})" if unit else name, row=row, col=1, **axis)
         scales[f"yaxis{row if row > 1 else ''}"] = _y_scales(*panel)
     fig.update_xaxes(title=config.TIME_AXIS_TITLE, row=len(keys), col=1)
+    fig.update_xaxes(range=_time_range(*(r.time_h for r in runs)))
     _shade_nights(fig, runs[0], len(runs) > 1)
     _add_scale_buttons(fig, scales, log_y, ys=(ys_lin, ys_log))
     height = max(config.PLOT_HEIGHT, config.PLOT_HEIGHT_PER_PANEL * len(keys))
@@ -195,13 +201,15 @@ def composition(result, fraction: bool = False) -> go.Figure:
     for key, label, color in config.COMPOSITION_LAYERS:
         fig.add_trace(go.Scatter(
             x=r.time_h, y=series(r, key), name=label, stackgroup="mass", mode="lines",
-            line=dict(width=0.5, color=color), fillcolor=color,
+            line=dict(width=1, color="white", dash="solid"), fillcolor=color,
             groupnorm="percent" if fraction else None,
             hovertemplate=f"{label}: %{{y:.3g}}{' %' if fraction else ' µg m⁻³'}<extra></extra>"))
     fig.update_xaxes(title=config.TIME_AXIS_TITLE)
-    fig.update_yaxes(title="Share of dry mass (%)" if fraction else "Dry particle mass (µg m⁻³)",
-                     rangemode="tozero")
-    _shade_nights(fig, r)
+    if fraction:
+        fig.update_yaxes(title="Share of dry mass (%)", range=[0, 100])
+    else:
+        fig.update_yaxes(title="Dry particle mass (µg m⁻³)", rangemode="tozero")
+    _shade_nights(fig, r, above=True)                     # the stack would hide bands below it
     fig.update_layout(hovermode="x unified")
     return style(fig, f"{_name(r)}: particle composition")
 
@@ -234,17 +242,18 @@ def photolysis(result, j=config.DEFAULT_J, show_sza: bool = True, log_y: bool = 
         label = config.SERIES_LABELS.get(name, (name, ""))[0]
         y = _positive(series(r, name)) if log_y else series(r, name)
         values.append(y)
-        fig.add_trace(go.Scatter(x=r.time_h, y=y, name=label, line=dict(color=_color(k)),
+        fig.add_trace(go.Scatter(x=r.time_h, y=y, name=label, **_style(k),
                                  hovertemplate=f"{label} = %{{y:.3g}} s⁻¹<extra></extra>"), row=1, col=1)
     fig.update_yaxes(title="J (s⁻¹)", row=1, col=1, **(_log_axis(*values) if log_y else {}))
     if show_sza:
         fig.add_trace(go.Scatter(x=r.time_h, y=series(r, "sza_deg"), name="solar zenith angle",
-                                 line=dict(color="#555555"),
+                                 mode="lines", line=dict(color=config.CHARCOAL, dash="solid"),
                                  hovertemplate="SZA = %{y:.1f}°<extra></extra>"), row=2, col=1)
-        fig.add_hline(y=config.NIGHT_SZA_DEG, line=dict(color="#999999", dash="dash", width=1),
+        fig.add_hline(y=config.NIGHT_SZA_DEG, line=_NIGHT_SZA_LINE,
                       row=2, col=1)
         fig.update_yaxes(title="SZA (°)", range=[0, 180], row=2, col=1)
     fig.update_xaxes(title=config.TIME_AXIS_TITLE, row=rows, col=1)
+    fig.update_xaxes(range=_time_range(r.time_h))
     _shade_nights(fig, r)
     mode = r.scenario.get("photolysis", {}).get("mode", "")
     return style(fig, f"{_name(r)}: sunlight (photolysis mode “{mode}”)",
@@ -258,24 +267,25 @@ def sunlight(days, j: str = "J_NO2") -> go.Figure:
     label = config.SERIES_LABELS.get(j, (j, ""))[0]
     for n, day in enumerate(days):
         x = day["local_start_h"] + np.asarray(day["time_h"])
-        line = dict(color=_color(n))
-        fig.add_trace(go.Scatter(x=x, y=day[j], name=day["label"], legendgroup=day["label"], line=line,
+        look = _style(n)
+        fig.add_trace(go.Scatter(x=x, y=day[j], name=day["label"], legendgroup=day["label"], **look,
                                  hovertemplate=f"{label} = %{{y:.3g}} s⁻¹<extra>{day['label']}</extra>"),
                       row=1, col=1)
         fig.add_trace(go.Scatter(x=x, y=day["sza_deg"], name=day["label"], legendgroup=day["label"],
-                                 showlegend=False, line=line,
+                                 showlegend=False, **look,
                                  hovertemplate=f"SZA = %{{y:.1f}}°<extra>{day['label']}</extra>"),
                       row=2, col=1)
-    fig.add_hline(y=config.NIGHT_SZA_DEG, line=dict(color="#999999", dash="dash", width=1), row=2, col=1)
+    fig.add_hline(y=config.NIGHT_SZA_DEG, line=_NIGHT_SZA_LINE, row=2, col=1)
     first = min(day["local_start_h"] for day in days)
     last = max(day["local_start_h"] + float(np.max(day["time_h"])) for day in days)
     ticks = list(range(int(first), int(last) + 1, 3))
     fig.update_xaxes(title="Local clock time", tickvals=ticks, ticktext=[f"{h % 24:02d}:00" for h in ticks],
                      row=2, col=1)
+    fig.update_xaxes(range=[first, last])
     fig.update_yaxes(title=f"{label} (s⁻¹)", row=1, col=1)
     fig.update_yaxes(title="SZA (°)", range=[0, 180], row=2, col=1)
-    return style(fig, "Sunlight over the day (TUV-x, clear sky); SZA above the dashed line: night",
-                 config.PLOT_HEIGHT + 140)
+    return style(fig, "Sunlight over the day (TUV-x, clear sky)", config.PLOT_HEIGHT + 140,
+                 subtitle="Solar zenith angle above the dashed line: night")
 
 
 # --- organics -----------------------------------------------------------------------------------
@@ -308,7 +318,8 @@ def volatility(result) -> go.Figure:
                 go.Bar(x=x, y=gas[i], name="gas phase", marker_color=config.GAS_COLOR, width=0.4,
                        hovertemplate=hover),
                 go.Scatter(x=coa_x, y=[0, y_max], mode="lines", name=f"C_OA = {coa[i]:.3g} µg m⁻³",
-                           line=dict(color="#444444", dash="dash"), hoverinfo="skip")]
+                           line=dict(color=config.REFERENCE_LINE_COLOR, dash="dash", width=2),
+                           hoverinfo="skip")]
 
     last = t.size - 1
     fig = go.Figure(traces(last))
@@ -335,7 +346,7 @@ def partitioning(coa_ugm3=config.PARTITIONING_COA_UGM3, log10_cstar=config.PARTI
     x = np.asarray(log10_cstar, dtype=float)
     coa = np.asarray(coa_ugm3, dtype=float)
     marked = np.zeros(x.size, bool) if highlight_cstar is None else np.isclose(x, np.log10(highlight_cstar))
-    outline = dict(color="#282C2E", width=np.where(marked, 3, 0).tolist())
+    outline = dict(color=config.CHARCOAL, width=np.where(marked, 3, 0).tolist())
 
     def traces(c):
         share = 100.0 / (1.0 + 10.0 ** x / c)
@@ -346,13 +357,14 @@ def partitioning(coa_ugm3=config.PARTITIONING_COA_UGM3, log10_cstar=config.PARTI
                        marker=dict(color=config.GAS_COLOR, line=outline)),
                 go.Scatter(x=[np.log10(c)] * 2, y=[0, 100], mode="lines",
                            name=f"c* = C_OA = {c:g} µg m⁻³: half in the particles",
-                           line=dict(color="#444444", dash="dash", width=2), hoverinfo="skip")]
+                           line=dict(color=config.REFERENCE_LINE_COLOR, dash="dash", width=2),
+                           hoverinfo="skip")]
 
     start = int(np.argmin(np.abs(np.log10(coa / start_coa_ugm3))))
     fig = go.Figure(traces(coa[start]))
     frames = [go.Frame(name=str(i), data=traces(c), traces=[0, 1, 2]) for i, c in enumerate(coa)]
     _add_time_slider(fig, coa, frames, prefix="C_OA = ", suffix=" µg m⁻³", label=lambda c: f"{c:g}",
-                     active=start)
+                     active=start, pad_t=62)                # room for the highlight label
     lo, hi = min(x.min(), np.log10(coa.min())) - 0.6, max(x.max(), np.log10(coa.max())) + 0.6
     ticks = np.arange(np.ceil(lo), np.floor(hi) + 1)
     labels = [f"10<sup>{int(k)}</sup>" for k in ticks]
@@ -390,8 +402,8 @@ def top_contributors(result, n: int = 15) -> go.Figure:
     fig.update_yaxes(categoryorder="array", categoryarray=order)
     fig.update_xaxes(title="Particle-phase mass at end of run (µg m⁻³)")
     height = max(config.PLOT_HEIGHT, 28 * len(rows) + 160)
-    return style(fig, f"{_name(r)}: top {len(rows)} SOA species "
-                       f"(N-containing: {100 * share_n:.0f}% of their mass)", height)
+    return style(fig, f"{_name(r)}: top {len(rows)} SOA species", height,
+                 subtitle=f"N-containing: {100 * share_n:.0f}% of their mass")
 
 
 # --- helpers ------------------------------------------------------------------------------------
@@ -416,10 +428,10 @@ def _species_plot(r, family, species, visible, log_y, y_title, unit, what) -> go
             shown.append(y)
         fig.add_trace(go.Scatter(
             x=r.time_h, y=y, name=label,
-            line=dict(color=_color(order.index(name) if name in order else len(order))),
+            **_style(order.index(name) if name in order else len(order)),
             visible=True if is_visible else "legendonly",
             hovertemplate=f"{label} = %{{y:.3g}} {unit}<extra></extra>"))
-    fig.update_xaxes(title=config.TIME_AXIS_TITLE)
+    fig.update_xaxes(title=config.TIME_AXIS_TITLE, range=_time_range(r.time_h))
     fig.update_yaxes(title=f"{y_title} ({unit})", **(_log_axis(*shown) if log_y else {}))
     _add_scale_buttons(fig, {"yaxis": _y_scales(*shown)}, log_y, ys=(ys_lin, ys_log))
     _shade_nights(fig, r)
@@ -434,8 +446,8 @@ def _dist(r, quantity):
     return np.asarray(r.time_h, dtype=float), np.asarray(r.diameter_nm, dtype=float), z
 
 
-def _dist_trace(d, y, name, color):
-    return go.Scatter(x=d, y=y, name=name, line=dict(color=color, width=3),
+def _dist_trace(d, y, name, look):
+    return go.Scatter(x=d, y=y, name=name, **look,
                       hovertemplate="Dp = %{x:.3g} nm<br>%{y:.3g}<extra></extra>")
 
 
@@ -454,8 +466,9 @@ def _fixed_y(z, log_y):
     top = float(np.nanmax(z)) if np.size(z) else 0.0
     if not top > 0:
         return {}
-    if log_y:
-        return dict(type="log", range=[np.log10(top) - 4, np.log10(top) + 0.1], exponentformat="power")
+    if log_y:            # tick labels as on the other log axes (same size as the x labels)
+        return {**_log_axis([top * 1e-4, top]), "tickmode": "array",
+                "range": [np.log10(top) - 4, np.log10(top) + 0.1]}
     return dict(range=[0, 1.05 * top])
 
 
@@ -469,8 +482,10 @@ def _hours(t):
     return f"{t:.2f}".rstrip("0").rstrip(".")
 
 
-def _add_time_slider(fig, t, frames, prefix="t = ", suffix=" h", label=_hours, active=None):
-    """Slider (one step per frame) and play/pause buttons; the defaults are for time in hours."""
+def _add_time_slider(fig, t, frames, prefix="t = ", suffix=" h", label=_hours, active=None, pad_t=50):
+    """Slider (one step per frame) and play/pause buttons; the defaults are for time in hours.
+
+    ``pad_t``: space between the x axis and the slider (px)."""
     fig.frames = frames
     steps = [dict(method="animate", label=label(ti),
                   args=[[str(i)], dict(mode="immediate", frame=dict(duration=0, redraw=True),
@@ -478,19 +493,20 @@ def _add_time_slider(fig, t, frames, prefix="t = ", suffix=" h", label=_hours, a
              for i, ti in enumerate(t)]
     fig.update_layout(
         sliders=[dict(active=len(steps) - 1 if active is None else active, steps=steps, x=0.1, len=0.9,
-                      xanchor="left", y=0, yanchor="top", pad=dict(t=50, b=10), ticklen=2,
+                      xanchor="left", y=0, yanchor="top", pad=dict(t=pad_t, b=0), ticklen=0,
+                      minorticklen=0,                    # no row of step ticks under the track
                       currentvalue=dict(prefix=prefix, suffix=suffix, xanchor="right",
-                                        font=dict(size=14, color="#333")),
+                                        font=dict(size=14)),
                       font=dict(color="rgba(0,0,0,0)"))],            # hide the crowded step labels
         updatemenus=[dict(type="buttons", direction="left", x=0.1, y=0, xanchor="right", yanchor="top",
-                          pad=dict(t=60, r=10), showactive=False, buttons=[
+                          pad=dict(t=pad_t + 10, r=10), showactive=False, buttons=[
                               dict(label="▶", method="animate", args=[None, dict(
                                   frame=dict(duration=config.SLIDER_FRAME_MS, redraw=True),
                                   transition=dict(duration=0), fromcurrent=False)]),
                               dict(label="❚❚", method="animate", args=[[None], dict(
                                   frame=dict(duration=0, redraw=False), mode="immediate",
                                   transition=dict(duration=0))])])],
-        margin=dict(b=140))
+        margin=dict(b=100 + pad_t - 50))
 
 
 def _add_scale_buttons(fig, axes, log_active, labels=config.SCALE_BUTTON_LABELS, ys=None,
@@ -501,24 +517,40 @@ def _add_scale_buttons(fig, axes, log_active, labels=config.SCALE_BUTTON_LABELS,
     ``ys``: (linear ys, log ys), one array per trace; the buttons also switch the data, so the
     log version can leave zeros out as gaps. ``colour``: heatmap trace-0 attribute -> (linear,
     log) values, for a colour scale instead of axes. ``log_active`` marks the pressed button.
+    Both buttons are drawn alike (showactive=False: Plotly's pressed-button colour is a fixed
+    pale blue); the label shows the state, bold Charcoal when pressed, Slate otherwise (each
+    button sets both labels).
     """
+    menus = list(fig.layout.updatemenus or [])
+    index = len(menus)
+
+    def bold_labels(which):
+        return {f"updatemenus[{index}].buttons[{n}].label": _button_label(labels[n], n == which)
+                for n in (0, 1)}
+
     def args(which):
         if colour is not None:
-            return [{key: [pair[which]] for key, pair in colour.items()}, [0]]
+            return [{key: [pair[which]] for key, pair in colour.items()}, bold_labels(which), [0]]
         layout = {f"{name}.{k}": v for name, pair in axes.items() for k, v in pair[which].items()}
+        layout.update(bold_labels(which))
         if ys is None:
             return [layout]
         return [{"y": list(ys[which])}, layout, list(range(len(ys[which])))]
 
-    method = "restyle" if colour is not None else ("update" if ys is not None else "relayout")
-    buttons = [dict(label=labels[0], method=method, args=args(0)),
-               dict(label=labels[1], method=method, args=args(1))]
-    menus = list(fig.layout.updatemenus or [])
-    menus.append(dict(type="buttons", direction="right", active=1 if log_active else 0, showactive=True,
-                      x=1.0, xanchor="right", y=1.02, yanchor="bottom", pad=dict(t=0, r=0, b=4),
-                      buttons=buttons, font=dict(size=12)))
+    method = "update" if colour is not None or ys is not None else "relayout"
+    active = 1 if log_active else 0
+    buttons = [dict(label=_button_label(labels[n], n == active), method=method, args=args(n))
+               for n in (0, 1)]
+    menus.append(dict(type="buttons", direction="right", active=active, showactive=False,
+                      x=1.0, xanchor="right", y=1.0, yanchor="bottom", pad=dict(t=0, r=0, b=8),
+                      buttons=buttons))
     fig.update_layout(updatemenus=menus)
     return fig
+
+
+def _button_label(text, pressed):
+    """Pressed: bold Charcoal; the other: Slate (the label is all a button can change)."""
+    return f"<b>{text}</b>" if pressed else f'<span style="color:{config.SLATE}">{text}</span>'
 
 
 def _y_scales(*arrays, fixed=None):
@@ -532,17 +564,21 @@ def _y_scales(*arrays, fixed=None):
             {**_log_axis(*arrays), "tickmode": "array", "autorange": True})
 
 
-def _shade_nights(fig, r, first_run_only=False):
+def _shade_nights(fig, r, first_run_only=False, above=False):
+    """Grey bands at night (and a legend entry). ``above``: over the traces, lighter (for
+    stacked areas, which would hide bands drawn below them)."""
     intervals = night_intervals(r)
     if not intervals:
         return
+    color = config.NIGHT_OVERLAY_COLOR if above else config.NIGHT_COLOR
     for t0, t1 in intervals:
-        fig.add_vrect(x0=t0, x1=t1, fillcolor=config.NIGHT_COLOR, line_width=0, layer="below",
+        fig.add_vrect(x0=t0, x1=t1, fillcolor=color, line_width=0, layer="above" if above else "below",
                       row="all", col=1)
     label = "night (SZA > 90°)" + (", first run" if first_run_only else "")
     fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name=label, hoverinfo="skip",
-                             marker=dict(symbol="square", size=14, color=config.NIGHT_COLOR,
-                                         line=dict(color="#999999", width=1))), row=1, col=1)
+                             line=dict(dash="solid"),
+                             marker=dict(symbol="square", size=14, color=color,
+                                         line=dict(color=config.SLATE, width=1))), row=1, col=1)
 
 
 def _runs(results, labels):
@@ -564,6 +600,25 @@ def _name(r):
 
 def _color(i):
     return config.SERIES_COLORS[i % len(config.SERIES_COLORS)]
+
+
+def _style(i) -> dict:
+    """Line and marker of series ``i``: its own colour, dash and marker symbol (Scatter keywords).
+
+    Colour-blind safe: the series stay apart on dash and marker alone, and the (colour, dash,
+    marker) triple repeats only after 90 series. Markers are sparse
+    (config.PLOT_MARKERS_PER_LINE per line, staggered between lines) so the curves stay clean.
+    """
+    markers = config.SERIES_MARKERS                     # one longer than colours and dashes
+    return dict(mode="lines+markers",
+                line=dict(color=_color(i), dash=config.SERIES_DASHES[i % len(config.SERIES_DASHES)]),
+                marker=dict(symbol=markers[i % len(markers)], size=config.PLOT_MARKER_SIZE,
+                            maxdisplayed=config.PLOT_MARKERS_PER_LINE))
+
+
+def _time_range(*times):
+    """[first, last] time: the axis ends at the data (markers would make Plotly pad it)."""
+    return [min(float(np.min(t)) for t in times), max(float(np.max(t)) for t in times)]
 
 
 def _positive(y):
@@ -649,23 +704,62 @@ def show_in_widget(*figs) -> None:
 def widget_iframe(fig) -> str:
     """The figure as a self-contained page in an ``<iframe srcdoc>`` (used by show_in_widget).
 
-    Wrapped in a ``<div>``: IPython warns about HTML that starts with ``<iframe``."""
-    page = fig.to_html(include_plotlyjs="cdn", full_html=True, config={"responsive": True})
-    page = page.replace("<head>", "<head><style>html, body { margin: 0; }</style>", 1)
+    The page links the web fonts (config.FONT_CSS) and redraws the figure once they have
+    loaded (theme.FONT_SCRIPT). Wrapped in a ``<div>``: IPython warns about HTML that starts
+    with ``<iframe``."""
+    page = fig.to_html(include_plotlyjs="cdn", full_html=True, config={"responsive": True},
+                       post_script=theme.FONT_SCRIPT)
+    page = page.replace("<head>", f"<head>{config.FONT_CSS}<style>html, body {{ margin: 0; }}</style>", 1)
     height = int(fig.layout.height or config.PLOT_HEIGHT) + 4
     return (f'<div><iframe srcdoc="{html.escape(page, quote=True)}" '
             f'style="width: 100%; height: {height}px; border: 0;"></iframe></div>')
 
 
-def style(fig, title, height=None, legend_right=False) -> go.Figure:
-    """Give any Plotly figure the look of these plots: template, font, title, legend, margins.
+def style(fig, title, height=None, legend_right=False, subtitle=None) -> go.Figure:
+    """Give any Plotly figure the look of these plots: the "reflective" template (theme.py),
+    title, legend and margins.
 
-    The legend goes above the plot, or to its right with ``legend_right=True``.
+    The legend goes above the plot, or to its right with ``legend_right=True``. ``subtitle``:
+    a second, smaller line under the title (Plotly titles do not wrap, so put details there
+    rather than make the title wider than a notebook cell). Traces keep
+    colours and dashes they set themselves; others take config.SERIES_COLORS and
+    config.SERIES_DASHES in order, so lines differ in dash as well as colour. A figure that
+    sets a dash on any line already uses dash for something (e.g. "solid: model, dashed:
+    formula"): there lines without a dash stay solid. Subplot titles
+    (``make_subplots(subplot_titles=...)``) get the title font, as the panel titles of the
+    presentation figures.
     """
-    legend = (dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02) if legend_right
-              else dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0))
+    height = height or config.PLOT_HEIGHT
+    subtitle = subtitle or fig.layout.title.subtitle.text        # or one set before style()
+    panel_titles = [note for note in fig.layout.annotations if _is_subplot_title(note)]
+    top = 90
+    if subtitle:
+        top += config.PLOT_SUBTITLE_SPACE
+    if legend_right:
+        legend = dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02)
+    elif panel_titles:             # legend under the title, above the subplot titles
+        legend = dict(orientation="h", yref="container", yanchor="top",
+                      y=1 - (50 + (config.PLOT_SUBTITLE_SPACE if subtitle else 0)) / height,
+                      xanchor="left", x=0)
+        top += 28
+    else:
+        legend = dict(orientation="h", yanchor="bottom", y=1, xanchor="left", x=0)
     fig.update_layout(
-        template=config.PLOT_TEMPLATE, height=height or config.PLOT_HEIGHT,
-        font=dict(size=config.PLOT_FONT_SIZE), title=dict(text=title, x=0.01, xanchor="left"),
-        legend=legend, margin=dict(l=80, r=30, t=90, b=fig.layout.margin.b or 60))
+        template=config.PLOT_TEMPLATE, height=height, title=dict(text=title, subtitle=dict(text=subtitle)),
+        legend=legend, margin=dict(l=80, r=30, t=top, b=fig.layout.margin.b or 60))
+    for note in panel_titles:
+        note.font.update(family=config.PLOT_TITLE_FONT_FAMILY, size=config.PLOT_PANEL_TITLE_FONT_SIZE,
+                         color=config.CHARCOAL)
+    lines = [trace for trace in fig.data if trace.type == "scatter"]
+    if any(trace.line.dash is not None for trace in lines):
+        for trace in lines:
+            if trace.line.dash is None:
+                trace.line.dash = "solid"          # not the template's dash cycle
     return fig
+
+
+def _is_subplot_title(note) -> bool:
+    """True for the annotations make_subplots() writes for subplot_titles (Plotly's own
+    settings: paper coordinates, no arrow, anchored at the bottom, font size 16)."""
+    return (note.xref == "paper" and note.yref == "paper" and note.showarrow is False
+            and note.yanchor == "bottom" and note.font is not None and note.font.size == 16)
