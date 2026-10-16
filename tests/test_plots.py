@@ -195,3 +195,33 @@ def test_log_button_turns_zeros_into_gaps():
     menu = _scale_menu(plots.radicals(r))
     lin_y, log_y = (b.args[0]["y"] for b in menu.buttons)
     assert lin_y[0][0] == 0.0 and np.isnan(log_y[0][0])                    # OH at t = 0
+
+
+def test_widget_iframe_is_a_self_contained_page():
+    import html as html_mod
+    import re
+    fig = plots.time_series(at.load_example("level1_volatility"), ["SOA_ugm3"])
+    frame = plots.widget_iframe(fig)
+    assert frame.startswith('<div><iframe srcdoc="') and frame.endswith("></iframe></div>")
+    page = html_mod.unescape(re.search(r'srcdoc="([^"]*)"', frame).group(1))
+    # plotly.js is loaded by a script tag before the figure's own script, in one document
+    assert page.index('src="https://cdn.plot.ly/plotly-') < page.index("Plotly.newPlot")
+    assert '"' not in re.search(r'srcdoc="([^"]*)"', frame).group(1)
+    assert f"height: {int(fig.layout.height) + 4}px" in frame
+
+
+def test_show_in_widget_uses_the_iframe_only_on_colab(monkeypatch):
+    import sys
+    import types
+    shown, displayed = [], []
+    fig = plots.time_series(at.load_example("level1_volatility"), ["SOA_ugm3"])
+    monkeypatch.setattr(type(fig), "show", lambda self, *a, **k: shown.append(self))
+    import IPython.display
+    monkeypatch.setattr(IPython.display, "display", lambda obj: displayed.append(obj))
+    plots.show_in_widget(fig)
+    assert shown == [fig] and displayed == []
+    monkeypatch.setitem(sys.modules, "google.colab", types.ModuleType("google.colab"))
+    plots.show_in_widget(fig, fig)
+    assert len(shown) == 1 and len(displayed) == 2
+    assert displayed[0].data.startswith("<div><iframe srcdoc=")
+

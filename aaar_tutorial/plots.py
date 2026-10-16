@@ -1,12 +1,16 @@
 """Interactive Plotly figures of box-model results.
 
 Every function takes a RunResult (or a list of them for comparisons) and returns a
-``plotly.graph_objects.Figure``; show it with ``fig.show()`` or by ending a cell with it.
+``plotly.graph_objects.Figure``; show it with ``fig.show()`` or by ending a cell with it
+(inside a widget, e.g. a run panel's plot area, use ``show_in_widget(fig)``).
 ``partitioning()`` needs no run: it draws the equilibrium partitioning equation.
 Time is hours since the run start; shaded bands mark night (solar zenith angle > 90 deg).
 ``style(fig, title)`` gives your own figures the same look.
 """
 from __future__ import annotations
+
+import html
+import sys
 
 import numpy as np
 import plotly.graph_objects as go
@@ -623,6 +627,34 @@ def _message_figure(text):
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     return style(fig, "", 240)
+
+
+def show_in_widget(*figs) -> None:
+    """Show figures inside a widget's output area (the run panels' plots).
+
+    On Colab, ``fig.show()`` inside a widget draws nothing: the figure's script runs before
+    Colab has loaded plotly.js ("Plotly is not defined" in the browser console). There each
+    figure goes into its own small page (an iframe), which loads plotly.js before drawing.
+    Elsewhere this is ``fig.show()``, so local Jupyter keeps its built-in (offline) plotly.js.
+    """
+    if "google.colab" not in sys.modules:
+        for fig in figs:
+            fig.show()
+        return
+    from IPython.display import HTML, display
+    for fig in figs:
+        display(HTML(widget_iframe(fig)))
+
+
+def widget_iframe(fig) -> str:
+    """The figure as a self-contained page in an ``<iframe srcdoc>`` (used by show_in_widget).
+
+    Wrapped in a ``<div>``: IPython warns about HTML that starts with ``<iframe``."""
+    page = fig.to_html(include_plotlyjs="cdn", full_html=True, config={"responsive": True})
+    page = page.replace("<head>", "<head><style>html, body { margin: 0; }</style>", 1)
+    height = int(fig.layout.height or config.PLOT_HEIGHT) + 4
+    return (f'<div><iframe srcdoc="{html.escape(page, quote=True)}" '
+            f'style="width: 100%; height: {height}px; border: 0;"></iframe></div>')
 
 
 def style(fig, title, height=None, legend_right=False) -> go.Figure:
