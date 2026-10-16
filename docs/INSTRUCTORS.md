@@ -62,7 +62,7 @@ Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results cha
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/ASSUMPTIONS.md).
 The ones students will run into:
 
 - **c\* is a placeholder (A8).** Levels 2 and 3 estimate each product's c\* from its elemental
@@ -102,7 +102,7 @@ The ones students will run into:
 ## The web app's instructor guide
 
 The tomas-api guide's numbers were re-measured on 2026-10-14 with tomas-jax 8753736, which the web
-app still runs. The notebooks pin a newer commit (`1f519e9`) that moves growing particles between
+app still runs. The notebooks pin a newer commit (`2faa391`) that moves growing particles between
 size bins with a PPM remap instead of the older MNFIX split. Both use the same 40 size bins (1.7 nm
 to 17.5 µm). OH agrees: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). SOA
 agrees within 1 %. Particle size and nitrate differ, because the older split spreads the size

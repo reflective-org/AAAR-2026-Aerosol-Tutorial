@@ -1,5 +1,20 @@
 # Progress
 
+## 2026-10-16 (later): number audit, Colab panels, flowchart, nitrate gate fix (helpers 0.4.3)
+
+- Audit of every quantitative claim in the notebooks, README and INSTRUCTORS against the PPM
+  model at 40 bins: 62 edits (run times, 80-bin wording, a dozen shifted numbers, a notebook 4
+  loop-check bug). All four notebooks re-executed.
+- Colab: the run panels (notebooks 1-3) drew no plots (Plotly inside a widget output on Colab:
+  "Plotly is not defined"). `plots.show_in_widget` puts each figure in an iframe page on
+  Colab only (helpers 0.4.2). Not yet confirmed in a real Colab session.
+- `docs/model_flowchart.pdf`: two-page flowchart, checked statement by statement against the
+  code (25 corrections before release).
+- Model pin TOMAS-JAX 2faa391 (tag aaar-stable-2026-10-16b): nitrate from N2O5 uptake now goes
+  to every bin with particles, not only bins above 1 cm-3. That removes the faint 40-90 nm band
+  left behind after sunset in Level 3 (it grew with resolution; now it converges). Level 3
+  nitrate 5.1602 -> 5.1597 at 40 bins; Levels 1-2 unchanged. Examples regenerated.
+
 ## 2026-10-16: PPM model, 40 bins with a choice, plot buttons (helpers 0.4.0)
 
 - Model pin TOMAS-JAX 1f519e9 (PPM bin transfer for SOA and nitrate; see DECISIONS.md).

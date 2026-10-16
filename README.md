@@ -102,16 +102,16 @@ bins (PPM) and what each level switches on.
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
-- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c)
+- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/2faa391bcf132fb6796dc71bb637974f9282a459)
   (the box model; pinned in `pyproject.toml`). Its tutorial documentation:
-  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/docs/aaar/gaschem.md),
-  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/docs/aaar/coupling.md),
-  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/docs/aaar/aerosol_step.md),
-  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/docs/aaar/soa_partitioning.md),
-  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/docs/aaar/heterogeneous.md).
+  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/gaschem.md),
+  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/coupling.md),
+  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/aerosol_step.md),
+  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/soa_partitioning.md),
+  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/heterogeneous.md).
 - [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `e5d9032`) and
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
-- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/ASSUMPTIONS.md)
+- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/ASSUMPTIONS.md)
   lists every simplification.** Two matter most for interpreting results:
   - The c\* of the Level 2 and 3 products comes from a composition-only formula (Li et al., 2016) as a
     placeholder until a curated per-species table arrives (A8). With it, about 98 % of the Level 2
