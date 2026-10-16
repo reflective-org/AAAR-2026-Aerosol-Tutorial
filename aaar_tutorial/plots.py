@@ -51,6 +51,7 @@ def size_distribution(result, quantity: str = "number", log_y: bool = False,
     label = _DIST[quantity][1]
     fig.update_xaxes(title=config.DIAMETER_AXIS_TITLE, range=_diameter_range(r, z), **_LOG_DIAMETER)
     fig.update_yaxes(title=label, **_fixed_y(z, log_y))
+    _add_scale_buttons(fig, {"yaxis": _y_scales(fixed=z)}, log_y)
     return style(fig, f"{_name(r)}: {_DIST[quantity][2]} size distribution")
 
 
@@ -86,6 +87,7 @@ def compare_size_distributions(results, labels=None, quantity: str = "number",
     fig.update_xaxes(title=config.DIAMETER_AXIS_TITLE,
                      range=[min(lo for lo, _ in ranges), max(hi for _, hi in ranges)], **_LOG_DIAMETER)
     fig.update_yaxes(title=_DIST[quantity][1], **_fixed_y(all_z, log_y))
+    _add_scale_buttons(fig, {"yaxis": _y_scales(fixed=all_z)}, log_y)
     if same_time:
         when = f"t = {_hours(picked[0][0])} h"
     else:
@@ -94,8 +96,13 @@ def compare_size_distributions(results, labels=None, quantity: str = "number",
                  legend_right=len(runs) > 3 or not same_start)
 
 
-def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DECADES) -> go.Figure:
-    """Size distribution over time as a heatmap (log colour scale): the "banana plot"."""
+def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DECADES,
+           log_color: bool = True) -> go.Figure:
+    """Size distribution over time as a heatmap: the "banana plot".
+
+    White (empty) to dark blue (most particles). The buttons switch between a log colour scale
+    (``decades`` below the maximum; anything lower is drawn white) and a linear one.
+    """
     r = as_result(result)
     t, _, z = _dist(r, quantity)
     edges = np.asarray(r.diameter_edges_nm, dtype=float)
@@ -103,20 +110,28 @@ def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DEC
     if not top > 0:
         return _message_figure("The size distribution is empty.")
     floor = top * 10.0 ** -decades
-    with np.errstate(divide="ignore", invalid="ignore"):
-        logz = np.where(z >= floor, np.log10(z), np.nan)
+    zero_filled = np.nan_to_num(z, nan=0.0)
     ticks = np.arange(np.ceil(np.log10(floor)), np.floor(np.log10(top)) + 1)
     unit = "cm⁻³" if quantity == "number" else "µg m⁻³"
+    lin = dict(z=zero_filled.T, zmin=0.0, zmax=top, tickmode="auto", tickvals=None, ticktext=None)
+    log = dict(z=np.log10(np.maximum(zero_filled, floor)).T,       # empty and low cells: white
+               zmin=np.log10(floor), zmax=np.log10(top), tickmode="array", tickvals=ticks,
+               ticktext=[f"10<sup>{int(k)}</sup>" for k in ticks])
+    first = log if log_color else lin
     fig = go.Figure(go.Heatmap(
-        x=t, y=edges, z=logz.T, zmin=np.log10(floor), zmax=np.log10(top),
+        x=t, y=edges, z=first["z"], zmin=first["zmin"], zmax=first["zmax"],
         colorscale=config.HEATMAP_COLORSCALE, customdata=z.T,
         colorbar=dict(title=dict(text=f"{_DIST[quantity][1].split(' (')[0]}<br>({unit})"),
-                      tickvals=ticks, ticktext=[f"10<sup>{int(k)}</sup>" for k in ticks]),
+                      tickmode=first["tickmode"], tickvals=first["tickvals"], ticktext=first["ticktext"]),
         hovertemplate=(f"t = %{{x:.2f}} h<br>Dp = %{{y:.3g}} nm<br>value = %{{customdata:.3g}} {unit}"
                        "<extra></extra>")))
     fig.update_xaxes(title=config.TIME_AXIS_TITLE)
     fig.update_yaxes(title=config.DIAMETER_AXIS_TITLE, range=_diameter_range(r, z, floor / top),
                      **_LOG_DIAMETER)
+    colour = {key: (lin[key], log[key]) for key in ("z", "zmin", "zmax")}
+    colour.update({f"colorbar.{k}": (lin[k], log[k]) for k in ("tickmode", "tickvals", "ticktext")})
+    _add_scale_buttons(fig, {}, log_color, labels=tuple(f"{s} colour" for s in config.SCALE_BUTTON_LABELS),
+                       colour=colour)
     return style(fig, f"{_name(r)}: {_DIST[quantity][2]} distribution over time")
 
 
@@ -125,22 +140,25 @@ def banana(result, quantity: str = "number", decades: float = config.HEATMAP_DEC
 def time_series(results, keys, labels=None, log_y: bool = False, title: str | None = None) -> go.Figure:
     """One panel per series name (see results.series), one line per run; shared time axis.
 
-    With ``log_y=True``, zeros (e.g. radicals at t = 0) are left out instead of drawn at the
-    bottom of the axis. N2O5 is shown in ppt (config.DISPLAY_SCALE).
+    ``log_y`` sets the starting scale; the Linear/Log buttons switch every panel. On a log axis
+    zeros (e.g. radicals at t = 0) are left out instead of drawn at the bottom of the axis.
+    N2O5 is shown in ppt (config.DISPLAY_SCALE).
     """
     runs, labels = _runs(results, labels)
     keys = [keys] if isinstance(keys, str) else list(keys)
     fig = make_subplots(rows=len(keys), cols=1, shared_xaxes=True, vertical_spacing=0.06)
-    names = []
+    names, scales, ys_lin, ys_log = [], {}, [], []
     for row, key in enumerate(keys, start=1):
         name, unit = config.SERIES_LABELS.get(key, (key, ""))
         names.append(name)
         panel = []
         for j, (r, label) in enumerate(zip(runs, labels)):
             y = series(r, key) * config.DISPLAY_SCALE.get(key, 1.0)
+            ys_lin.append(y)
+            ys_log.append(_positive(y))
+            panel.append(y)
             if log_y:
                 y = _positive(y)
-            panel.append(y)
             color = _color(j) if len(runs) > 1 else _color(row - 1)
             fig.add_trace(go.Scatter(
                 x=r.time_h, y=y, name=label if len(runs) > 1 else name,
@@ -149,8 +167,10 @@ def time_series(results, keys, labels=None, log_y: bool = False, title: str | No
                 row=row, col=1)
         axis = _log_axis(*panel) if log_y else {}
         fig.update_yaxes(title=f"{name}<br>({unit})" if unit else name, row=row, col=1, **axis)
+        scales[f"yaxis{row if row > 1 else ''}"] = _y_scales(*panel)
     fig.update_xaxes(title=config.TIME_AXIS_TITLE, row=len(keys), col=1)
     _shade_nights(fig, runs[0], len(runs) > 1)
+    _add_scale_buttons(fig, scales, log_y, ys=(ys_lin, ys_log))
     height = max(config.PLOT_HEIGHT, config.PLOT_HEIGHT_PER_PANEL * len(keys))
     if title is None:
         title = _name(runs[0]) if len(runs) == 1 else _join(names)
@@ -380,10 +400,13 @@ def _species_plot(r, family, species, visible, log_y, y_title, unit, what) -> go
     names = list(values) if show_all else ([species] if isinstance(species, str) else list(species))
     fig = make_subplots(rows=1, cols=1)
     order = list(values)
-    shown = []
+    shown, ys_lin, ys_log = [], [], []
     for name in names:
         label = config.SERIES_LABELS.get(name, (name, ""))[0]
-        y = _positive(series(r, name)) if log_y else series(r, name)
+        raw = series(r, name)
+        ys_lin.append(raw)
+        ys_log.append(_positive(raw))
+        y = _positive(raw) if log_y else raw
         is_visible = not show_all or name in visible
         if is_visible:
             shown.append(y)
@@ -394,6 +417,7 @@ def _species_plot(r, family, species, visible, log_y, y_title, unit, what) -> go
             hovertemplate=f"{label} = %{{y:.3g}} {unit}<extra></extra>"))
     fig.update_xaxes(title=config.TIME_AXIS_TITLE)
     fig.update_yaxes(title=f"{y_title} ({unit})", **(_log_axis(*shown) if log_y else {}))
+    _add_scale_buttons(fig, {"yaxis": _y_scales(*shown)}, log_y, ys=(ys_lin, ys_log))
     _shade_nights(fig, r)
     title = f"{_name(r)}: {what}" + (" (click a legend entry to show or hide it)" if show_all else "")
     return style(fig, title, legend_right=True)
@@ -463,6 +487,45 @@ def _add_time_slider(fig, t, frames, prefix="t = ", suffix=" h", label=_hours, a
                                   frame=dict(duration=0, redraw=False), mode="immediate",
                                   transition=dict(duration=0))])])],
         margin=dict(b=140))
+
+
+def _add_scale_buttons(fig, axes, log_active, labels=config.SCALE_BUTTON_LABELS, ys=None,
+                       colour=None):
+    """Linear/Log buttons (top right) that switch the scale of the plot.
+
+    ``axes``: layout key ("yaxis", "yaxis2", ...) -> (linear settings, log settings).
+    ``ys``: (linear ys, log ys), one array per trace; the buttons also switch the data, so the
+    log version can leave zeros out as gaps. ``colour``: heatmap trace-0 attribute -> (linear,
+    log) values, for a colour scale instead of axes. ``log_active`` marks the pressed button.
+    """
+    def args(which):
+        if colour is not None:
+            return [{key: [pair[which]] for key, pair in colour.items()}, [0]]
+        layout = {f"{name}.{k}": v for name, pair in axes.items() for k, v in pair[which].items()}
+        if ys is None:
+            return [layout]
+        return [{"y": list(ys[which])}, layout, list(range(len(ys[which])))]
+
+    method = "restyle" if colour is not None else ("update" if ys is not None else "relayout")
+    buttons = [dict(label=labels[0], method=method, args=args(0)),
+               dict(label=labels[1], method=method, args=args(1))]
+    menus = list(fig.layout.updatemenus or [])
+    menus.append(dict(type="buttons", direction="right", active=1 if log_active else 0, showactive=True,
+                      x=1.0, xanchor="right", y=1.02, yanchor="bottom", pad=dict(t=0, r=0, b=4),
+                      buttons=buttons, font=dict(size=12)))
+    fig.update_layout(updatemenus=menus)
+    return fig
+
+
+def _y_scales(*arrays, fixed=None):
+    """(linear, log) settings for one y axis: fixed ranges from ``fixed`` (size distributions,
+    which must not rescale while animating) or autorange with readable log ticks."""
+    plain = dict(tickmode="auto", tickvals=None, ticktext=None)
+    if fixed is not None:
+        return ({**plain, **_fixed_y(fixed, False), "type": "linear", "autorange": False},
+                {**plain, **_fixed_y(fixed, True), "autorange": False})
+    return ({**plain, "type": "linear", "autorange": True},
+            {**_log_axis(*arrays), "tickmode": "array", "autorange": True})
 
 
 def _shade_nights(fig, r, first_run_only=False):

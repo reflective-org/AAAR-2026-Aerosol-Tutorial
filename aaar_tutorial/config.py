@@ -129,7 +129,11 @@ INITIAL_COLOR = "#9a9a9a"          # t = 0 size distribution
 PARTICLE_COLOR = "#008300"
 GAS_COLOR = "#2a78d6"
 NIGHT_COLOR = "rgba(60, 70, 120, 0.12)"
-HEATMAP_COLORSCALE = "Viridis"
+# Banana plot: one hue, white -> dark blue (the dataviz skill's sequential blue, steps 100-700,
+# with white below them), so empty and near-empty cells blend into the white background.
+HEATMAP_COLORSCALE = [[0.0, "#ffffff"], [1 / 7, "#cde2fb"], [2 / 7, "#9ec5f4"], [3 / 7, "#6da7ec"],
+                      [4 / 7, "#3987e5"], [5 / 7, "#256abf"], [6 / 7, "#184f95"], [1.0, "#0d366b"]]
+SCALE_BUTTON_LABELS = ("Linear", "Log")   # scale buttons on the plots (top right)
 HEATMAP_DECADES = 4                # banana plot colour range below its maximum
 
 # Composition stack, bottom to top (keys of RunResult.totals).

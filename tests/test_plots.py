@@ -153,3 +153,45 @@ def test_compare_runs_on_different_size_grids():
     assert len(fig.data) == 4                       # one initial and one final curve per run (different grids)
     lo, hi = fig.layout.xaxis.range
     assert lo < np.log10(60) < hi
+
+
+def _scale_menu(fig):
+    menus = [m for m in fig.layout.updatemenus if m.buttons and m.buttons[-1].label.startswith("Log")]
+    assert len(menus) == 1
+    return menus[0]
+
+
+def test_banana_white_floor_and_colour_buttons():
+    r = at.load_example("level1_volatility")
+    fig = plots.banana(r)
+    assert fig.data[0].colorscale[0][1].lower() == "#ffffff"
+    assert not np.isnan(np.asarray(fig.data[0].z, dtype=float)).any()      # empty cells drawn white
+    menu = _scale_menu(fig)
+    assert [b.label for b in menu.buttons] == ["Linear colour", "Log colour"] and menu.active == 1
+    lin, log = (b.args[0] for b in menu.buttons)
+    assert lin["zmin"] == [0.0]
+    assert log["zmax"][0] == pytest.approx(np.log10(np.nanmax(np.asarray(r.dndlog10dp_cm3, dtype=float))))
+
+
+@pytest.mark.parametrize("make, n_axes, log_first", [
+    (lambda r: plots.size_distribution(r), 1, False),
+    (lambda r: plots.compare_size_distributions([r, r], labels=["a", "b"]), 1, False),
+    (lambda r: plots.totals(r), 5, False),
+    (lambda r: plots.gases(r), 1, True),
+    (lambda r: plots.radicals(r), 1, True),
+])
+def test_linear_log_buttons(make, n_axes, log_first):
+    r = at.load_example("level3_day_night")
+    menu = _scale_menu(make(r))
+    assert [b.label for b in menu.buttons] == ["Linear", "Log"] and menu.active == int(log_first)
+    layouts = [b.args[0] if b.method == "relayout" else b.args[1] for b in menu.buttons]
+    assert sum(k.endswith(".type") for k in layouts[1]) == n_axes
+    assert all(v == "log" for k, v in layouts[1].items() if k.endswith(".type"))
+    assert all(v == "linear" for k, v in layouts[0].items() if k.endswith(".type"))
+
+
+def test_log_button_turns_zeros_into_gaps():
+    r = at.load_example("level3_day_night")
+    menu = _scale_menu(plots.radicals(r))
+    lin_y, log_y = (b.args[0]["y"] for b in menu.buttons)
+    assert lin_y[0][0] == 0.0 and np.isnan(log_y[0][0])                    # OH at t = 0
