@@ -527,7 +527,9 @@ def test_log_axes_end_on_ticks():
     for values in ([40, 44], [0.008, 44], [5e-4, 3e-3], [0.0062, 0.0185], [6e4, 2.3e7], [0.04, 80]):
         axis = plots._log_axis(values)
         lo, hi = 10.0 ** np.array(axis["range"])
-        assert lo <= min(values) and hi >= max(values)
+        # ends on the data tick itself when a value sits on a tick (10**log10(40) can come back
+        # as 40.000000000000014, so compare to one part in 1e12)
+        assert lo <= min(values) * (1 + 1e-12) and hi >= max(values) * (1 - 1e-12)
         assert lo == pytest.approx(axis["tickvals"][0]) and hi == pytest.approx(axis["tickvals"][-1])
         assert 2 <= len(axis["tickvals"]) <= config.LOG_AXIS_MAX_TICKS
     r = at.load_example("level3_day_night")
