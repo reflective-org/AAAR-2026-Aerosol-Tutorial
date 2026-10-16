@@ -90,7 +90,7 @@ The ones students will run into:
   also count as sulfate for density, while the reported diameters assume 1400 kg m⁻³.
 - **Nucleation is H₂SO₄–H₂O only (A13).** At the Level 1 temperature (298 K) it produces no new
   particles even at 10⁷ molec cm⁻³ s⁻¹ of H₂SO₄; notebook 1 compares 298 K with 265 K. With
-  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 400 cm⁻³ at 270 K and 30 000 cm⁻³ at 265 K (7 600 and 34 000 in the web app, which runs an older model). The web
+  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 400 cm⁻³ at 270 K and 30 000 cm⁻³ at 265 K. The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
 - **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
   (300 s in Levels 1–2, 900 s in Level 3). ASSUMPTIONS.md quotes ≤ 3 % between 900 s and 600 s;
@@ -101,15 +101,13 @@ The ones students will run into:
 
 ## The web app's instructor guide
 
-The tomas-api guide's numbers were re-measured on 2026-10-14 with tomas-jax 8753736, which the web
-app still runs. The notebooks pin a newer commit (`2faa391`) that moves growing particles between
-size bins with a PPM remap instead of the older MNFIX split. Both use the same 40 size bins (1.7 nm
-to 17.5 µm). OH agrees: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). SOA
-agrees within 1 %. Particle size and nitrate differ, because the older split spreads the size
-distribution: at the end of Level 1 the geometric mean diameter is 86 nm in the web app and 111 nm
-in the notebooks; at the end of Level 3 (γ = 0.02) the web app
-has nitrate 4.96 µg m⁻³ and a geometric mean diameter of 162 nm, the notebooks 5.16 µg m⁻³ and
-185 nm. The guide counts the 725 species of the MCM file; the notebooks
+Since 2026-10-16 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
+TOMAS-JAX commit as the notebooks (`2faa391`) on the same 40 size bins (1.7 nm to 17.5 µm), and the
+tomas-api guide's numbers were re-measured with it through the API's own code path, so the two
+agree: e.g. Level 1 geometric mean diameter 111 nm, Level 3 nitrate 5.16 µg m⁻³, Level 3 OH
+≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). Before that the web app ran 8753736 (MNFIX split; Level 1
+86 nm, Level 3 nitrate 4.96 µg m⁻³). A deployed web app shows the new numbers once it is
+redeployed from that branch (its result cache starts empty; prewarm it). The guide counts the 725 species of the MCM file; the notebooks
 say 726 because the model adds the `NA_HET` counter.
 
 ## Updating pins
