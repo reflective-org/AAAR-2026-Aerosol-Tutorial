@@ -146,8 +146,8 @@ def test_partitioning_explainer():
 
 
 def test_compare_runs_on_different_size_grids():
-    coarse = at.run("level1_volatility", duration_h=0.5, numerics={"nbins": 40}, progress=False, name="40 bins")
-    fine = at.load_example("level1_volatility")
+    coarse = at.load_example("level1_volatility")                  # 40 bins
+    fine = at.run("level1_volatility", duration_h=0.5, numerics={"nbins": 80}, progress=False, name="80 bins")
     assert len(coarse.diameter_nm) != len(fine.diameter_nm)
     fig = plots.compare_size_distributions([coarse, fine])
     assert len(fig.data) == 4                       # one initial and one final curve per run (different grids)
