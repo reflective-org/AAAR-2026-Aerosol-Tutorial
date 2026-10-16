@@ -2,7 +2,8 @@
 
 How to use the notebooks in the AAAR 2026 tutorial, how long they take, what to warn students
 about, and how to update the model version. The web app has its own instructor guide (in the
-tomas-api repository, `docs/aaar/INSTRUCTOR_GUIDE.md`).
+tomas-api repository, `docs/aaar/INSTRUCTOR_GUIDE.md`). [model_flowchart.pdf](model_flowchart.pdf) shows how the
+model works in two pages; it is a good slide to open the session with.
 
 ## Before the session
 

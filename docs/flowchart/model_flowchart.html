@@ -1,0 +1,273 @@
+<!doctype html>
+<!-- Source of docs/model_flowchart.pdf. Print with Chrome (landscape Letter, background graphics on).
+     Fonts: Gambarino (titles) and Open Sans (text), the Reflective brand fonts; other systems fall back. -->
+<html lang="en"><head><meta charset="utf-8"><title>How the AAAR box model works</title>
+<style>
+  @page { size: 11in 8.5in; margin: 0; }
+  :root { --charcoal:#282C2E; --blue:#466F8D; --gold:#A47F52; --green:#858F6A; --clay:#A0503C; --slate:#8B8D8E;
+          --sand:#F6EFEA; --beige:#E1CBBA; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Open Sans", Helvetica, Arial, sans-serif; color: var(--charcoal); }
+  .page { width: 1056px; height: 816px; position: relative; overflow: hidden; page-break-after: always; background: #fff; }
+  .bar { position: absolute; left: 0; top: 0; width: 100%; height: 8px;
+         background: linear-gradient(90deg, #466F8D 0%, #939280 50%, #A47F52 100%); }
+  .eyebrow { position: absolute; left: 32px; top: 26px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--slate); }
+  h1 { position: absolute; left: 32px; top: 40px; margin: 0; font-family: "Gambarino", "Libre Caslon Text", Georgia, serif;
+       font-weight: 400; font-size: 29px; }
+  .sub { position: absolute; left: 32px; top: 80px; width: 990px; font-size: 12px; font-weight: 300; line-height: 1.4; }
+  .col { position: absolute; border-radius: 10px; padding: 10px 10px 8px; }
+  .col h2 { margin: 0 0 7px; font-size: 12.5px; font-weight: 600; letter-spacing: .02em; }
+  .col h2 .n { display: inline-block; width: 19px; height: 19px; border-radius: 50%; color: #fff; text-align: center;
+               font-size: 11px; line-height: 19px; margin-right: 6px; }
+  .gas { background: #EDF2F6; border: 1.5px solid var(--blue); } .gas .n { background: var(--blue); }
+  .hand { background: #F2F3EE; border: 1.5px solid var(--green); } .hand .n { background: var(--green); }
+  .aer { background: #FAF4EC; border: 1.5px solid var(--gold); } .aer .n { background: var(--gold); }
+  .note { background: #fff; border: 1.2px dashed var(--slate); }
+  .card { background: #fff; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-size: 10.5px; line-height: 1.38;
+          border: 1px solid rgba(40,44,46,.12); }
+  .card b { font-weight: 600; }
+  .small { font-size: 9.5px; color: #4a4f52; }
+  .tag { display: inline-block; font-size: 8.5px; font-weight: 700; letter-spacing: .04em; color: #fff; border-radius: 9px;
+         padding: 1px 6px; margin-left: 3px; vertical-align: 1px; }
+  .ppm { background: var(--clay); } .mnfix { background: var(--slate); } .jax { background: var(--blue); }
+  svg.arrows { position: absolute; left: 0; top: 0; width: 1056px; height: 816px; pointer-events: none; }
+  .lbl { font-size: 10px; fill: var(--charcoal); }
+  .panel { position: absolute; border-radius: 8px; padding: 9px 11px; font-size: 10.5px; line-height: 1.42; }
+  .panel h3 { margin: 0 0 5px; font-size: 11.5px; font-weight: 600; }
+  .panel ul { margin: 0; padding-left: 15px; } .panel li { margin-bottom: 2px; }
+  .foot { position: absolute; left: 32px; bottom: 16px; font-size: 9px; color: var(--slate); width: 760px; }
+  .badge { position: absolute; right: 30px; bottom: 12px; height: 28px; }
+  .step { position: absolute; left: 32px; width: 640px; border-radius: 8px; padding: 7px 10px 6px 46px; font-size: 10.5px;
+          line-height: 1.4; background: #FAF4EC; border: 1.2px solid var(--gold); }
+  .step .num { position: absolute; left: 10px; top: 9px; width: 26px; height: 26px; border-radius: 50%; background: var(--gold);
+               color: #fff; font-weight: 700; font-size: 13px; text-align: center; line-height: 26px; }
+  .steps { position: absolute; left: 32px; top: 112px; width: 640px; }
+  .steps .step { position: relative; left: 0; width: auto; margin-bottom: 7px; min-height: 40px; }
+  .step b { font-weight: 600; } .step .how { color: #4a4f52; font-size: 9.8px; }
+</style></head><body>
+
+<!-- ============================== PAGE 1: the coupling loop ============================== -->
+<div class="page">
+  <div class="bar"></div>
+  <div class="eyebrow">AAAR 2026 · Photochemical box modeling tutorial · How the model works</div>
+  <h1>One coupling interval, repeated for the whole run</h1>
+  <div class="sub">Gas chemistry and aerosol take turns (operator splitting). In each interval Δt<sub>c</sub> (5 min in Levels 1–2,
+    15 min in Level 3) the chemistry runs first, its products go to the aerosol model, and the vapors the particles took up or
+    released go back to the gas. <span class="tag ppm">PPM</span> marks where particles move between size bins with the
+    piecewise-parabolic method.</div>
+
+  <div class="col note" style="left:32px; top:146px; width:150px; height:330px;">
+    <h2>Scenario</h2>
+    <div class="card">initial gases: limonene, O₃, NO, NO₂, SO₂, CO, CH₄ …</div>
+    <div class="card">seed aerosol: number, size, sulfate / organic (goes straight to step 3)</div>
+    <div class="card">T, RH (constant for the run); site and date (Level 3)</div>
+    <div class="card">γ(N₂O₅); c* table; number of size bins (40–320)</div>
+  </div>
+
+  <div class="col gas" style="left:206px; top:146px; width:232px; height:330px;">
+    <h2><span class="n">1</span>Gas-phase chemistry</h2>
+    <div class="card"><b>Photolysis rates J</b><br>Level 3: TUV-x from latitude, longitude, date and time
+      (at the middle of Δt<sub>c</sub>). Level 2: constant light (a 30° sun scaled to J(NO₂) = 5×10⁻³ s⁻¹, about half).</div>
+    <div class="card"><b>Rate constants</b> for all 2135 reactions, frozen for Δt<sub>c</sub>: MCM expressions, J,
+      the RO₂ sum, and k<sub>het</sub>(N₂O₅) from the particles.</div>
+    <div class="card"><b>Stiff ODE solver</b> <span class="tag jax">JAX</span><br>MCM v3.3.1 limonene subset, 725 species
+      (diffrax Kvaerno3, rtol 10⁻³), integrated over Δt<sub>c</sub>.</div>
+  </div>
+
+  <div class="col hand" style="left:462px; top:146px; width:168px; height:330px;">
+    <h2><span class="n">2</span>Hand-off</h2>
+    <div class="card"><b>Sulfuric acid</b><br>SO₂ + OH → H₂SO₄, counted over Δt<sub>c</sub> → a production rate</div>
+    <div class="card"><b>Nitrate</b><br>N₂O₅ taken up by particles → 2 NO₃⁻ per N₂O₅ → a production rate</div>
+    <div class="card"><b>Condensable organics</b><br>~250 products grouped by c* into 15 volatility classes
+      (half decades, 10⁻³ to 10⁴ µg m⁻³; c* from Li et al. 2016 or a table) — the VBS gas phase</div>
+  </div>
+
+  <div class="col aer" style="left:654px; top:146px; width:214px; height:330px;">
+    <h2><span class="n">3</span>Aerosol microphysics</h2>
+    <div class="small" style="margin:-3px 0 6px">TOMAS sectional model, 60 s micro-steps over Δt<sub>c</sub> (page 2)</div>
+    <div class="card">sources: H₂SO₄ vapor; nitrate onto particles <span class="tag ppm">PPM</span></div>
+    <div class="card">nucleation (H₂SO₄–H₂O; off in the presets)</div>
+    <div class="card">coagulation</div>
+    <div class="card">H₂SO₄ condensation <span class="tag ppm">PPM</span></div>
+    <div class="card"><b>SOA partitioning</b> (vbs-jax): condensation and evaporation per class and size bin
+      <span class="tag ppm">PPM</span></div>
+    <div class="card">water uptake (equilibrium)</div>
+  </div>
+
+  <div class="col hand" style="left:892px; top:146px; width:132px; height:330px;">
+    <h2><span class="n">4</span>Hand-back</h2>
+    <div class="card">change of each class's vapor → back to the individual species (by gas share when condensing,
+      by particle share when evaporating)</div>
+    <div class="card">per-species particle mass → "top contributors"</div>
+    <div class="card">Level 3: NO₂ reset to 1 ppb (stand-in for emissions)</div>
+  </div>
+
+  <svg class="arrows" viewBox="0 0 1056 816">
+    <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#282C2E"/></marker>
+      <marker id="ahs" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#8B8D8E"/></marker></defs>
+    <path d="M183,266 L203,266" stroke="#282C2E" stroke-width="1.6" marker-end="url(#ah)"/>
+    <path d="M439,266 L459,266" stroke="#282C2E" stroke-width="1.6" marker-end="url(#ah)"/>
+    <path d="M631,266 L651,266" stroke="#282C2E" stroke-width="1.6" marker-end="url(#ah)"/>
+    <path d="M869,266 L889,266" stroke="#282C2E" stroke-width="1.6" marker-end="url(#ah)"/>
+    <!-- main return: hand-back -> chemistry (next interval) -->
+    <path d="M958,477 L958,516 L322,516 L322,480" fill="none" stroke="#282C2E" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="640" y="510" class="lbl" text-anchor="middle">next interval: gases changed by condensation and evaporation (vapors can react again)</text>
+    <!-- feedback: particle surface -> k_het -->
+    <path d="M846,477 L846,494 L390,494 L390,480" fill="none" stroke="#8B8D8E" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#ahs)"/>
+    <text x="618" y="489" class="lbl" text-anchor="middle" style="fill:#5d6163">particle surface area → k<tspan font-size="7" dy="2">het</tspan><tspan dy="-2">(N₂O₅) and each bin's nitrate share, for the next interval</tspan></text>
+  </svg>
+
+  <div class="panel" style="left:32px; top:540px; width:330px; height:190px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>What the particles carry</h3>
+    <ul>
+      <li><b>sulfate</b>: the seed plus condensed H₂SO₄</li>
+      <li><b>POA</b>: the seed's non-volatile organic; absorbs SOA</li>
+      <li><b>SOA</b>: 15 volatility classes; a per-species tracker shows which products they hold</li>
+      <li><b>nitrate</b>: only from N₂O₅ uptake (non-volatile)</li>
+      <li><b>water</b>: in equilibrium with RH</li>
+    </ul>
+    <div class="small" style="margin-top:6px">Not in the model: ammonium nitrate and NH₃, HNO₃ partitioning, sea salt, dust; dilution, deposition and wall loss.</div>
+  </div>
+
+  <div class="panel" style="left:378px; top:540px; width:330px; height:190px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>The three levels</h3>
+    <ul>
+      <li><b>Level 1, Volatility</b>: no chemistry (steps 1, 2 and 4 are skipped). A surrogate organic with the c* you choose
+        is produced straight into one class; H₂SO₄ at a production rate you choose.</li>
+      <li><b>Level 2, Limonene SOA</b>: full chemistry, constant light, 6 h.</li>
+      <li><b>Level 3, Day and night</b>: TUV-x light over 24 h, N₂O₅ uptake (γ) makes nitrate at night,
+        NO₂ reset to 1 ppb every 15 min.</li>
+    </ul>
+  </div>
+
+  <div class="panel" style="left:724px; top:540px; width:300px; height:190px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>Clocks and grids</h3>
+    <ul>
+      <li>coupling interval Δt<sub>c</sub>: 300 s (Levels 1–2), 900 s (Level 3)</li>
+      <li>aerosol micro-step: 60 s; vbs-jax sub-steps inside it</li>
+      <li>size bins: 40 (default), 80, 160 or 320, always 1.7 nm to 17.5 µm at sulfate density (plots: 1.8 nm to 19 µm)</li>
+      <li>output: every 10 min (Levels 1–2), 30 min (Level 3)</li>
+      <li>all in float64 JAX; one compile per grid and level</li>
+    </ul>
+  </div>
+
+  <div class="foot">TOMAS-JAX 1f519e9 (aaar-stable-2026-10-16) · vbs-jax 4a67f16 · tuvx-jax e5d9032 · Details: TOMAS-JAX docs/aaar/coupling.md,
+    aerosol_step.md, soa_partitioning.md · Assumptions: ASSUMPTIONS.md</div>
+  <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
+</div>
+
+<!-- ============================== PAGE 2: one aerosol micro-step ============================== -->
+<div class="page">
+  <div class="bar"></div>
+  <div class="eyebrow">AAAR 2026 · Photochemical box modeling tutorial · How the model works</div>
+  <h1>Inside one aerosol micro-step (60 s)</h1>
+  <div class="sub">Step 3 on page 1, in the order the model runs it. Each step changes the size distribution (number and mass of each species
+    in each size bin) before the next one starts.</div>
+
+  <div class="steps">
+  <div class="step"><div class="num">1</div>
+    <b>Sources.</b> H₂SO₄ made by the chemistry enters the gas at a steady rate. Nitrate from N₂O₅ uptake is added to the particles,
+    each size bin getting its share of the uptake (larger surface, larger share); the particles that grew are then moved to the bins
+    that match their new mass <span class="tag ppm">PPM</span>.
+    <div class="how">Then MNFIX <span class="tag mnfix">MNFIX</span> keeps each bin's mean mass inside the bin. Level 1: the surrogate
+      vapor and H₂SO₄ come from your production rates.</div></div>
+
+  <div class="step"><div class="num">2</div>
+    <b>Nucleation.</b> New 1.7 nm particles at a rate from H₂SO₄ and water (Riccobono / Dunne scheme with NH₃, ions and organics
+    set to zero, so binary H₂SO₄–H₂O); as in TOMAS each new particle is 10 % organic by mass. Off in the presets; it needs high H₂SO₄ and cold air.
+    <div class="how">Adaptive sub-steps; MNFIX afterwards <span class="tag mnfix">MNFIX</span>.</div></div>
+
+  <div class="step"><div class="num">3</div>
+    <b>Coagulation.</b> Particles collide and stick: number falls, mass stays. 40 bins: the two-moment scheme of Fortran TOMAS
+    (Tzivion, Feingold and Levin 1987); 80–320 bins: the linear discrete method (Simmel et al. 2002).
+    <div class="how">Ten 6 s forward-Euler sub-steps with the kernel fixed for the 60 s, MNFIX after each <span class="tag mnfix">MNFIX</span>.</div></div>
+
+  <div class="step"><div class="num">4</div>
+    <b>H₂SO₄ condensation.</b> The vapor condenses onto every bin at the kinetic rate (Fuchs–Sutugin correction in Dahneke's form, accommodation 1); it never
+    evaporates. Particles grow across bin edges <span class="tag ppm">PPM</span>.
+    <div class="how">Flux-form PPM in log-mass with a monotone limiter (Colella and Woodward 1984); MNFIX before and after
+      <span class="tag mnfix">MNFIX</span>, then particle water is reset.</div></div>
+
+  <div class="step"><div class="num">5</div>
+    <b>SOA partitioning (vbs-jax).</b> For each volatility class and size bin: condensation where the vapor exceeds the bin's
+    equilibrium vapor, evaporation where it is below. Equilibrium vapor = c* (corrected to the run temperature) × the class's share of the organic mass (Raoult, by mass)
+    × the Kelvin term (σ = 0.025 N m⁻¹). Seed POA and SOA absorb the vapor; a particle with no organic yet still takes up vapor above its c* (absorbing floor, ASSUMPTIONS AC1).
+    Then each bin's particles move by their own growth or shrinkage <span class="tag ppm">PPM</span>.
+    <div class="how">vbs-jax adaptive sub-steps with a Raoult fixed-point loop; the PPM remap carries each bin's parabolic sub-bin
+      profile and its composition to the bins that match the new masses; organic that would push the top bin off the grid stays in
+      the gas; MNFIX keeps a tiny floor in empty bins <span class="tag mnfix">MNFIX</span>.</div></div>
+
+  <div class="step"><div class="num">6</div>
+    <b>Water.</b> Particle water in equilibrium with RH: ammonium-bisulfate water ratio for sulfate and, as a simplification, for
+    organics and nitrate too (organics come out too hygroscopic; ASSUMPTIONS A9).</div>
+  </div>
+
+  <!-- right column: PPM explained -->
+  <div class="panel" style="left:690px; top:118px; width:334px; height:388px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>What PPM does here</h3>
+    <svg width="312" height="150" viewBox="0 0 312 150" style="display:block; margin:2px 0 6px">
+      <!-- before: bars + parabola -->
+      <text x="4" y="12" font-size="9.5" fill="#282C2E">before</text>
+      <rect x="10" y="78" width="26" height="40" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="36" y="48" width="26" height="70" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="62" y="62" width="26" height="56" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="88" y="96" width="26" height="22" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <path d="M10,90 Q23,72 36,62 Q49,40 62,52 Q75,62 88,82 Q101,104 114,112" fill="none" stroke="#A0503C" stroke-width="1.6"/>
+      <line x1="6" y1="118" x2="120" y2="118" stroke="#282C2E" stroke-width="0.8"/>
+      <!-- arrow -->
+      <path d="M128,82 L170,82" stroke="#282C2E" stroke-width="1.4" marker-end="url(#ah2)"/>
+      <text x="149" y="74" font-size="9" text-anchor="middle" fill="#282C2E">grow</text>
+      <defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#282C2E"/></marker></defs>
+      <!-- after -->
+      <text x="180" y="12" font-size="9.5" fill="#282C2E">after: moved to new bins</text>
+      <rect x="182" y="104" width="26" height="14" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="208" y="74" width="26" height="44" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="234" y="50" width="26" height="68" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="260" y="70" width="26" height="48" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <rect x="286" y="102" width="20" height="16" fill="#E1CBBA" stroke="#A47F52" stroke-width="0.8"/>
+      <path d="M192,112 Q208,96 220,78 Q238,46 252,52 Q266,58 280,80 Q294,104 306,112" fill="none" stroke="#A0503C" stroke-width="1.6"/>
+      <line x1="178" y1="118" x2="308" y2="118" stroke="#282C2E" stroke-width="0.8"/>
+      <text x="56" y="134" font-size="9" text-anchor="middle" fill="#4a4f52">fixed size bins (log mass)</text>
+      <text x="244" y="134" font-size="9" text-anchor="middle" fill="#4a4f52">deposited by exact overlap</text>
+      <text x="4" y="148" font-size="8.5" fill="#A0503C">red: the parabola PPM fits inside each bin</text>
+    </svg>
+    <div style="font-size:10.3px; line-height:1.42">
+      A sectional model keeps particles in fixed size bins. When particles grow, they must be moved to bigger bins without
+      smearing the distribution or losing mass. PPM fits a parabola to the number in each bin (limited, so it never goes
+      negative or overshoots), shifts it by the growth, and deposits it onto the fixed bins. Number and the mass of every
+      species are conserved to round-off.
+      <ul style="margin:5px 0 0; padding-left:15px">
+        <li><b>Used for</b>: H₂SO₄ condensation, SOA growth and evaporation, nitrate added by N₂O₅ uptake.</li>
+        <li><b>Before PPM</b> (tag aaar-stable-2026-10-15): SOA and nitrate were moved by MNFIX, which made the size
+          distribution jagged; with PPM the mean diameter changes by under 0.6 % from 40 to 160 bins.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel" style="left:690px; top:514px; width:334px; height:128px; background:#fff; border:1px dashed var(--slate);">
+    <h3>MNFIX, still used</h3>
+    <div style="font-size:10.3px; line-height:1.42">TOMAS's bookkeeping fix: if a bin's mean particle mass has left the bin
+      (after sources, nucleation, coagulation, H₂SO₄ condensation and the SOA remap), part of the bin moves to the neighbouring bin so number and mass stay
+      consistent. With PPM it only does small corrections; the old SOA and nitrate path (<code>growth_bin_transfer="mnfix"</code>) is kept
+      for comparison.</div>
+  </div>
+
+  <div class="panel" style="left:32px; top:654px; width:992px; height:102px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>References for the numerics</h3>
+    <div style="font-size:9.6px; line-height:1.45">
+      Colella, P. and Woodward, P. R.: The Piecewise Parabolic Method (PPM) for gas-dynamical simulations, J. Comput. Phys., 54, 174–201, 1984. ·
+      Tzivion, S., Feingold, G. and Levin, Z.: An efficient numerical solution to the stochastic collection equation, J. Atmos. Sci., 44, 3139–3149, 1987. ·
+      Simmel, M., Trautmann, T. and Tetzlaff, G.: Numerical solution of the stochastic collection equation – comparison of the Linear Discrete Method with other methods, Atmos. Res., 61, 135–148, 2002. ·
+      Zaveri, R. A. et al.: Modeling kinetic partitioning of secondary organic aerosol and size distribution dynamics, Atmos. Chem. Phys., 14, 5153–5181, 2014. ·
+      Pankow, J. F.: An absorption model of gas/particle partitioning of organic compounds in the atmosphere, Atmos. Environ., 28, 185–188, 1994. ·
+      Li, Y., Pöschl, U. and Shiraiwa, M.: Molecular corridors and parameterizations of volatility, Atmos. Chem. Phys., 16, 3327–3344, 2016.
+    </div>
+  </div>
+
+  <div class="foot">TOMAS-JAX 1f519e9 (aaar-stable-2026-10-16): box/aerosol_step.py, physics/ppm_remap.py, physics/condensation_ppm.py,
+    physics/soa_partitioning.py, core/mnfix_jax.py</div>
+  <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
+</div>
+</body></html>

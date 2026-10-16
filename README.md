@@ -96,6 +96,10 @@ notebook and pick the `.venv` kernel.
 
 ## The model and its assumptions
 
+**[How the model works](docs/model_flowchart.pdf)**: a two-page flowchart of one coupling interval (chemistry,
+hand-off to the aerosol, hand-back) and of one aerosol micro-step, showing where particles move between size
+bins (PPM) and what each level switches on.
+
 The notebooks pin every model package to a commit, so the results do not change under you:
 
 - [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c)
@@ -126,6 +130,7 @@ aaar_tutorial/      helpers the notebooks import: run(), plots, setup(), TUV-x d
 tests/              unit tests and notebook checks (pytest)
 scripts/set_pins.py changes the tutorial ref or a model commit everywhere at once
 docs/INSTRUCTORS.md session plan, timings, caveats, how to update pins
+docs/model_flowchart.pdf  how the model works, in two pages (source: docs/flowchart/)
 ```
 
 Tests: `uv run pytest` (about 10 s), and `uv run pytest -m notebooks` runs every notebook top to
