@@ -31,7 +31,7 @@
   03 90 s, 04 24 s).
 - Open: `docs/model_flowchart.pdf` still shows only the steps without nucleation (5/15 min
   intervals, 60 s micro-steps) and names 5227ddd; README and INSTRUCTORS say so until it is
-  re-printed.
+  re-printed. (Done the same day, see the flowchart entry below.)
 - Review fixes (same day): notebook 1 no longer puts the 78 % Level 3 overshoot down to the
   chemistry (it is the 60 s micro-step alone, measured at 60 s coupling; coupling.md table);
   notebook 4 no longer says only 300, 600 and 900 s coupling intervals are allowed (that is the
@@ -40,6 +40,14 @@
   12 s); INSTRUCTORS says the web app's branch runs 0e23da0 too (tomas-api moved its submodule).
   Re-checked notebook 4 with nucleation on: loop and model agree to 6 digits (nitrate 3.34413,
   SOA 0.0436894, N 2553.58, 8664 solver steps), loop 114 s.
+- Flowchart (`docs/model_flowchart.pdf`) for 0e23da0: with nucleation on, Δt_c = Δt_req/m with
+  m = ⌈Δt_req/60 s⌉ and Δt_m = 5 s (page 1 subtitle, aerosol box, Clocks panel; Level 3 NO₂
+  reset every Δt_c); page 2 title, step 1 C ← C + P·Δt_m, step 2 J = k(T)·Cⁿ with n ≈ 4 (Dunne
+  et al. 2016, linked) and why 60 s steps overshoot (+78 %) while 5 s stays within 4 %,
+  coagulation sub-steps Δt_m/10 (6 s, 0.5 s with nucleation; the model keeps ten). Footers name
+  0e23da0 and docs instead of code files; no code names left in the boxes. Re-printed the same way
+  (headless Chrome, fonts embedded), checked as PNGs, no box overflows. README and INSTRUCTORS no
+  longer say the flowchart shows only the steps without nucleation.
 
 ## 2026-10-16 (evening): Shantanu's c\* table is the Level 2/3 default (helpers 0.4.5)
 

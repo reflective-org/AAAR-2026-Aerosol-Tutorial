@@ -3,9 +3,8 @@
 How to use the notebooks in the AAAR 2026 tutorial, how long they take, what to warn students
 about, and how to update the model version. The web app has its own instructor guide (in the
 tomas-api repository, `docs/aaar/INSTRUCTOR_GUIDE.md`). [model_flowchart.pdf](model_flowchart.pdf) shows how the
-model works in two pages; it is a good slide to open the session with. Its time steps (5 or 15 min
-intervals, 60 s micro-steps) are those without nucleation; with nucleation on the model uses at
-most 60 s and 5 s (see Run times).
+model works in two pages; it is a good slide to open the session with. It gives the time steps with
+and without nucleation (see Run times for what the shorter steps cost).
 
 ## Before the session
 

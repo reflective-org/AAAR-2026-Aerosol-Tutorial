@@ -106,8 +106,8 @@ notebook and pick the `.venv` kernel.
 
 **[How the model works](docs/model_flowchart.pdf)**: a two-page flowchart of one coupling interval (chemistry,
 hand-off to the aerosol, hand-back) and of one aerosol micro-step, showing where particles move between size
-bins (PPM) and what each level switches on. Its time steps (5 or 15 min intervals, 60 s micro-steps)
-are those without nucleation; with nucleation on the model uses at most 60 s and 5 s.
+bins (PPM), what each level switches on, and why the time steps are shorter with nucleation on
+(at most 60 s intervals and 5 s micro-steps instead of 5 or 15 min and 60 s).
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
