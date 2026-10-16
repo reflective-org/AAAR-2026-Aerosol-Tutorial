@@ -158,12 +158,12 @@ The ones students will run into:
 
 ## The web app's instructor guide
 
-Since 2026-10-16 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
-model as the notebooks (TOMAS-JAX 5227ddd, with Shantanu's c\* table) on the same 40 size bins
-(1.7 nm to 17.5 µm), and the tomas-api guide's numbers were re-measured with it through the API's
-own code path, so the two agree. The notebooks now pin `0e23da0`, which adds only the shorter
-nucleation time steps and the input checks: runs without nucleation give the same numbers, and
-runs with nucleation match the web app once it runs 0e23da0 too. Shared numbers: Level 1
+Since 2026-10-17 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
+TOMAS-JAX commit as the notebooks (`0e23da0`, with Shantanu's c\* table and the shorter nucleation
+time steps) on the same 40 size bins (1.7 nm to 17.5 µm). The tomas-api guide's numbers were
+measured through the API's own code path, most of them on 2026-10-16 with `5227ddd` (which gives
+the same results for runs without nucleation) and every number that involves nucleation again on
+2026-10-17 with `0e23da0`, so the two agree. Shared numbers: Level 1
 geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3
 OH ≈ 1.2×10⁷ (day 1) / 2.4×10⁷ cm⁻³ (day 2).
 Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3

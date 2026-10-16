@@ -85,7 +85,7 @@ notebook and pick the `.venv` kernel.
   them. Colab: *Runtime › Restart session*, then *Runtime › Run all* (the install cell updates the
   helpers first). Locally: `git pull`, `uv sync`, then *Kernel › Restart Kernel*.
 - **A run is slow or seems stuck.** Colab is about twice as slow as a laptop. Runs with nucleation on
-  take 5–10 times longer than without (see the run times above). Every run stops with a
+  take 4 to 15 times longer than without (see the run times above). Every run stops with a
   `TimeoutError` after 15 minutes (`at.run(..., timeout_s=None)` turns the limit off). Notebooks 1–3
   have a `USE_PRECOMPUTED = True` switch that loads a stored result of the preset instead of
   running it.

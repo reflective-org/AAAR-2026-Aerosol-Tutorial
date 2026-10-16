@@ -32,6 +32,14 @@
 - Open: `docs/model_flowchart.pdf` still shows only the steps without nucleation (5/15 min
   intervals, 60 s micro-steps) and names 5227ddd; README and INSTRUCTORS say so until it is
   re-printed.
+- Review fixes (same day): notebook 1 no longer puts the 78 % Level 3 overshoot down to the
+  chemistry (it is the 60 s micro-step alone, measured at 60 s coupling; coupling.md table);
+  notebook 4 no longer says only 300, 600 and 900 s coupling intervals are allowed (that is the
+  web app; notebook 3 and INSTRUCTORS suggest 60 s for a fair comparison); README gives 4 to 15
+  times, not 5–10, for the extra run time with nucleation (15 s vs 1 s, 25 s vs 6 s, 2 min vs
+  12 s); INSTRUCTORS says the web app's branch runs 0e23da0 too (tomas-api moved its submodule).
+  Re-checked notebook 4 with nucleation on: loop and model agree to 6 digits (nitrate 3.34413,
+  SOA 0.0436894, N 2553.58, 8664 solver steps), loop 114 s.
 
 ## 2026-10-16 (evening): Shantanu's c\* table is the Level 2/3 default (helpers 0.4.5)
 
