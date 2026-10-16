@@ -25,10 +25,17 @@ WHITE = (255, 255, 255)
 BANNER_W, BANNER_H, RADIUS, PAD = 1200, 300, 18, 56                         # CSS pixels
 KICKER = "AAAR 2026  ·  Photochemical box modeling tutorial"
 
-# One banner per notebook; add the others here when they get the design.
+# One banner per notebook. level=None (notebook 4) shows `note` instead of the level dots.
 BANNERS = {
     "banner-level1.png": {"title": "Level 1 · Volatility",
                           "subtitle": "When does a vapor make particles grow?", "level": 1},
+    "banner-level2.png": {"title": "Level 2 · Limonene SOA",
+                          "subtitle": "How does limonene chemistry make particle mass?", "level": 2},
+    "banner-level3.png": {"title": "Level 3 · Day and night",
+                          "subtitle": "What makes particle nitrate at night?", "level": 3},
+    "banner-inside.png": {"title": "Inside the model",
+                          "subtitle": "One coupling interval, written out step by step", "level": None,
+                          "note": "Optional  ·  after Level 3"},
 }
 N_LEVELS = 3
 
@@ -81,7 +88,7 @@ def tracked(draw: ImageDraw.ImageDraw, xy, text: str, fnt, fill, tracking_css: f
         x += draw.textlength(ch, font=fnt) + px(tracking_css)
 
 
-def banner(brand: Path, title: str, subtitle: str, level: int) -> Image.Image:
+def banner(brand: Path, title: str, subtitle: str, level: int | None, note: str = "") -> Image.Image:
     w, h = px(BANNER_W), px(BANNER_H)
     im = gradient(w, h).convert("RGBA")
 
@@ -96,12 +103,15 @@ def banner(brand: Path, title: str, subtitle: str, level: int) -> Image.Image:
     d.text((px(PAD), px(162)), subtitle, font=font(brand, "light", 24), fill=BEIGE_10)
 
     y_dots, r = px(BANNER_H - 50), px(5.5)                                   # progress: Level k of N
-    for k in range(N_LEVELS):
-        cx = px(PAD + 6) + k * px(22)
-        box = (cx - r, y_dots - r, cx + r, y_dots + r)
-        d.ellipse(box, fill=WHITE if k < level else None, outline=WHITE, width=px(1.5))
-    d.text((px(PAD + 6) + N_LEVELS * px(22), y_dots), f"Level {level} of {N_LEVELS}",
-           font=font(brand, "medium", 14), fill=BEIGE_50, anchor="lm")
+    if level is None:
+        d.text((px(PAD), y_dots), note, font=font(brand, "medium", 14), fill=BEIGE_50, anchor="lm")
+    else:
+        for k in range(N_LEVELS):
+            cx = px(PAD + 6) + k * px(22)
+            box = (cx - r, y_dots - r, cx + r, y_dots + r)
+            d.ellipse(box, fill=WHITE if k < level else None, outline=WHITE, width=px(1.5))
+        d.text((px(PAD + 6) + N_LEVELS * px(22), y_dots), f"Level {level} of {N_LEVELS}",
+               font=font(brand, "medium", 14), fill=BEIGE_50, anchor="lm")
 
     white = logo(brand, "White", 34)                                         # Supported by Reflective
     x_logo, y_logo = w - px(PAD) - white.width, h - px(40) - white.height
