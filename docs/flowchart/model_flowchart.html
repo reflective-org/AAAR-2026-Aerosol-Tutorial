@@ -62,7 +62,7 @@
     <div class="card">initial gases: limonene, O₃, NO, NO₂, SO₂, CO, CH₄ …</div>
     <div class="card">seed aerosol: number, size, sulfate / organic (goes straight to step 3)</div>
     <div class="card">T, RH (constant for the run); site and date (Level 3)</div>
-    <div class="card">γ(N₂O₅); c* table; number of size bins (40–320)</div>
+    <div class="card">γ(N₂O₅); c* table (<a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li et al. 2016</a> for species not in it); number of size bins (40–320)</div>
   </div>
 
   <div class="col gas" style="left:206px; top:146px; width:232px; height:330px;">
@@ -79,8 +79,9 @@
     <h2><span class="n">2</span>Hand-off</h2>
     <div class="card"><b>Sulfuric acid</b><br>SO₂ + OH → H₂SO₄, counted over Δt<sub>c</sub> → a production rate</div>
     <div class="card"><b>Nitrate</b><br>N₂O₅ taken up by particles → 2 NO₃⁻ per N₂O₅ → a production rate</div>
-    <div class="card"><b>Condensable organics</b><br>~250 products grouped by c* into 15 volatility classes
-      (half decades, 10⁻³ to 10⁴ µg m⁻³; c* from <a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li et al. 2016</a> or a table) — the VBS gas phase</div>
+    <div class="card"><b>Condensable organics</b><br>228 products grouped by c* into 15 volatility classes
+      (half decades, 10⁻³ to 10⁴ µg m⁻³) — the VBS gas phase. c* from S. Jathar's table
+      (<a href="https://doi.org/10.1016/j.fluid.2008.04.020" target="_blank" rel="noopener">Nannoolal et al. 2008</a>, via PyCHAM)</div>
   </div>
 
   <div class="col aer" style="left:654px; top:146px; width:214px; height:330px;">
@@ -154,7 +155,7 @@
     </ul>
   </div>
 
-  <div class="foot">TOMAS-JAX 2faa391 (aaar-stable-2026-10-16b) · vbs-jax 4a67f16 · tuvx-jax e5d9032 · Details: TOMAS-JAX docs/aaar/coupling.md,
+  <div class="foot">TOMAS-JAX 5227ddd (aaar-stable-2026-10-16c) · vbs-jax 4a67f16 · tuvx-jax e5d9032 · Details: TOMAS-JAX docs/aaar/coupling.md,
     aerosol_step.md, soa_partitioning.md · Assumptions: ASSUMPTIONS.md</div>
   <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
 </div>
@@ -249,25 +250,27 @@
 
   <div class="panel" style="left:690px; top:514px; width:334px; height:128px; background:#fff; border:1px dashed var(--slate);">
     <h3>MNFIX, still used</h3>
-    <div style="font-size:10.3px; line-height:1.42">TOMAS's bookkeeping fix: if a bin's mean particle mass has left the bin
-      (after sources, nucleation, coagulation, H₂SO₄ condensation and the SOA remap), part of the bin moves to the neighbouring bin so number and mass stay
+    <div style="font-size:10.3px; line-height:1.42">TOMAS's bookkeeping fix (<a href="https://doi.org/10.1029/2001JD001010" target="_blank" rel="noopener">Adams and Seinfeld 2002</a>):
+      if a bin's mean particle mass has left the bin (after steps 1–5), part of the bin moves to the neighbouring bin so number and mass stay
       consistent. With PPM it only does small corrections; the old SOA and nitrate path (<code>growth_bin_transfer="mnfix"</code>) is kept
       for comparison.</div>
   </div>
 
-  <div class="panel" style="left:32px; top:654px; width:992px; height:102px; background:#F7F3EE; border:1px solid var(--beige);">
-    <h3>References for the numerics</h3>
-    <div style="font-size:9.6px; line-height:1.45">
+  <div class="panel" style="left:32px; top:650px; width:992px; height:118px; background:#F7F3EE; border:1px solid var(--beige);">
+    <h3>References</h3>
+    <div style="font-size:9.2px; line-height:1.42">
+      <a href="https://doi.org/10.1029/2001JD001010" target="_blank" rel="noopener">Adams, P. J. and Seinfeld, J. H.: Predicting global aerosol size distributions in general circulation models, J. Geophys. Res., 107(D19), 4370, 2002.</a> ·
       <a href="https://doi.org/10.1016/0021-9991%2884%2990143-8" target="_blank" rel="noopener">Colella, P. and Woodward, P. R.: The Piecewise Parabolic Method (PPM) for gas-dynamical simulations, J. Comput. Phys., 54, 174–201, 1984.</a> ·
       <a href="https://doi.org/10.1175/1520-0469%281987%29044%3C3139:AENSTT%3E2.0.CO;2" target="_blank" rel="noopener">Tzivion, S., Feingold, G. and Levin, Z.: An efficient numerical solution to the stochastic collection equation, J. Atmos. Sci., 44, 3139–3149, 1987.</a> ·
       <a href="https://doi.org/10.1016/S0169-8095%2801%2900131-4" target="_blank" rel="noopener">Simmel, M., Trautmann, T. and Tetzlaff, G.: Numerical solution of the stochastic collection equation – comparison of the Linear Discrete Method with other methods, Atmos. Res., 61, 135–148, 2002.</a> ·
       <a href="https://doi.org/10.5194/acp-14-5153-2014" target="_blank" rel="noopener">Zaveri, R. A. et al.: Modeling kinetic partitioning of secondary organic aerosol and size distribution dynamics, Atmos. Chem. Phys., 14, 5153–5181, 2014.</a> <a href="https://acp.copernicus.org/articles/14/5153/2014/acp-14-5153-2014.pdf" target="_blank" rel="noopener">PDF</a> ·
       <a href="https://doi.org/10.1016/1352-2310%2894%2990093-0" target="_blank" rel="noopener">Pankow, J. F.: An absorption model of gas/particle partitioning of organic compounds in the atmosphere, Atmos. Environ., 28, 185–188, 1994.</a> ·
-      <a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li, Y., Pöschl, U. and Shiraiwa, M.: Molecular corridors and parameterizations of volatility, Atmos. Chem. Phys., 16, 3327–3344, 2016.</a> <a href="https://acp.copernicus.org/articles/16/3327/2016/acp-16-3327-2016.pdf" target="_blank" rel="noopener">PDF</a>
+      <a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li, Y., Pöschl, U. and Shiraiwa, M.: Molecular corridors and parameterizations of volatility, Atmos. Chem. Phys., 16, 3327–3344, 2016.</a> <a href="https://acp.copernicus.org/articles/16/3327/2016/acp-16-3327-2016.pdf" target="_blank" rel="noopener">PDF</a> ·
+      <a href="https://doi.org/10.1016/j.fluid.2008.04.020" target="_blank" rel="noopener">Nannoolal, Y., Rarey, J. and Ramjugernath, D.: Estimation of pure component properties. Part 3. Estimation of the vapor pressure of non-electrolyte organic compounds via group contributions and group interactions, Fluid Phase Equilib., 269, 117–133, 2008.</a>
     </div>
   </div>
 
-  <div class="foot">TOMAS-JAX 2faa391 (aaar-stable-2026-10-16b): box/aerosol_step.py, physics/ppm_remap.py, physics/condensation_ppm.py,
+  <div class="foot">TOMAS-JAX 5227ddd (aaar-stable-2026-10-16c): box/aerosol_step.py, physics/ppm_remap.py, physics/condensation_ppm.py,
     physics/soa_partitioning.py, core/mnfix_jax.py</div>
   <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
 </div>

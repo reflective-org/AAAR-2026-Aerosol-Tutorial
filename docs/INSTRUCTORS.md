@@ -27,7 +27,7 @@ changing the code.
 |---|---|---|
 | Intro | 15 min | The box model in one picture: gas chemistry, photolysis, aerosol, coupling. Start the Level 1 install. |
 | Level 1 | 40 min | c\*, partitioning, H₂SO₄ vs organic, coagulation, nucleation. Notebook sections 3–7; nucleation (8) if time allows. The partitioning slider in section 1 (no model run) makes a good 3-minute live demo. |
-| Level 2 | 50 min | Explicit chemistry, oxidant shares, c\* from composition, top contributors. Discuss the c\* placeholder openly (below). Experiments 6a and 6c are the most instructive. |
+| Level 2 | 50 min | Explicit chemistry, oxidant shares, c\* from a group-contribution table, top contributors (mostly hydroperoxides). Say how uncertain c\* is (below). Experiments 6a (more NOx gives less SOA) and 6c (the yield rises with limonene) are the most instructive. |
 | Break | 10 min | |
 | Level 3 | 50 min | Sunlight, day–night radicals, N₂O₅ uptake and the γ sweep, holding NO₂ constant. |
 | Wrap-up | 15 min | Questions; point to notebook 4 and ASSUMPTIONS.md. |
@@ -62,28 +62,66 @@ Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results cha
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/ASSUMPTIONS.md).
 The ones students will run into:
 
-- **c\* is a placeholder (A8).** Levels 2 and 3 estimate each product's c\* from its elemental
-  composition ([Li et al., 2016](https://doi.org/10.5194/acp-16-3327-2016)) until Shantanu's per-species table arrives. With it, about 98 % of
-  the Level 2 SOA contains nitrogen (organic nitrates and PANs), the main non-nitrogen products
-  (limonaldehyde, limononic acid) never condense, and NOx = 0 gives almost no SOA. The SOA then
-  saturates near 16 µg m⁻³ when limonene goes 5 → 20 ppb because NOx runs out, so the yield falls.
-  **Do not teach yield vs organic loading or low-NOx SOA with Level 2.** At NOx = 10 ppb the SOA
-  (about 60 µg m⁻³) exceeds the mass of limonene reacted; the notebook calls this a red flag.
+- **c\* comes from Shantanu's per-species table, and it is still the most uncertain input (A8).**
+  For each product of the Level 2 and 3 chemistry, the table gives the pure-component vapour
+  pressure at 298.15 K from the group-contribution method of
+  [Nannoolal et al. (2008)](https://doi.org/10.1016/j.fluid.2008.04.020), computed with
+  [PyCHAM](https://doi.org/10.5194/gmd-14-675-2021) 5.8.0, converted to a saturation
+  concentration:
+
+  c\* = 10⁶ · M · p_sat / (R · T)
+
+  where c\* is in µg m⁻³, M is the molar mass (g mol⁻¹), p_sat the vapour pressure (Pa),
+  R = 8.314 J mol⁻¹ K⁻¹ and T = 298.15 K. Limonene, CO, CH₄ and a tracer are not in the table;
+  they get the composition-only estimate of [Li et al. (2016)](https://doi.org/10.5194/acp-16-3327-2016),
+  and none of them condenses. What students will see in Level 2:
+  - The SOA (8.7 µg m⁻³ after 6 h) is mostly hydroperoxides, the –OOH products of RO₂ + HO₂:
+    LIMALOOH alone is 3.7 µg m⁻³. Only about 5 % of it contains nitrogen; most PANs stay in
+    the gas.
+  - NOx = 0 gives 8.5 µg m⁻³ and NOx = 10 ppb only 1.0 µg m⁻³: with more NO the peroxy radicals
+    react with NO instead of HO₂, so fewer hydroperoxides form.
+  - From 5 to 20 ppb limonene the SOA goes from 3.0 to 17.8 µg m⁻³ and the yield (SOA formed per
+    limonene reacted, by mass) from 0.11 to 0.16: the textbook rise of yield with organic
+    loading.
+
+  So yields and the NOx dependence can now be taught, qualitatively. Two limits: below about
+  5 ppb limonene the yield collapses mostly because the chemistry changes (more OH, more RO₂ + NO),
+  not because of C_OA (notebook 2, 6c); and MCM v3.3.1 has no peroxy-radical autoxidation or
+  RO₂ + RO₂ dimers ([Jokinen et al., 2015](https://doi.org/10.1073/pnas.1423977112)), so "mostly
+  hydroperoxides" describes this model, not necessarily real limonene SOA. Say out loud: other
+  group-contribution methods can differ by a decade or more for multifunctional products, and
+  raising every c\* by one decade removes about three quarters of the Level 2 SOA (notebook 2,
+  Section 4); the table's 298.15 K values serve as the model's 298 K reference, which makes c\*
+  1.8–3.3 % too high; there is no particle-phase chemistry. Any scenario can be rerun with the
+  old composition-only estimate for every product (`cstar_table=None`): Level 2 then gives
+  15.9 µg m⁻³, 98 % of it nitrogen-containing.
+- **Level 3 makes very little SOA (A8).** It peaks at 0.4 µg m⁻³ about 2 h in and ends at
+  0.06 µg m⁻³ after 24 h, so the SOA panels of notebook 3 and the web app are almost empty. With
+  2 ppb limonene there is little organic mass for the products to dissolve into. With NO₂ held at
+  1 ppb only about 7 % of the peroxy radicals react with HO₂ in the first two hours (a third in
+  Level 2), so few hydroperoxides form, and the daytime OH and sunlight destroy those in the gas,
+  so the particles give theirs back. Without the hold the SOA ends at 0.8 µg m⁻³. The preset is
+  kept on purpose. With 10 ppb limonene the limonene and its products use up OH (first-afternoon
+  peak 2.6×10⁶ instead of 1.2×10⁷ cm⁻³), and the SOA reaches 9.7 µg m⁻³; nitrate falls
+  from 3.1 to 1.3 µg m⁻³ because the extra limonene and its products take up NO₃ that would
+  otherwise form N₂O₅ (night-time N₂O₅ falls by three quarters). Particle nitrate in the preset
+  is 3.1 µg m⁻³ (5.2 with the old c\*), because less SOA and less water on the particles leave
+  less surface for N₂O₅ uptake.
 - **Level 2 light is constant (A10):** TUV-x at a solar zenith angle of 30°, scaled to
   J(NO₂) = 5×10⁻³ s⁻¹.
 - **Level 3 holds NO₂ at 1 ppb (A14)** as a stand-in for NOx emissions: it is reset to 1 ppb after
-  every 15-minute interval and drifts within it (0.8–0.9 ppb in daylight). That is an unlimited
-  nitrogen source. With 10 ppb limonene the SOA reaches about 70 µg m⁻³, more than the limonene
-  mass, because the hold keeps feeding PANs and organic nitrates. Notebook 3 says so.
-- **Level 3 daytime OH is high:** 1.7×10⁷ molec cm⁻³ on the first afternoon and 2.3×10⁷ at noon on
-  day 2, several times typical ambient peaks (NO₂ hold, little VOC left, O₃ rising to about 80 ppb
-  without deposition).
+  every 15-minute interval and drifts within it (about 0.8–1.2 ppb in daylight, typically 0.9). That is an unlimited
+  nitrogen source: the box ends the day with about four times more inorganic nitrogen than it
+  started with (1.5 → 6.0 ppb). Notebook 3 compares a run without the hold.
+- **Level 3 daytime OH is high:** 1.2×10⁷ molec cm⁻³ on the first afternoon and 2.4×10⁷ at noon on
+  day 2, the second several times typical ambient peaks (NO₂ hold, little VOC left, O₃ rising to
+  about 84 ppb without deposition).
 - **Particle nitrate only comes from N₂O₅ uptake (A1, A2, A5).** γ-based uptake replaces the
   chamber's fixed N₂O₅ sink `<34>`; `<33> HNO₃ → NA` stays a gas-phase sink. There is no
-  ammonia and no NH₄NO₃, so the HNO₃ the run makes (3.8 ppb by the end) stays in the gas. Nitrate appearing
+  ammonia and no NH₄NO₃, so the HNO₃ the run makes (3.6 ppb by the end) stays in the gas. Nitrate appearing
   only at night is partly built into the model.
 - **SOA is too hygroscopic (A9):** organics take up water like ammonium bisulfate, so wet surface,
   condensation sink and k_het are overestimated for organic-rich particles. Organics and nitrate
@@ -93,20 +131,23 @@ The ones students will run into:
   10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 400 cm⁻³ at 270 K and 30 000 cm⁻³ at 265 K. The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
 - **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
-  (300 s in Levels 1–2, 900 s in Level 3). ASSUMPTIONS.md quotes ≤ 3 % between 900 s and 600 s;
-  with the pinned model (40 bins) 600 s gives +3.5 % nitrate and +2.4 % SOA, and 300 s gives
-  +6.6 % nitrate and +4.7 % SOA, against 900 s (not yet in ASSUMPTIONS.md).
+  (300 s in Levels 1–2, 900 s in Level 3). Against 900 s, the Level 3 preset (40 bins) gives
+  +2.6 % nitrate and −10.5 % SOA with 600 s, and +4.7 % nitrate and −20 % SOA with 300 s. The
+  SOA is so small (0.06 µg m⁻³ after 24 h) and so much of it evaporates on the second morning
+  that it reacts strongly to the interval; nitrate and HNO₃ change by a few percent.
 - **Photolysis:** TUV-x gives 10–35 % more J than the MCM formula with the sun high, and 2–4× more
   J(O¹D) at solar zenith angles of 75–80° (notebook 4, Section 1).
 
 ## The web app's instructor guide
 
 Since 2026-10-16 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
-TOMAS-JAX commit as the notebooks (`2faa391`) on the same 40 size bins (1.7 nm to 17.5 µm), and the
-tomas-api guide's numbers were re-measured with it through the API's own code path, so the two
-agree: e.g. Level 1 geometric mean diameter 111 nm, Level 3 nitrate 5.16 µg m⁻³, Level 3 OH
-≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). Before that the web app ran 8753736 (MNFIX split; Level 1
-86 nm, Level 3 nitrate 4.96 µg m⁻³). A deployed web app shows the new numbers once it is
+TOMAS-JAX commit as the notebooks (`5227ddd`, with Shantanu's c\* table) on the same 40 size bins
+(1.7 nm to 17.5 µm), and the tomas-api guide's numbers were re-measured with it through the API's
+own code path, so the two agree: e.g. Level 1 geometric mean diameter 111 nm, Level 2 SOA
+8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3 OH ≈ 1.2×10⁷ (day 1) / 2.4×10⁷ cm⁻³ (day 2).
+Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3
+nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split; Level 1 86 nm, Level 3 nitrate
+4.96 µg m⁻³). A deployed web app shows the new numbers once it is
 redeployed from that branch (its result cache starts empty; prewarm it). The guide counts the 725 species of the MCM file; the notebooks
 say 726 because the model adds the `NA_HET` counter.
 

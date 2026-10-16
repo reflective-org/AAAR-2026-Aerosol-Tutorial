@@ -90,7 +90,9 @@ def test_unit_helpers():
 
 
 def test_nitrogen_share():
-    assert at.nitrogen_share(at.load_example("level2_limonene_soa")) > 0.95
+    # Jathar c* table: 0.028 of the top contributors' SOA contains N (mostly hydroperoxides;
+    # the Li et al. 2016 placeholder gave 0.98)
+    assert at.nitrogen_share(at.load_example("level2_limonene_soa")) == pytest.approx(0.028, abs=0.003)
     assert np.isnan(at.nitrogen_share(at.load_example("level1_volatility")))
 
 

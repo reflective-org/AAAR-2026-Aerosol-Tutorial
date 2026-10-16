@@ -66,8 +66,9 @@ def run(scenario, *, progress=True, timeout_s: float | None = config.RUN_TIMEOUT
 
     ``progress``: True shows a progress bar, False nothing; a function is called with the
     finished fraction (0 to 1), e.g. to drive an ipywidgets progress bar.
-    ``cstar_ugm3``: {species: c* at 298 K in ug/m3} replaces the Li et al. (2016) estimate
-    for those species (Levels 2 and 3).
+    ``cstar_ugm3``: {species: c* at 298 K in ug/m3} changes the c* of those species
+    (Levels 2 and 3); every other species keeps its value from the model's default table
+    (see write_cstar_table).
     """
     from tomas_jax.box import driver
 
@@ -153,11 +154,21 @@ def scenario_from(scenario, **overrides):
 
 
 def write_cstar_table(cstar_ugm3: dict[str, float]) -> str:
-    """Write {species: c* at 298 K [ug/m3]} as a c* table and return its file name.
+    """Write the model's default c* table with some species changed; return the file name.
 
-    The name contains a hash of the contents, because the model caches tables by name.
+    ``cstar_ugm3`` is {species: c* at 298 K [ug/m3]}. The new table holds every species of
+    the default table (tomas_jax DEFAULT_CSTAR_TABLE, Shantanu Jathar's per-species values),
+    with the listed species set to the given values (species the default table lacks are
+    added). Species not listed keep their default values. The name contains a hash of the
+    contents, because the model caches tables by name.
     """
-    rows = "".join(f"{name},{float(value):.6g}\n" for name, value in sorted(cstar_ugm3.items()))
+    from tomas_jax.gaschem.config import DEFAULT_CSTAR_TABLE, MECHANISM_DIR
+    from tomas_jax.gaschem.volatility import load_cstar_table
+
+    merged = {name: 10.0 ** log10 for name, log10
+              in load_cstar_table(MECHANISM_DIR / DEFAULT_CSTAR_TABLE).items()}
+    merged.update({name: float(value) for name, value in cstar_ugm3.items()})
+    rows = "".join(f"{name},{value!r}\n" for name, value in sorted(merged.items()))
     text = "species,cstar_ugm3\n" + rows
     name = f"cstar_{hashlib.sha1(text.encode()).hexdigest()[:12]}.csv"
     config.CSTAR_TABLE_DIR.mkdir(parents=True, exist_ok=True)

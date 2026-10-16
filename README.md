@@ -102,21 +102,33 @@ bins (PPM) and what each level switches on.
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
-- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/2faa391bcf132fb6796dc71bb637974f9282a459)
+- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28)
   (the box model; pinned in `pyproject.toml`). Its tutorial documentation:
-  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/gaschem.md),
-  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/coupling.md),
-  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/aerosol_step.md),
-  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/soa_partitioning.md),
-  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/docs/aaar/heterogeneous.md).
+  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/gaschem.md),
+  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/coupling.md),
+  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/aerosol_step.md),
+  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/soa_partitioning.md),
+  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/heterogeneous.md).
 - [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `e5d9032`) and
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
-- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/ASSUMPTIONS.md)
-  lists every simplification.** Two matter most for interpreting results:
-  - The c\* of the Level 2 and 3 products comes from a composition-only formula ([Li et al., 2016](https://doi.org/10.5194/acp-16-3327-2016)) as a
-    placeholder until a curated per-species table arrives (A8). With it, about 98 % of the Level 2
-    SOA contains nitrogen (organic nitrates and PANs), and without NOx there is almost no SOA. Treat
-    Level 2 SOA amounts and yields as a lesson in how much they depend on c\*, not as limonene facts.
+- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/ASSUMPTIONS.md)
+  lists every simplification.** Three matter most for interpreting results:
+  - The c\* of each Level 2 and 3 product comes from a per-species table supplied by Shantanu
+    Jathar (A8): the pure-component vapour pressure at 298.15 K from the group-contribution method
+    of [Nannoolal et al. (2008)](https://doi.org/10.1016/j.fluid.2008.04.020), computed with
+    [PyCHAM](https://doi.org/10.5194/gmd-14-675-2021) 5.8.0. The four carbon species the table
+    leaves out (limonene, CO, CH₄ and a tracer) get the composition-only estimate of
+    [Li et al. (2016)](https://doi.org/10.5194/acp-16-3327-2016), and none of them condenses. With
+    the table, the Level 2 SOA is mostly hydroperoxides (only about 5 % of it contains nitrogen),
+    it forms without NOx, and high NOx suppresses it. c\* is still the most uncertain input: other
+    group-contribution methods can differ by a decade or more for multifunctional products, and
+    raising every c\* by one decade removes about three quarters of the Level 2 SOA.
+  - Level 3 makes very little SOA (0.4 µg m⁻³ at its peak after 2 h, 0.06 µg m⁻³ after 24 h).
+    With 2 ppb limonene there is little organic mass for the products to dissolve into. With NO₂ held
+    at 1 ppb most peroxy radicals react with NO rather than HO₂, so few hydroperoxides form, and the
+    daytime OH and sunlight destroy those in the gas, so the particles give theirs back. This is the
+    preset on purpose. Without the NO₂ hold the SOA ends at about 0.8 µg m⁻³, and with 10 ppb limonene
+    at about 10 µg m⁻³.
   - Level 2 light is constant (A10). Level 3 holds NO₂ at 1 ppb (reset after every 15-minute interval) as a stand-in for NOx emissions, and
     N₂O₅ uptake (γ) is the only route to particle nitrate (A1, A2, A5, A14).
 

@@ -1,5 +1,27 @@
 # Progress
 
+## 2026-10-16 (evening): Shantanu's c\* table is the Level 2/3 default (helpers 0.4.5)
+
+- Model pin TOMAS-JAX 5227ddd (tag aaar-stable-2026-10-16c): Levels 2 and 3 take each product's
+  c\* from Shantanu Jathar's per-species table (Nannoolal et al. 2008 vapour pressures via
+  PyCHAM 5.8.0, 298.15 K; ASSUMPTIONS A8) instead of the Li et al. (2016) composition estimate.
+  Level 1 is unchanged. Stored examples regenerated (40 bins): Level 2 SOA 15.86 → 8.66 µg m⁻³,
+  nitrogen-containing share of the top contributors 0.99 → 0.03 (LIMALOOH and other
+  hydroperoxides lead); Level 3 SOA 7.85 → 0.06 µg m⁻³ and nitrate 5.16 → 3.14 µg m⁻³.
+- Level 3 SOA is now very small (peak 0.39 µg m⁻³ at 2 h): Ali chose to keep the preset and
+  explain it (daytime OH and sunlight destroy the gas-phase hydroperoxides, so the SOA
+  evaporates).
+- `at.run(cstar_ugm3=...)` now merges the given values into the full default table; before, it
+  wrote only those rows and every other species fell back to Li et al. (2016). Tests for the
+  merge and for a short Level 2 run with it.
+- README and INSTRUCTORS: the c\* caveat rewritten for the table (with the c\* formula), a new
+  Level 3 SOA caveat, and the Level 2/3 numbers (OH 1.2×10⁷ / 2.4×10⁷ cm⁻³, HNO₃ 3.6 ppb,
+  coupling-interval sensitivity, web app numbers) re-taken from the new examples and the impact
+  measurements.
+- Flowchart (`docs/model_flowchart.pdf`): c\* source on page 1 is the table (Li et al. 2016 only
+  for species not in it), MNFIX cites Adams and Seinfeld (2002), the reference list gains both
+  papers, and the footers name 5227ddd. Re-printed, no box overflows.
+
 ## 2026-10-16 (later): number audit, Colab panels, flowchart, nitrate gate fix (helpers 0.4.3)
 
 - Audit of every quantitative claim in the notebooks, README and INSTRUCTORS against the PPM

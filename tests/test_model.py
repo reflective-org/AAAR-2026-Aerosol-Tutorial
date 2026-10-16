@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 import aaar_tutorial as at
@@ -52,14 +54,56 @@ def test_seed_shorthand_changes_the_first_mode():
         at.scenario_from("level1_volatility", seed={"gmd_nm": 80, "modes": []})
 
 
+def _default_cstar_table():
+    from tomas_jax.gaschem.config import DEFAULT_CSTAR_TABLE, MECHANISM_DIR
+    from tomas_jax.gaschem.volatility import load_cstar_table
+    return load_cstar_table(MECHANISM_DIR / DEFAULT_CSTAR_TABLE)
+
+
 def test_cstar_table_is_written_once(tmp_path, monkeypatch):
     from aaar_tutorial import config
     monkeypatch.setattr(config, "CSTAR_TABLE_DIR", tmp_path)
-    name = at.write_cstar_table({"B": 2.0, "A": 1e5})
-    assert name == at.write_cstar_table({"A": 1e5, "B": 2.0})
-    assert (tmp_path / name).read_text() == "species,cstar_ugm3\nA,100000\nB,2\n"
+    name = at.write_cstar_table({"LIMALOOH": 2.0, "LIMAL": 1e5})
+    assert name == at.write_cstar_table({"LIMAL": 1e5, "LIMALOOH": 2.0})
+    assert [p.name for p in tmp_path.iterdir()] == [name]
     with pytest.raises(ValueError, match="gas chemistry"):
-        at.run("level1_volatility", cstar_ugm3={"A": 1.0}, progress=False)
+        at.run("level1_volatility", cstar_ugm3={"LIMAL": 1.0}, progress=False)
+
+
+def test_cstar_table_keeps_the_default_values(tmp_path, monkeypatch):
+    """A 2-species user table is merged into the default table; every other row is kept."""
+    from tomas_jax.gaschem.volatility import load_cstar_table
+    from aaar_tutorial import config
+    monkeypatch.setattr(config, "CSTAR_TABLE_DIR", tmp_path)
+    default = _default_cstar_table()
+    written = load_cstar_table(tmp_path / at.write_cstar_table({"LIMALOOH": 2.0, "NEWSPECIES": 30.0}))
+    assert set(written) == set(default) | {"NEWSPECIES"}
+    assert written["LIMALOOH"] == pytest.approx(math.log10(2.0), abs=1e-12)
+    assert written["NEWSPECIES"] == pytest.approx(math.log10(30.0), abs=1e-12)
+    for species, log10_cstar in default.items():
+        if species != "LIMALOOH":
+            assert written[species] == pytest.approx(log10_cstar, abs=1e-12), species
+
+
+@pytest.mark.smoke
+def test_run_uses_the_merged_cstar_table(tmp_path, monkeypatch):
+    """run(cstar_ugm3=...) changes the listed species only, with no partial-table warning."""
+    from aaar_tutorial import config
+    monkeypatch.setattr(config, "CSTAR_TABLE_DIR", tmp_path)
+    default = _default_cstar_table()
+    r = at.run("level2_limonene_soa", duration_h=1.0, progress=False,
+               cstar_ugm3={"LIMALOOH": 1.0, "C826OOH": 0.1})
+    assert not [w for w in r.diagnostics["warnings"] if "c* table" in w]
+    source = r.diagnostics["cstar_source"]
+    assert source.startswith(f"table {r.scenario['cstar_table']} ")
+    assert "0 of them condensable" in source            # no species falls back to Li et al.
+    top = {c["species"]: c["log10_cstar"] for c in r.top_contributors}
+    assert top["LIMALOOH"] == pytest.approx(0.0, abs=1e-12)
+    assert top["C826OOH"] == pytest.approx(-1.0, abs=1e-12)
+    others = [s for s in top if s not in ("LIMALOOH", "C826OOH")]
+    assert others
+    for species in others:
+        assert top[species] == pytest.approx(default[species], abs=1e-12), species
 
 
 @pytest.mark.smoke
