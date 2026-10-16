@@ -66,7 +66,7 @@ All model simplifications are in TOMAS-JAX
 The ones students will run into:
 
 - **c\* is a placeholder (A8).** Levels 2 and 3 estimate each product's c\* from its elemental
-  composition (Li et al., 2016) until Shantanu's per-species table arrives. With it, about 99 % of
+  composition (Li et al., 2016) until Shantanu's per-species table arrives. With it, about 98 % of
   the Level 2 SOA contains nitrogen (organic nitrates and PANs), the main non-nitrogen products
   (limonaldehyde, limononic acid) never condense, and NOx = 0 gives almost no SOA. The SOA then
   saturates near 16 µg m⁻³ when limonene goes 5 → 20 ppb because NOx runs out, so the yield falls.
@@ -74,7 +74,8 @@ The ones students will run into:
   (about 60 µg m⁻³) exceeds the mass of limonene reacted; the notebook calls this a red flag.
 - **Level 2 light is constant (A10):** TUV-x at a solar zenith angle of 30°, scaled to
   J(NO₂) = 5×10⁻³ s⁻¹.
-- **Level 3 holds NO₂ at 1 ppb (A14)** as a stand-in for NOx emissions. That is an unlimited
+- **Level 3 holds NO₂ at 1 ppb (A14)** as a stand-in for NOx emissions: it is reset to 1 ppb after
+  every 15-minute interval and drifts within it (0.8–0.9 ppb in daylight). That is an unlimited
   nitrogen source. With 10 ppb limonene the SOA reaches about 70 µg m⁻³, more than the limonene
   mass, because the hold keeps feeding PANs and organic nitrates. Notebook 3 says so.
 - **Level 3 daytime OH is high:** 1.7×10⁷ molec cm⁻³ on the first afternoon and 2.3×10⁷ at noon on
