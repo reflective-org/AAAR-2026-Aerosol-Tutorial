@@ -1,5 +1,19 @@
 # Progress
 
+## 2026-10-16: PPM model, 40 bins with a choice, plot buttons (helpers 0.4.0)
+
+- Model pin TOMAS-JAX 1f519e9 (PPM bin transfer for SOA and nitrate; see DECISIONS.md).
+- `at.use_bins` and a *Size resolution* cell in every notebook (40/80/160/320, default 40);
+  bins dropdown in notebook 1's run panel. Stored examples regenerated (40 bins, new model).
+- Banana plot white → dark blue with a white floor; Linear/Log buttons on line plots and the
+  banana colour scale (checked by clicking them in headless Chrome).
+- `compare_size_distributions` works for runs on different size grids (it crashed before).
+- References for PPM, Simmel et al. (2002) and Tzivion et al. (1987) in notebook 1.
+- Mistake: commit cff7a60 was pushed with one failing test (the test runner's exit code was
+  hidden by a pipe); fixed in af69f5a minutes later. Commits are now gated on pytest's exit code.
+- Text of all notebooks, README and INSTRUCTORS re-checked against the new defaults (audit
+  workflow); see the commit that applies its edits.
+
 ## 2026-10-15: 80 size bins, C_OA slider to 1000, labels without emojis (helpers 0.3.0)
 
 - Runs started from a preset name use 80 size bins (`config.NBINS`; see DECISIONS.md for the

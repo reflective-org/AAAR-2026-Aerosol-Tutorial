@@ -2,7 +2,28 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
-## 80 size bins in the notebooks (2026-10-15)
+## Smooth growth (PPM) and 40 bins again, with a choice (2026-10-16)
+
+The jagged size distributions at 80 bins (Ali's screenshots) came from SOA growth, not from
+coagulation or H₂SO₄ condensation: SOA mass was added to each bin in place and MNFIX split bins
+whose mean left them, which got worse with more bins (3 / 12 / 29 local extrema at 40 / 80 / 160
+bins). TOMAS-JAX now moves SOA and nitrate between bins with a PPM remap (1f519e9, tag
+aaar-stable-2026-10-16; independent verification of conservation, smoothness, PyCHAM sizes,
+runtime). With it every preset is one smooth mode at every resolution and 40 bins is within
+0.6 % of 160–320 bins (Level 1 mean diameter 110.8 / 111.1 / 111.1 nm at 40 / 80 / 320; Level 3
+nitrate 5.160 / 5.152 / 5.149 µg m⁻³), so the default is back to the presets' 40 (Ali's choice):
+fastest (Level 1 about 1 s per run) and the web app's grid. Users choose 40/80/160/320 with
+`at.use_bins` (a *Size resolution* cell in every notebook; a bins dropdown in notebook 1's run
+panel). The web app still runs the previous model until tomas-api's pin is updated, so its numbers
+differ from the notebooks' (INSTRUCTORS.md).
+
+Plots: the banana plot uses one hue from white to dark blue (dataviz skill: sequential = one hue,
+light to dark), with cells below the colour floor drawn white so empty and near-empty cells blend
+into the background, and Linear/Log colour buttons. Line plots (size distributions, time series,
+totals, gases, radicals) get Linear/Log buttons; stacked composition, volatility bars and the
+partitioning explainer stay linear (log distorts stacked areas and percentages).
+
+## 80 size bins in the notebooks (2026-10-15; superseded by the entry above)
 
 The PyCHAM comparison showed that the 40-bin grid spreads growing modes numerically (mean
 diameter too small by 15–25 % after a few hours of growth), while mass is right. Measured on the
