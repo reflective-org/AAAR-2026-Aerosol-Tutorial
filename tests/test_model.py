@@ -76,3 +76,16 @@ def test_presets_run_on_the_notebook_bin_count():
     assert s.numerics.coupling_dt_s == load_preset("level3_day_night").numerics.coupling_dt_s
     assert at.scenario_from("level3_day_night", numerics={"nbins": 40}).numerics.nbins == 40
     assert at.scenario_from(load_preset("level1_volatility")).numerics.nbins == 40    # a Scenario keeps its own
+
+
+def test_use_bins_sets_the_default_for_preset_runs():
+    default = at.config.NBINS
+    try:
+        at.use_bins(160)
+        assert at.scenario_from("level1_volatility").numerics.nbins == 160
+        assert at.scenario_from("level1_volatility", numerics={"nbins": 80}).numerics.nbins == 80
+        with pytest.raises(ValueError, match="one of"):
+            at.use_bins(100)
+    finally:
+        at.use_bins(default)
+    assert at.config.NBINS == 40

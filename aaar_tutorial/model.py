@@ -108,6 +108,18 @@ def run(scenario, *, progress=True, timeout_s: float | None = config.RUN_TIMEOUT
     return result
 
 
+def use_bins(nbins: int) -> None:
+    """Size bins for the following runs started from a preset name (default 40).
+
+    One of config.NBINS_CHOICES. 40 is the presets' and the web app's grid and the fastest;
+    80, 160 and 320 draw the size distribution more finely and take longer (Level 1 about
+    1, 4, 14 and 60 s on a laptop). ``run(..., numerics={"nbins": n})`` sets it for one run.
+    """
+    if nbins not in config.NBINS_CHOICES:
+        raise ValueError(f"nbins must be one of {config.NBINS_CHOICES}, got {nbins!r}")
+    config.NBINS = int(nbins)
+
+
 def scenario_from(scenario, **overrides):
     """Scenario from a preset name, Scenario, RunResult or scenario dict, with run()'s overrides.
 

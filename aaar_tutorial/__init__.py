@@ -17,7 +17,8 @@ os.environ.setdefault("JAX_PLATFORMS", config.JAX_PLATFORMS)   # before anything
 from . import plots  # noqa: E402
 from .chemistry import mechanism  # noqa: E402
 from .data import ensure_photolysis_data  # noqa: E402
-from .model import describe, run, scenario_from, setup, versions, write_cstar_table  # noqa: E402
+from .model import (describe, run, scenario_from, setup, use_bins, versions,  # noqa: E402
+                    write_cstar_table)
 from .results import (available_series, cstar_at, geometric_mean_diameter_nm, is_night,  # noqa: E402
                       load_example, load_result, night_intervals, night_mean, nitrogen_share,
                       save_result, series, summary, ugm3_per_ppb, value_at)
@@ -30,5 +31,5 @@ __all__ = [
     "geometric_mean_diameter_nm", "is_night", "load_example", "load_result", "mechanism",
     "night_intervals", "night_mean", "nitrogen_share", "plots", "run", "save_result",
     "scenario_from", "series", "setup", "site_overrides", "summary", "sunlight_over_day",
-    "ugm3_per_ppb", "value_at", "versions", "write_cstar_table",
+    "ugm3_per_ppb", "use_bins", "value_at", "versions", "write_cstar_table",
 ]

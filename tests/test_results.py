@@ -50,13 +50,13 @@ def test_night_intervals():
 
 
 def test_summary_of_the_stored_level1_example():
-    # The stored examples use the notebooks' bin count (80): GMD 54 -> 98 nm. The web app's 40-bin
-    # preset gives 86 nm (more numerical spreading); SOA is the same.
+    # The stored examples use the notebooks' default bin count (40, the web app's grid): GMD 54 ->
+    # 111 nm with the PPM bin transfer (TOMAS-JAX 1f519e9; 111.1 nm at 80 and 320 bins).
     r = at.load_example("level1_volatility")
     assert all(at.load_example(p).scenario["numerics"]["nbins"] == at.config.NBINS for p in at.config.PRESETS)
     s = at.summary(r)
     assert s["gmd_nm_start"] == pytest.approx(54, abs=1)
-    assert s["gmd_nm_end"] == pytest.approx(98, abs=1)
+    assert s["gmd_nm_end"] == pytest.approx(111, abs=1)
     assert s["SOA_ugm3_end"] == pytest.approx(4.94, abs=0.05)
     assert "runtime_s" not in s                                 # nothing ran in this session
 

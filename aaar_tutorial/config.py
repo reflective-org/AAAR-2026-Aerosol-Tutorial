@@ -67,11 +67,14 @@ DOWNLOAD_CHUNK_BYTES = 1 << 16
 # --- Model runs -----------------------------------------------------------------------------
 PRESETS = ("level1_volatility", "level2_limonene_soa", "level3_day_night")
 RUN_TIMEOUT_S = 900.0              # run() stops a model run after this wall time (None = never)
-# Size bins for runs started from a preset name (the presets and the web app use 40). Same range,
-# 1.7 nm to 17.5 µm; 80 bins halve the numerical spreading of growing modes for ~1.4-3.6x the run
-# time (measured 2026-10-15: Level 1/2/3 take 6/8/23 s at 80 bins vs 2/6/13 s at 40 and
-# 20/16/52 s at 160). numerics={"nbins": ...} in run() overrides it.
-NBINS = 80
+# Size bins for runs started from a preset name (at.use_bins() changes it for the session,
+# run(numerics={"nbins": ...}) for one run). Same diameter range, 1.7 nm to 17.5 µm, for every
+# choice. With the PPM bin transfer (TOMAS-JAX 1f519e9) the presets' 40 bins are within 0.6 % of
+# 160-320 bins in mean diameter, SOA and nitrate, so 40 (also the web app's grid) is the default;
+# more bins draw finer curves. Measured 2026-10-16, laptop, repeat runs, at 40 / 80 / 160 / 320
+# bins: Level 1 1.1 / 4.1 / 14 / 61 s, Level 3 12 / 19 / 39 / 136 s; Colab about twice as slow.
+NBINS = 40
+NBINS_CHOICES = (40, 80, 160, 320)
 PROGRESS_MIN_INTERVAL_S = 0.25     # throttle for progress display updates
 CSTAR_TABLE_DIR = CACHE_DIR / "cstar_tables"   # c* tables written by run(cstar_ugm3=...)
 
