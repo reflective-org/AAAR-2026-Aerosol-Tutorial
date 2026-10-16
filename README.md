@@ -14,14 +14,15 @@ is explained as you go.
 
 | | Notebook | What you learn | Run time (laptop) |
 |---|---|---|---|
-| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/01_volatility.ipynb) | [Level 1 · Volatility](notebooks/01_volatility.ipynb) | Saturation concentration c\*, absorptive partitioning, condensation of a semivolatile vs a non-volatile vapor (H₂SO₄), coagulation, nucleation. One made-up organic vapor, no gas chemistry. | about 1.5 min |
-| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/02_limonene_soa.ipynb) | [Level 2 · Limonene SOA](notebooks/02_limonene_soa.ipynb) | An explicit mechanism, which oxidant removes limonene, how products get a c\* and are lumped into volatility classes, the top SOA species, and NOx, O₃, limonene and seed experiments. Constant chamber-like light. | about 2 min |
-| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/03_day_and_night.ipynb) | [Level 3 · Day & Night](notebooks/03_day_and_night.ipynb) | Solar zenith angle and photolysis rates for a site and date, the day–night cycle of OH and NO₃, N₂O₅ uptake (γ) making particle nitrate, sites and seasons, and what holding NO₂ constant does. | about 3 min |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/01_volatility.ipynb) | [Level 1 · Volatility](notebooks/01_volatility.ipynb) | Saturation concentration c\*, absorptive partitioning, condensation of a semivolatile vs a non-volatile vapor (H₂SO₄), coagulation, nucleation. One made-up organic vapor, no gas chemistry. | about 25 s |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/02_limonene_soa.ipynb) | [Level 2 · Limonene SOA](notebooks/02_limonene_soa.ipynb) | An explicit mechanism, which oxidant removes limonene, how products get a c\* and are lumped into volatility classes, the top SOA species, and NOx, O₃, limonene and seed experiments. Constant chamber-like light. | about 1.5 min |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/03_day_and_night.ipynb) | [Level 3 · Day & Night](notebooks/03_day_and_night.ipynb) | Solar zenith angle and photolysis rates for a site and date, the day–night cycle of OH and NO₃, N₂O₅ uptake (γ) making particle nitrate, sites and seasons, and what holding NO₂ constant does. | about 2 min |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/04_inside_the_model.ipynb) | [Inside the model](notebooks/04_inside_the_model.ipynb) | TUV-x vs MCM photolysis, from a KPP mechanism to stiff ODEs and the solver, Pankow partitioning in the model code, N₂O₅ uptake from γ and surface area, and the operator-splitting loop written out. | under 1 min |
 
-Run times are for running every cell once on a laptop (Apple Silicon), after installation. Colab
-and older laptops are about twice as slow. The first model run in each session also compiles the
-model with JAX (a few seconds for Level 1, up to about 30–40 s for Levels 2 and 3).
+Run times are for running every cell once on a laptop (Apple Silicon), after installation, with
+the default 40 size bins (more bins are slower). Colab and older laptops are about twice as slow.
+The first model run in each session also compiles the model with JAX (about 2 s for Level 1 and
+5 s for Levels 2 and 3 on a laptop).
 
 The Colab badges open the notebooks from `main`. All work happens on `main`, so every push reaches
 students straight away: run the tests before pushing (see the end of this README).
@@ -66,9 +67,10 @@ notebook and pick the `.venv` kernel.
 
 ## Troubleshooting
 
-- **The first model run is slow.** JAX compiles the model the first time it runs in a session (a few
-  seconds for Level 1, up to 30–40 s for Levels 2 and 3), and again when a run switches a process
-  on or off. Later runs are fast. `at.setup(warmup=True)` compiles every preset up front.
+- **The first model run is slow.** JAX compiles the model the first time it runs in a session (about
+  2 s for Level 1 and 5 s for Levels 2 and 3 on a laptop, about twice that on Colab), and again
+  when a run switches a process on or off. Later runs are fast. `at.setup(warmup=True)` compiles
+  every preset up front.
 - **"Installed, but this Python session still has the old versions loaded".** The install cell
   upgraded numpy, jax or plotly after Python had loaded the old version. Restart the session
   (Colab: *Runtime › Restart session*) and run the notebook again from the top.
@@ -86,7 +88,7 @@ notebook and pick the `.venv` kernel.
 - **"unknown input 'cstar'. Did you mean ...":** inputs are grouped as in the model's `Scenario`, e.g.
   `surrogate={"cstar_ugm3": 10}` or `environment={"rh": 0.8}`. `at.describe("level1_volatility")`
   lists every input of a preset.
-- **TUV-x download fails.** It retries three times with time limits. Behind a firewall, download
+- **TUV-x download fails.** It tries three times with time limits. Behind a firewall, download
   <https://codeload.github.com/reflective-org/tuvx-jax/tar.gz/e5d9032d22e740d930c578676d726aaa5ba2473a>,
   unpack it and set `TUVX_JAX_ROOT` to the folder that contains `data/` and `examples/`.
 - **Plots do not show on GitHub.** GitHub renders notebooks without their interactive output, and the
@@ -126,8 +128,8 @@ scripts/set_pins.py changes the tutorial ref or a model commit everywhere at onc
 docs/INSTRUCTORS.md session plan, timings, caveats, how to update pins
 ```
 
-Tests: `uv run pytest` (about 30 s), and `uv run pytest -m notebooks` runs every notebook top to
-bottom (about 7 minutes). GitHub Actions runs both on every push.
+Tests: `uv run pytest` (about 10 s), and `uv run pytest -m notebooks` runs every notebook top to
+bottom (about 4 minutes). GitHub Actions runs both on every push.
 
 Instructors: see [docs/INSTRUCTORS.md](docs/INSTRUCTORS.md).
 

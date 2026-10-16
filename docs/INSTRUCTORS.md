@@ -42,16 +42,21 @@ installation, with the TUV-x data already downloaded. Colab is about twice as sl
 
 | Notebook | Model runs | Whole notebook | One run |
 |---|---|---|---|
-| 01 Volatility | 14 Level 1 runs | 1.5 min | 6–8 s |
-| 02 Limonene SOA | 12 Level 2 runs | 2 min | 8–13 s |
-| 03 Day & Night | 7 Level 3 runs | 3 min | 20–25 s |
-| 04 Inside the model | 1 hand-written Level 3 loop | 40 s | about 25 s |
+| 01 Volatility | 14 Level 1 runs | 25 s | about 1 s |
+| 02 Limonene SOA | 12 Level 2 runs | 1.5 min | about 6 s |
+| 03 Day & Night | 7 Level 3 runs | 2 min | about 12 s |
+| 04 Inside the model | 1 hand-written Level 3 loop | 30 s | about 17 s |
 
-The first run of each level in a session also compiles the model with JAX (a few seconds for
-Level 1; for Levels 2 and 3 compiling plus building the TUV-x table adds about 5–10 s on this
-laptop and up to 30–40 s on slower machines). On Colab the first install takes 1–2 minutes.
+The first run of each level in a session also compiles the model with JAX (about 2 s for
+Level 1; for Levels 2 and 3 compiling plus building the TUV-x table adds about 5 s on this
+laptop and about twice that on Colab). On Colab the first install takes 1–2 minutes.
 `USE_PRECOMPUTED = True` in notebooks 1–3 loads a stored result of the preset instead of running
 it.
+
+All these times are for the default 40 size bins. The *Size resolution* cell in each notebook's
+Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results change by under
+1 %), but every run takes longer: Level 1 about 1, 4, 14 and 61 s, Level 3 about 12, 19, 39 and
+136 s.
 
 ## Known caveats (say these out loud)
 
@@ -83,23 +88,26 @@ The ones students will run into:
   also count as sulfate for density, while the reported diameters assume 1400 kg m⁻³.
 - **Nucleation is H₂SO₄–H₂O only (A13).** At the Level 1 temperature (298 K) it produces no new
   particles even at 10⁷ molec cm⁻³ s⁻¹ of H₂SO₄; notebook 1 compares 298 K with 265 K. With
-  10⁶ molec cm⁻³ s⁻¹, N peaks at about 6 500 cm⁻³ at 270 K and 27 000 cm⁻³ at 265 K (7 600 and 34 000 with the web app's 40 size bins). The web
+  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 400 cm⁻³ at 270 K and 30 000 cm⁻³ at 265 K (7 600 and 34 000 in the web app, which runs an older model). The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
 - **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
   (300 s in Levels 1–2, 900 s in Level 3). ASSUMPTIONS.md quotes ≤ 3 % between 900 s and 600 s;
-  notebook 4's author measured +6.5 % nitrate and +4.6 % SOA for 300 s vs 900 s (not yet in
-  ASSUMPTIONS.md; worth confirming).
+  with the pinned model (40 bins) 600 s gives +3.5 % nitrate and +2.4 % SOA, and 300 s gives
+  +6.6 % nitrate and +4.7 % SOA, against 900 s (not yet in ASSUMPTIONS.md).
 - **Photolysis:** TUV-x gives 10–35 % more J than the MCM formula with the sun high, and 2–4× more
   J(O¹D) at solar zenith angles of 75–80° (notebook 4, Section 1).
 
 ## The web app's instructor guide
 
-The tomas-api guide's numbers were re-measured on 2026-10-14 with the same tomas-jax commit the
-notebooks pin (8753736). The notebooks run the presets with 80 size bins, the web app with 40 (same
-range, 1.7 nm to 17.5 µm). OH agrees: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). SOA
-agrees within 1 %. Particle size and nitrate differ: at the end of Level 3 (γ = 0.02) the web app
-has nitrate 4.96 µg m⁻³ and a geometric mean diameter of 162 nm, the notebooks 5.08 µg m⁻³ and
-176 nm. The guide counts the 725 species of the MCM file; the notebooks
+The tomas-api guide's numbers were re-measured on 2026-10-14 with tomas-jax 8753736, which the web
+app still runs. The notebooks pin a newer commit (`1f519e9`) that moves growing particles between
+size bins with a PPM remap instead of the older MNFIX split. Both use the same 40 size bins (1.7 nm
+to 17.5 µm). OH agrees: Level 3 OH ≈ 1.7×10⁷ (day 1) / 2.3×10⁷ cm⁻³ (day 2). SOA
+agrees within 1 %. Particle size and nitrate differ, because the older split spreads the size
+distribution: at the end of Level 1 the geometric mean diameter is 86 nm in the web app and 111 nm
+in the notebooks; at the end of Level 3 (γ = 0.02) the web app
+has nitrate 4.96 µg m⁻³ and a geometric mean diameter of 162 nm, the notebooks 5.16 µg m⁻³ and
+185 nm. The guide counts the 725 species of the MCM file; the notebooks
 say 726 because the model adds the `NA_HET` counter.
 
 ## Updating pins
@@ -124,7 +132,7 @@ Every version lives in one place per file, and the tests check that they agree.
   python scripts/set_pins.py --tomas-jax <40-character commit> [--tuvx-jax <commit>]
   uv sync --extra dev                    # or: pip install -e ".[dev]"
   python scripts/make_examples.py        # regenerates aaar_tutorial/examples/ (about 1 min)
-  pytest && pytest -m notebooks          # unit tests, then every notebook (about 7 min)
+  pytest && pytest -m notebooks          # unit tests, then every notebook (about 4 min)
   ```
 
   Also raise the helpers' version (below), update `VBS_JAX_COMMIT` and `TESTED_VERSIONS` in
@@ -148,8 +156,8 @@ Every version lives in one place per file, and the tests check that they agree.
 ## Checking everything
 
 ```bash
-uv run pytest                          # unit tests and notebook checks, about 30 s
-uv run pytest -m notebooks             # every notebook top to bottom, about 7 min on a laptop
+uv run pytest                          # unit tests and notebook checks, about 10 s
+uv run pytest -m notebooks             # every notebook top to bottom, about 4 min on a laptop
 ```
 
 GitHub Actions (`.github/workflows/notebooks.yml`) runs both on every push.

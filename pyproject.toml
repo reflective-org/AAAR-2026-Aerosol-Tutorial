@@ -41,9 +41,9 @@ packages = ["aaar_tutorial"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# The notebooks take about 5 minutes on a laptop; run them with: pytest -m notebooks
+# The notebooks take about 4 minutes on a laptop; run them with: pytest -m notebooks
 addopts = "-m 'not notebooks'"
 markers = [
     "smoke: runs the real box model (about 10-60 s including JIT compilation)",
-    "notebooks: executes every notebook top to bottom (about 5 minutes on a laptop)",
+    "notebooks: executes every notebook top to bottom (about 4 minutes on a laptop)",
 ]
