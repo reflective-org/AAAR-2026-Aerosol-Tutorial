@@ -1,5 +1,38 @@
 # Progress
 
+## 2026-10-17: nucleation time steps and input checks (helpers 0.4.7)
+
+- Model pin TOMAS-JAX 0e23da0 (tag aaar-stable-2026-10-17b). With nucleation on, the model cuts
+  each coupling interval into equal parts of at most 60 s and uses 5 s aerosol micro-steps instead
+  of 60 s (A13: each micro-step adds its H₂SO₄ at once and J ∝ [H₂SO₄]ⁿ with n ≈ 4, so 60 s steps
+  put the peak particle number up to 78 % high). The model also checks every scenario value where
+  it is built (RH 80: "did you mean 0.8?"; process switches must be True or False).
+- Runs without nucleation are unchanged: the regenerated examples agree with the old ones in every
+  stored value (6 digits); only their diagnostics gain the requested and used time steps.
+- Notebook 4: the hand-written loop takes the coupling interval and micro-step from
+  `driver.time_steps`, so with nucleation on it uses the same 60 s / 5 s steps as `run()`. Checked
+  once with nucleation on (Level 3, 24 h, 1440 intervals): loop and model agree to 6 digits in
+  nitrate (3.34413 µg m⁻³), SOA, number, O₃, HNO₃ and solver steps (8664); loop 128 s, model run
+  121 s. Against the preset (nucleation off), SOA −27.0 % and nitrate +6.6 %, with no new particles.
+- Text: notebook 4 Section 5 explains the shorter steps with the H₂SO₄ step and J = k(T)Cⁿ, and the
+  interval split Δt_c = Δt_req/m; notebook 1 Experiment 4 says why nucleation runs take about 15 s
+  (1 min at 80 bins); notebooks 2 and 3 note the steps and run times (Level 3 also the SOA and
+  nitrate shift); README and INSTRUCTORS give the run times and the input-check message.
+- Measured (laptop, warm, 40 bins unless noted): Level 1 with nucleation 13–15 s (58–60 s at
+  80 bins), Level 2 27 s, Level 3 24 h about 2 min, Level 3 at 80 bins 50 s per 6 h (so about
+  3.5 min per 24 h). Level 1 at 1e6 cm⁻³ s⁻¹ H₂SO₄: peak N 7 071 cm⁻³ at 270 K and 29 420 at
+  265 K (INSTRUCTORS had 7 400 and 30 000 from the 60 s steps).
+- Helper tests: the model's messages for RH 80 and `coagulation="off"` reach the student word for
+  word through `at.scenario_from` and `at.run`. No helper-side value checks existed, so none were
+  removed.
+- Time limits unchanged: `RUN_TIMEOUT_S` 900 s and `NOTEBOOK_CELL_TIMEOUT_S` 900 s cover the
+  slowest 40-bin nucleation run (Level 3, 48 h, about 225 s on a laptop).
+- Tests: pytest 157 passed; pytest -m notebooks 4 passed in 3 min 47 s (01 47 s, 02 66 s,
+  03 90 s, 04 24 s).
+- Open: `docs/model_flowchart.pdf` still shows only the steps without nucleation (5/15 min
+  intervals, 60 s micro-steps) and names 5227ddd; README and INSTRUCTORS say so until it is
+  re-printed.
+
 ## 2026-10-16 (evening): Shantanu's c\* table is the Level 2/3 default (helpers 0.4.5)
 
 - Model pin TOMAS-JAX 5227ddd (tag aaar-stable-2026-10-16c): Levels 2 and 3 take each product's

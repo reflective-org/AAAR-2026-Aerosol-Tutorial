@@ -44,6 +44,27 @@ def test_unknown_input_suggests_the_right_spelling():
         at.scenario_from("level1_volatility", environment={"temp": 280})
 
 
+def test_model_input_checks_reach_the_student_unchanged():
+    """The model checks values (TOMAS-JAX box/scenario.py); the helpers pass its message on as it is."""
+    from tomas_jax.box.scenario import Environment, Processes
+
+    with pytest.raises(ValueError) as direct:
+        Environment(rh=80)
+    for call in (lambda: at.scenario_from("level1_volatility", environment={"rh": 80}),
+                 lambda: at.run("level1_volatility", progress=False, environment={"rh": 80})):
+        with pytest.raises(ValueError) as via_helpers:
+            call()
+        assert str(via_helpers.value) == str(direct.value)
+    assert "did you mean 0.8?" in str(direct.value)
+
+    with pytest.raises(ValueError) as direct:
+        Processes(coagulation="off")
+    with pytest.raises(ValueError) as via_helpers:
+        at.run("level1_volatility", progress=False, processes={"coagulation": "off"})
+    assert str(via_helpers.value) == str(direct.value)
+    assert str(direct.value) == "processes.coagulation must be True or False, got 'off'"
+
+
 def test_seed_shorthand_changes_the_first_mode():
     s = at.scenario_from("level1_volatility", seed={"number_cm3": 5000, "organic_mass_fraction": 0.0})
     assert s.seed.modes[0].number_cm3 == 5000 and s.seed.modes[0].gmd_nm == 50.0

@@ -2,6 +2,32 @@
 
 Why the tutorial repository looks the way it does. Newest last.
 
+## Nucleation runs take the model's short time steps, in notebook 4 too (2026-10-17)
+
+Ali: "for nucleation, 15 mins interval is way too long, we need to have a shorter timesteps for
+nucleation cases ... 1-2 mins max". TOMAS-JAX 0e23da0 (tag aaar-stable-2026-10-17b) does this in
+the model: with nucleation on, the coupling interval is cut into equal parts of at most 60 s and
+the aerosol micro-step is at most 5 s (ASSUMPTIONS A13). Each micro-step adds its H₂SO₄ at once,
+C ← C + P·Δt_m, and the binary nucleation rate goes as J = k(T)·Cⁿ with n ≈ 4 (Dunne et al.,
+2016, the scheme's binary neutral term), so 60 s micro-steps overshoot the burst (peak N +30 % in
+Level 2 and +78 % in Level 3 at 265 K); 60 s / 5 s is within 4 % in every 40-bin case. The
+tutorial follows the model and adds no steps of its own:
+
+- `at.run` passes the scenario on unchanged, so the caps and the model's warning line reach the
+  student as they are.
+- Notebook 4's hand-written loop asks `driver.time_steps(s, cfg)` for the coupling interval and
+  the micro-step instead of reading `s.numerics.coupling_dt_s`, and passes the micro-step to
+  `aerosol_outer_step` as `driver.run` does. Without nucleation the two values are the old ones
+  (900 s, 60 s), so the default loop is unchanged; with nucleation on it matches `at.run`.
+- The helpers' time limits stay: `RUN_TIMEOUT_S` (900 s per run) and `NOTEBOOK_CELL_TIMEOUT_S`
+  (900 s per cell) already allow the slowest 40-bin nucleation run, Level 3 over 48 h (about
+  225 s on a laptop, so about 450 s on Colab). Finer grids with nucleation can exceed 900 s; the
+  `TimeoutError` says how to pass a larger `timeout_s`.
+- The model now checks every scenario value where it is built (RH 80 gives "did you mean 0.8?",
+  `coagulation="off"` is refused). The helpers check only input names (with spelling
+  suggestions), never values, so there is no second set of value checks to keep in step; tests
+  make sure the model's message reaches the student word for word.
+
 ## Smooth growth (PPM) and 40 bins again, with a choice (2026-10-16)
 
 The jagged size distributions at 80 bins (Ali's screenshots) came from SOA growth, not from

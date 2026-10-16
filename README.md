@@ -14,7 +14,7 @@ is explained as you go.
 
 | | Notebook | What you learn | Run time (laptop) |
 |---|---|---|---|
-| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/01_volatility.ipynb) | [Level 1 · Volatility](notebooks/01_volatility.ipynb) | Saturation concentration c\*, absorptive partitioning, condensation of a semivolatile vs a non-volatile vapor (H₂SO₄), coagulation, nucleation. One made-up organic vapor, no gas chemistry. | about 25 s |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/01_volatility.ipynb) | [Level 1 · Volatility](notebooks/01_volatility.ipynb) | Saturation concentration c\*, absorptive partitioning, condensation of a semivolatile vs a non-volatile vapor (H₂SO₄), coagulation, nucleation. One made-up organic vapor, no gas chemistry. | about 50 s |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/02_limonene_soa.ipynb) | [Level 2 · Limonene SOA](notebooks/02_limonene_soa.ipynb) | An explicit mechanism, which oxidant removes limonene, how products get a c\* and are lumped into volatility classes, the top SOA species, and NOx, O₃, limonene and seed experiments. Constant chamber-like light. | about 1.5 min |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/03_day_and_night.ipynb) | [Level 3 · Day & Night](notebooks/03_day_and_night.ipynb) | Solar zenith angle and photolysis rates for a site and date, the day–night cycle of OH and NO₃, N₂O₅ uptake (γ) making particle nitrate, sites and seasons, and what holding NO₂ constant does. | about 2 min |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/04_inside_the_model.ipynb) | [Inside the model](notebooks/04_inside_the_model.ipynb) | TUV-x vs MCM photolysis, from a KPP mechanism to stiff ODEs and the solver, Pankow partitioning in the model code, N₂O₅ uptake from γ and surface area, and the operator-splitting loop written out. | under 1 min |
@@ -22,7 +22,10 @@ is explained as you go.
 Run times are for running every cell once on a laptop (Apple Silicon), after installation, with
 the default 40 size bins (more bins are slower). Colab and older laptops are about twice as slow.
 The first model run in each session also compiles the model with JAX (about 2 s for Level 1 and
-5 s for Levels 2 and 3 on a laptop).
+5 s for Levels 2 and 3 on a laptop). Runs with nucleation switched on are slower, because the model
+then takes much shorter time steps to follow the burst of new particles (coupling intervals of at
+most 60 s and 5 s aerosol steps): about 15 s for a Level 1 run, 25 s for Level 2 and 2 minutes for
+Level 3 at 40 bins, and about 1 minute for Level 1 at 80 bins.
 
 The Colab badges open the notebooks from `main`. All work happens on `main`, so every push reaches
 students straight away: run the tests before pushing (see the end of this README).
@@ -81,10 +84,15 @@ notebook and pick the `.venv` kernel.
   'aaar_tutorial.plots' has no attribute ...`**: the helpers were updated after this session imported
   them. Colab: *Runtime › Restart session*, then *Runtime › Run all* (the install cell updates the
   helpers first). Locally: `git pull`, `uv sync`, then *Kernel › Restart Kernel*.
-- **A run is slow or seems stuck.** Colab is about twice as slow as a laptop. Every run stops with a
+- **A run is slow or seems stuck.** Colab is about twice as slow as a laptop. Runs with nucleation on
+  take 5–10 times longer than without (see the run times above). Every run stops with a
   `TimeoutError` after 15 minutes (`at.run(..., timeout_s=None)` turns the limit off). Notebooks 1–3
   have a `USE_PRECOMPUTED = True` switch that loads a stored result of the preset instead of
   running it.
+- **`ValueError: environment.rh must be from 0 to 1, got 80; ... did you mean 0.8?`:** the model
+  checks every input when the scenario is built and names the one that is wrong: relative humidity
+  and the seed's organic fraction are fractions (0–1), temperature is in kelvin, pressure in pascal,
+  and process switches are `True` or `False` (`processes={"coagulation": False}`, not `"off"`).
 - **"unknown input 'cstar'. Did you mean ...":** inputs are grouped as in the model's `Scenario`, e.g.
   `surrogate={"cstar_ugm3": 10}` or `environment={"rh": 0.8}`. `at.describe("level1_volatility")`
   lists every input of a preset.
@@ -98,20 +106,21 @@ notebook and pick the `.venv` kernel.
 
 **[How the model works](docs/model_flowchart.pdf)**: a two-page flowchart of one coupling interval (chemistry,
 hand-off to the aerosol, hand-back) and of one aerosol micro-step, showing where particles move between size
-bins (PPM) and what each level switches on.
+bins (PPM) and what each level switches on. Its time steps (5 or 15 min intervals, 60 s micro-steps)
+are those without nucleation; with nucleation on the model uses at most 60 s and 5 s.
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
-- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28)
+- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/0e23da0da79a5a080baa02447e47951b75f796fe)
   (the box model; pinned in `pyproject.toml`). Its tutorial documentation:
-  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/gaschem.md),
-  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/coupling.md),
-  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/aerosol_step.md),
-  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/soa_partitioning.md),
-  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/docs/aaar/heterogeneous.md).
+  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/gaschem.md),
+  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/coupling.md),
+  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/aerosol_step.md),
+  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/soa_partitioning.md),
+  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/heterogeneous.md).
 - [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `e5d9032`) and
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
-- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/ASSUMPTIONS.md)
+- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/ASSUMPTIONS.md)
   lists every simplification.** Three matter most for interpreting results:
   - The c\* of each Level 2 and 3 product comes from a per-species table supplied by Shantanu
     Jathar (A8): the pure-component vapour pressure at 298.15 K from the group-contribution method

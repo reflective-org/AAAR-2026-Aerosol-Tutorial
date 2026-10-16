@@ -3,7 +3,9 @@
 How to use the notebooks in the AAAR 2026 tutorial, how long they take, what to warn students
 about, and how to update the model version. The web app has its own instructor guide (in the
 tomas-api repository, `docs/aaar/INSTRUCTOR_GUIDE.md`). [model_flowchart.pdf](model_flowchart.pdf) shows how the
-model works in two pages; it is a good slide to open the session with.
+model works in two pages; it is a good slide to open the session with. Its time steps (5 or 15 min
+intervals, 60 s micro-steps) are those without nucleation; with nucleation on the model uses at
+most 60 s and 5 s (see Run times).
 
 ## Before the session
 
@@ -43,7 +45,7 @@ installation, with the TUV-x data already downloaded. Colab is about twice as sl
 
 | Notebook | Model runs | Whole notebook | One run |
 |---|---|---|---|
-| 01 Volatility | 14 Level 1 runs | 25 s | about 1 s |
+| 01 Volatility | 14 Level 1 runs (2 with nucleation) | 50 s | about 1 s (15 s with nucleation) |
 | 02 Limonene SOA | 12 Level 2 runs | 1.5 min | about 6 s |
 | 03 Day & Night | 7 Level 3 runs | 2 min | about 12 s |
 | 04 Inside the model | 1 hand-written Level 3 loop | 30 s | about 17 s |
@@ -54,6 +56,17 @@ laptop and about twice that on Colab). On Colab the first install takes 1–2 mi
 `USE_PRECOMPUTED = True` in notebooks 1–3 loads a stored result of the preset instead of running
 it.
 
+**Nucleation makes runs slower.** With `processes={"nucleation": True}` the model cuts the coupling
+interval to at most 60 s and the aerosol micro-step from 60 s to 5 s (TOMAS-JAX A13), so a run takes
+about 15 s in Level 1 (about 1 min at 80 bins), 25 s in Level 2 and 2 min in Level 3 at 40 bins,
+and a 48 h Level 3 run about 4 min; Colab can be twice as slow. The reason is physical: each
+micro-step adds the H₂SO₄ produced during it at once, and the binary nucleation rate grows with
+about the fourth power of the H₂SO₄ concentration, J = k(T)·[H₂SO₄]ⁿ with n ≈ 4
+([Dunne et al., 2016](https://doi.org/10.1126/science.aaf2649)), so 60 s micro-steps overshoot the
+burst (peak particle number up to 78 % too high in Level 3); 5 s micro-steps keep it within 4 % at
+40 bins. Notebook 1's Experiment 4 makes two such runs; the other notebooks run nucleation only if
+a student switches it on.
+
 All these times are for the default 40 size bins. The *Size resolution* cell in each notebook's
 Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results change by under
 1 %), but every run takes longer: Level 1 about 1, 4, 14 and 61 s, Level 3 about 12, 19, 39 and
@@ -62,7 +75,7 @@ Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results cha
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/5227dddf1d31cdd91d0dc2cb2002cff84c9fce28/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/ASSUMPTIONS.md).
 The ones students will run into:
 
 - **c\* comes from Shantanu's per-species table, and it is still the most uncertain input (A8).**
@@ -128,23 +141,31 @@ The ones students will run into:
   also count as sulfate for density, while the reported diameters assume 1400 kg m⁻³.
 - **Nucleation is H₂SO₄–H₂O only (A13).** At the Level 1 temperature (298 K) it produces no new
   particles even at 10⁷ molec cm⁻³ s⁻¹ of H₂SO₄; notebook 1 compares 298 K with 265 K. With
-  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 400 cm⁻³ at 270 K and 30 000 cm⁻³ at 265 K. The web
+  10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 100 cm⁻³ at 270 K and 29 000 cm⁻³ at 265 K (with the
+  5 s micro-steps; the old 60 s steps gave 7 400 and 30 000). The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
 - **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
-  (300 s in Levels 1–2, 900 s in Level 3). Against 900 s, the Level 3 preset (40 bins) gives
+  (300 s in Levels 1–2, 900 s in Level 3; at most 60 s with nucleation on). Against 900 s, the Level 3 preset (40 bins) gives
   +2.6 % nitrate and −10.5 % SOA with 600 s, and +4.7 % nitrate and −20 % SOA with 300 s. The
   SOA is so small (0.06 µg m⁻³ after 24 h) and so much of it evaporates on the second morning
-  that it reacts strongly to the interval; nitrate and HNO₃ change by a few percent.
+  that it reacts strongly to the interval; nitrate and HNO₃ change by a few percent. Because
+  nucleation shortens the interval to 60 s, switching it on in Level 3 changes SOA (−27 %) and
+  nitrate (+6.6 %) at 24 h even though the preset makes no new particles at 293 K; the 60 s values
+  are the accurate ones (within 0.8 % of a 30 s run). A fair on/off comparison runs the case
+  without nucleation at `numerics={"coupling_dt_s": 60}` too.
 - **Photolysis:** TUV-x gives 10–35 % more J than the MCM formula with the sun high, and 2–4× more
   J(O¹D) at solar zenith angles of 75–80° (notebook 4, Section 1).
 
 ## The web app's instructor guide
 
 Since 2026-10-16 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
-TOMAS-JAX commit as the notebooks (`5227ddd`, with Shantanu's c\* table) on the same 40 size bins
+model as the notebooks (TOMAS-JAX 5227ddd, with Shantanu's c\* table) on the same 40 size bins
 (1.7 nm to 17.5 µm), and the tomas-api guide's numbers were re-measured with it through the API's
-own code path, so the two agree: e.g. Level 1 geometric mean diameter 111 nm, Level 2 SOA
-8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3 OH ≈ 1.2×10⁷ (day 1) / 2.4×10⁷ cm⁻³ (day 2).
+own code path, so the two agree. The notebooks now pin `0e23da0`, which adds only the shorter
+nucleation time steps and the input checks: runs without nucleation give the same numbers, and
+runs with nucleation match the web app once it runs 0e23da0 too. Shared numbers: Level 1
+geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3
+OH ≈ 1.2×10⁷ (day 1) / 2.4×10⁷ cm⁻³ (day 2).
 Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3
 nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split; Level 1 86 nm, Level 3 nitrate
 4.96 µg m⁻³). A deployed web app shows the new numbers once it is
