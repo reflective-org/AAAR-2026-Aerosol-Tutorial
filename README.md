@@ -113,7 +113,7 @@ The notebooks pin every model package to a commit, so the results do not change 
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
 - **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/2faa391bcf132fb6796dc71bb637974f9282a459/ASSUMPTIONS.md)
   lists every simplification.** Two matter most for interpreting results:
-  - The c\* of the Level 2 and 3 products comes from a composition-only formula (Li et al., 2016) as a
+  - The c\* of the Level 2 and 3 products comes from a composition-only formula ([Li et al., 2016](https://doi.org/10.5194/acp-16-3327-2016)) as a
     placeholder until a curated per-species table arrives (A8). With it, about 98 % of the Level 2
     SOA contains nitrogen (organic nitrates and PANs), and without NOx there is almost no SOA. Treat
     Level 2 SOA amounts and yields as a lesson in how much they depend on c\*, not as limonene facts.

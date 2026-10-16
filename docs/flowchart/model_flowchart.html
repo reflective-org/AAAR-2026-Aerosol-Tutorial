@@ -35,6 +35,7 @@
   .panel { position: absolute; border-radius: 8px; padding: 9px 11px; font-size: 10.5px; line-height: 1.42; }
   .panel h3 { margin: 0 0 5px; font-size: 11.5px; font-weight: 600; }
   .panel ul { margin: 0; padding-left: 15px; } .panel li { margin-bottom: 2px; }
+  a { color: var(--blue); text-decoration: none; }
   .foot { position: absolute; left: 32px; bottom: 16px; font-size: 9px; color: var(--slate); width: 760px; }
   .badge { position: absolute; right: 30px; bottom: 12px; height: 28px; }
   .step { position: absolute; left: 32px; width: 640px; border-radius: 8px; padding: 7px 10px 6px 46px; font-size: 10.5px;
@@ -70,8 +71,8 @@
       (at the middle of Δt<sub>c</sub>). Level 2: constant light (a 30° sun scaled to J(NO₂) = 5×10⁻³ s⁻¹, about half).</div>
     <div class="card"><b>Rate constants</b> for all 2135 reactions, frozen for Δt<sub>c</sub>: MCM expressions, J,
       the RO₂ sum, and k<sub>het</sub>(N₂O₅) from the particles.</div>
-    <div class="card"><b>Stiff ODE solver</b> <span class="tag jax">JAX</span><br>MCM v3.3.1 limonene subset, 725 species
-      (diffrax Kvaerno3, rtol 10⁻³), integrated over Δt<sub>c</sub>.</div>
+    <div class="card"><b>Stiff ODE solver</b> <span class="tag jax">JAX</span><br><a href="https://mcm.york.ac.uk/MCM" target="_blank" rel="noopener">MCM v3.3.1</a> limonene subset, 725 species
+      (<a href="https://github.com/patrick-kidger/diffrax" target="_blank" rel="noopener">diffrax</a> <a href="https://doi.org/10.1023/B:BITN.0000046811.70614.38" target="_blank" rel="noopener">Kvaerno3</a>, rtol 10⁻³), integrated over Δt<sub>c</sub>.</div>
   </div>
 
   <div class="col hand" style="left:462px; top:146px; width:168px; height:330px;">
@@ -79,7 +80,7 @@
     <div class="card"><b>Sulfuric acid</b><br>SO₂ + OH → H₂SO₄, counted over Δt<sub>c</sub> → a production rate</div>
     <div class="card"><b>Nitrate</b><br>N₂O₅ taken up by particles → 2 NO₃⁻ per N₂O₅ → a production rate</div>
     <div class="card"><b>Condensable organics</b><br>~250 products grouped by c* into 15 volatility classes
-      (half decades, 10⁻³ to 10⁴ µg m⁻³; c* from Li et al. 2016 or a table) — the VBS gas phase</div>
+      (half decades, 10⁻³ to 10⁴ µg m⁻³; c* from <a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li et al. 2016</a> or a table) — the VBS gas phase</div>
   </div>
 
   <div class="col aer" style="left:654px; top:146px; width:214px; height:330px;">
@@ -181,13 +182,13 @@
 
   <div class="step"><div class="num">3</div>
     <b>Coagulation.</b> Particles collide and stick: number falls, mass stays. 40 bins: the two-moment scheme of Fortran TOMAS
-    (Tzivion, Feingold and Levin 1987); 80–320 bins: the linear discrete method (Simmel et al. 2002).
+    (<a href="https://doi.org/10.1175/1520-0469%281987%29044%3C3139:AENSTT%3E2.0.CO;2" target="_blank" rel="noopener">Tzivion, Feingold and Levin 1987</a>); 80–320 bins: the linear discrete method (<a href="https://doi.org/10.1016/S0169-8095%2801%2900131-4" target="_blank" rel="noopener">Simmel et al. 2002</a>).
     <div class="how">Ten 6 s forward-Euler sub-steps with the kernel fixed for the 60 s, MNFIX after each <span class="tag mnfix">MNFIX</span>.</div></div>
 
   <div class="step"><div class="num">4</div>
-    <b>H₂SO₄ condensation.</b> The vapor condenses onto every bin at the kinetic rate (Fuchs–Sutugin correction in Dahneke's form, accommodation 1); it never
+    <b>H₂SO₄ condensation.</b> The vapor condenses onto every bin at the kinetic rate (<a href="https://doi.org/10.1016/B978-0-08-016674-2.50006-6" target="_blank" rel="noopener">Fuchs–Sutugin</a> correction in <a href="https://doi.org/10.1016/B978-0-12-493120-6.50011-8" target="_blank" rel="noopener">Dahneke</a>'s form, accommodation 1); it never
     evaporates. Particles grow across bin edges <span class="tag ppm">PPM</span>.
-    <div class="how">Flux-form PPM in log-mass with a monotone limiter (Colella and Woodward 1984); MNFIX before and after
+    <div class="how">Flux-form PPM in log-mass with a monotone limiter (<a href="https://doi.org/10.1016/0021-9991%2884%2990143-8" target="_blank" rel="noopener">Colella and Woodward 1984</a>); MNFIX before and after
       <span class="tag mnfix">MNFIX</span>, then particle water is reset.</div></div>
 
   <div class="step"><div class="num">5</div>
@@ -257,12 +258,12 @@
   <div class="panel" style="left:32px; top:654px; width:992px; height:102px; background:#F7F3EE; border:1px solid var(--beige);">
     <h3>References for the numerics</h3>
     <div style="font-size:9.6px; line-height:1.45">
-      Colella, P. and Woodward, P. R.: The Piecewise Parabolic Method (PPM) for gas-dynamical simulations, J. Comput. Phys., 54, 174–201, 1984. ·
-      Tzivion, S., Feingold, G. and Levin, Z.: An efficient numerical solution to the stochastic collection equation, J. Atmos. Sci., 44, 3139–3149, 1987. ·
-      Simmel, M., Trautmann, T. and Tetzlaff, G.: Numerical solution of the stochastic collection equation – comparison of the Linear Discrete Method with other methods, Atmos. Res., 61, 135–148, 2002. ·
-      Zaveri, R. A. et al.: Modeling kinetic partitioning of secondary organic aerosol and size distribution dynamics, Atmos. Chem. Phys., 14, 5153–5181, 2014. ·
-      Pankow, J. F.: An absorption model of gas/particle partitioning of organic compounds in the atmosphere, Atmos. Environ., 28, 185–188, 1994. ·
-      Li, Y., Pöschl, U. and Shiraiwa, M.: Molecular corridors and parameterizations of volatility, Atmos. Chem. Phys., 16, 3327–3344, 2016.
+      <a href="https://doi.org/10.1016/0021-9991%2884%2990143-8" target="_blank" rel="noopener">Colella, P. and Woodward, P. R.: The Piecewise Parabolic Method (PPM) for gas-dynamical simulations, J. Comput. Phys., 54, 174–201, 1984.</a> ·
+      <a href="https://doi.org/10.1175/1520-0469%281987%29044%3C3139:AENSTT%3E2.0.CO;2" target="_blank" rel="noopener">Tzivion, S., Feingold, G. and Levin, Z.: An efficient numerical solution to the stochastic collection equation, J. Atmos. Sci., 44, 3139–3149, 1987.</a> ·
+      <a href="https://doi.org/10.1016/S0169-8095%2801%2900131-4" target="_blank" rel="noopener">Simmel, M., Trautmann, T. and Tetzlaff, G.: Numerical solution of the stochastic collection equation – comparison of the Linear Discrete Method with other methods, Atmos. Res., 61, 135–148, 2002.</a> ·
+      <a href="https://doi.org/10.5194/acp-14-5153-2014" target="_blank" rel="noopener">Zaveri, R. A. et al.: Modeling kinetic partitioning of secondary organic aerosol and size distribution dynamics, Atmos. Chem. Phys., 14, 5153–5181, 2014.</a> <a href="https://acp.copernicus.org/articles/14/5153/2014/acp-14-5153-2014.pdf" target="_blank" rel="noopener">PDF</a> ·
+      <a href="https://doi.org/10.1016/1352-2310%2894%2990093-0" target="_blank" rel="noopener">Pankow, J. F.: An absorption model of gas/particle partitioning of organic compounds in the atmosphere, Atmos. Environ., 28, 185–188, 1994.</a> ·
+      <a href="https://doi.org/10.5194/acp-16-3327-2016" target="_blank" rel="noopener">Li, Y., Pöschl, U. and Shiraiwa, M.: Molecular corridors and parameterizations of volatility, Atmos. Chem. Phys., 16, 3327–3344, 2016.</a> <a href="https://acp.copernicus.org/articles/16/3327/2016/acp-16-3327-2016.pdf" target="_blank" rel="noopener">PDF</a>
     </div>
   </div>
 

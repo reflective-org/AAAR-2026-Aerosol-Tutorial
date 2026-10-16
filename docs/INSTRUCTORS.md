@@ -66,7 +66,7 @@ All model simplifications are in TOMAS-JAX
 The ones students will run into:
 
 - **c\* is a placeholder (A8).** Levels 2 and 3 estimate each product's c\* from its elemental
-  composition (Li et al., 2016) until Shantanu's per-species table arrives. With it, about 98 % of
+  composition ([Li et al., 2016](https://doi.org/10.5194/acp-16-3327-2016)) until Shantanu's per-species table arrives. With it, about 98 % of
   the Level 2 SOA contains nitrogen (organic nitrates and PANs), the main non-nitrogen products
   (limonaldehyde, limononic acid) never condense, and NOx = 0 gives almost no SOA. The SOA then
   saturates near 16 µg m⁻³ when limonene goes 5 → 20 ppb because NOx runs out, so the yield falls.
