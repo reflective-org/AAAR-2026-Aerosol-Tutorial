@@ -4,7 +4,7 @@ from pathlib import Path
 
 # --- Model pins (keep in step with pyproject.toml and requirements.txt) -------------------
 GITHUB_ORG_URL = "https://github.com/reflective-org"
-TOMAS_JAX_COMMIT = "87537364420e76cd50203049e4d74cb23660327d"
+TOMAS_JAX_COMMIT = "1f519e910b5e3119a54ce3df1617aa32a4d5ab2c"
 TUVX_JAX_COMMIT = "e5d9032d22e740d930c578676d726aaa5ba2473a"
 VBS_JAX_COMMIT = "4a67f16d5585aee198c62819f1bd52fc0daed9d5"   # pinned by tomas-jax itself
 TOMAS_JAX_REQUIREMENT = (

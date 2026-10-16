@@ -7,7 +7,7 @@ license = "MIT"
 # jax/jaxlib 0.11.2 and scipy >= 1.15 need Python 3.12 or newer.
 requires-python = ">=3.12"
 dependencies = [
-    "tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@87537364420e76cd50203049e4d74cb23660327d",
+    "tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@1f519e910b5e3119a54ce3df1617aa32a4d5ab2c",
     "jax==0.11.2",
     "jaxlib==0.11.2",
     "diffrax==0.7.2",

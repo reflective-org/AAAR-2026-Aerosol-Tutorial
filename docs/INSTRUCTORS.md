@@ -56,7 +56,7 @@ it.
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/87537364420e76cd50203049e4d74cb23660327d/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/1f519e910b5e3119a54ce3df1617aa32a4d5ab2c/ASSUMPTIONS.md).
 The ones students will run into:
 
 - **c\* is a placeholder (A8).** Levels 2 and 3 estimate each product's c\* from its elemental
