@@ -17,9 +17,11 @@ fastest (Level 1 about 1 s per run) and the web app's grid. Users choose 40/80/1
 panel). The web app still runs the previous model until tomas-api's pin is updated, so its numbers
 differ from the notebooks' (INSTRUCTORS.md).
 
-Plots: the banana plot uses one hue from white to dark blue (dataviz skill: sequential = one hue,
-light to dark), with cells below the colour floor drawn white so empty and near-empty cells blend
-into the background, and Linear/Log colour buttons. Line plots (size distributions, time series,
+Plots: the banana plot uses ColorBrewer YlGnBu (pale yellow → green → blue → navy, lightness
+falling monotonically), with cells below the colour floor drawn white so empty and near-empty
+cells blend into the background, and Linear/Log colour buttons. Ali chose it from four rendered
+candidates (YlGnBu, YlOrBr, reversed inferno, a Reflective-brand ramp) after a one-hue blue ramp
+saturated into dark navy over most of the mode. Line plots (size distributions, time series,
 totals, gases, radicals) get Linear/Log buttons; stacked composition, volatility bars and the
 partitioning explainer stay linear (log distorts stacked areas and percentages).
 

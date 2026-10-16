@@ -129,10 +129,22 @@ INITIAL_COLOR = "#9a9a9a"          # t = 0 size distribution
 PARTICLE_COLOR = "#008300"
 GAS_COLOR = "#2a78d6"
 NIGHT_COLOR = "rgba(60, 70, 120, 0.12)"
-# Banana plot: one hue, white -> dark blue (the dataviz skill's sequential blue, steps 100-700,
-# with white below them), so empty and near-empty cells blend into the white background.
-HEATMAP_COLORSCALE = [[0.0, "#ffffff"], [1 / 7, "#cde2fb"], [2 / 7, "#9ec5f4"], [3 / 7, "#6da7ec"],
-                      [4 / 7, "#3987e5"], [5 / 7, "#256abf"], [6 / 7, "#184f95"], [1.0, "#0d366b"]]
+# Banana plot: ColorBrewer YlGnBu (pale yellow -> green -> blue -> navy; lightness falls
+# monotonically, colour-blind safe), with white below it, so empty and near-empty cells blend into
+# the white background (Ali's choice, 2026-10-16, over a one-hue blue ramp, inferno, YlOrBr and a
+# Reflective-brand ramp).
+HEATMAP_COLORSCALE = [
+    [0.0, "#ffffff"],
+    [0.02, "#ffffd9"],
+    [0.1425, "#edf8b1"],
+    [0.265, "#c7e9b4"],
+    [0.3875, "#7fcdbb"],
+    [0.51, "#41b6c4"],
+    [0.6325, "#1d91c0"],
+    [0.755, "#225ea8"],
+    [0.8775, "#253494"],
+    [1.0, "#081d58"],
+]
 SCALE_BUTTON_LABELS = ("Linear", "Log")   # scale buttons on the plots (top right)
 HEATMAP_DECADES = 4                # banana plot colour range below its maximum
 
