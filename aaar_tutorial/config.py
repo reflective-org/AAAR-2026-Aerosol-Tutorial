@@ -28,7 +28,7 @@ COLAB_URL = f"https://colab.research.google.com/github/{TUTORIAL_REPO}/blob/{TUT
 # (scripts/make_banners.py). Linked at the commit that added them, so the URLs work on every
 # branch and in Colab and never change. After regenerating the images, commit them first, then
 # set ASSET_COMMIT to that commit and update the notebook links (tests/test_notebooks.py checks).
-ASSET_COMMIT = "520b58ef28d16cd1fa2a7bdbf7573365fd88aaec"
+ASSET_COMMIT = "9feba6889d498d8c754a6783e5460f46e054d60f"
 ASSET_URL = f"https://raw.githubusercontent.com/{TUTORIAL_REPO}/{ASSET_COMMIT}/assets"
 REFLECTIVE_URL = "https://www.reflective.org"
 NOTEBOOKS = ("01_volatility.ipynb", "02_limonene_soa.ipynb", "03_day_and_night.ipynb",
