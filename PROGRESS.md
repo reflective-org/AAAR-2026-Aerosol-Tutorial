@@ -48,6 +48,10 @@
   0e23da0 and docs instead of code files; no code names left in the boxes. Re-printed the same way
   (headless Chrome, fonts embedded), checked as PNGs, no box overflows. README and INSTRUCTORS no
   longer say the flowchart shows only the steps without nucleation.
+- Flowchart review fixes (same day): the Clocks panel said Δt_req / m is 60 s "for 300–900 s",
+  but only 300, 600 and 900 s give exactly 60 s (450 s gives 56.25 s); step 2's sub-step rule now
+  names its sub-step, J·Δt_s ≤ N/2 with N the total particle number; step 3's Euler update uses
+  x for each bin's number and mass, so N means one thing on the page. Re-printed the same way.
 
 ## 2026-10-16 (evening): Shantanu's c\* table is the Level 2/3 default (helpers 0.4.5)
 

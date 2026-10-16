@@ -150,7 +150,7 @@
       <li>coupling interval Δt<sub>c</sub>: 300 s (Levels 1–2), 900 s (Level 3)</li>
       <li>aerosol micro-step Δt<sub>m</sub>: 60 s; vbs-jax sub-steps inside it</li>
       <li>with nucleation on: Δt<sub>m</sub> = 5 s, and the requested interval Δt<sub>req</sub> is cut into
-        m = ⌈Δt<sub>req</sub> / 60 s⌉ equal parts, Δt<sub>c</sub> = Δt<sub>req</sub> / m (60 s for 300–900 s); output times unchanged</li>
+        m = ⌈Δt<sub>req</sub> / 60 s⌉ equal parts, Δt<sub>c</sub> = Δt<sub>req</sub> / m (60 s for 300, 600 or 900 s); output times unchanged</li>
       <li>size bins: 40 (default), 80, 160 or 320, always 1.7 nm to 17.5 µm at sulfate density (plots: 1.8 nm to 19 µm)</li>
       <li>output: every 10 min (Levels 1–2), 30 min (Level 3)</li>
       <li>all in float64 JAX; one compile per grid and level</li>
@@ -184,13 +184,13 @@
     (the binary neutral term of <a href="https://doi.org/10.1126/science.aaf2649" target="_blank" rel="noopener">Dunne et al. 2016</a>; NH₃, ions and organics set to zero); as in TOMAS each new
     particle is 10 % organic by mass. Off in the presets; it needs high H₂SO₄ and cold air.
     <div class="how">Why 5 s: C jumps by P·Δt<sub>m</sub> at each micro-step's start and J grows as C⁴, so 60 s steps put the peak particle
-      number up to 78 % too high; 5 s is within 4 % (40 bins). Sub-steps keep J·Δt ≤ N/2 (N the particle number); MNFIX
+      number up to 78 % too high; 5 s is within 4 % (40 bins). Sub-steps Δt<sub>s</sub> keep J·Δt<sub>s</sub> ≤ N/2 (N the total particle number); MNFIX
       afterwards <span class="tag mnfix">MNFIX</span>.</div></div>
 
   <div class="step"><div class="num">3</div>
     <b>Coagulation.</b> Particles collide and stick: number falls, mass stays. 40 bins: the two-moment scheme of Fortran TOMAS
     (<a href="https://doi.org/10.1175/1520-0469%281987%29044%3C3139:AENSTT%3E2.0.CO;2" target="_blank" rel="noopener">Tzivion, Feingold and Levin 1987</a>); 80–320 bins: the linear discrete method (<a href="https://doi.org/10.1016/S0169-8095%2801%2900131-4" target="_blank" rel="noopener">Simmel et al. 2002</a>).
-    <div class="how">Ten forward-Euler sub-steps N ← N + (Δt<sub>m</sub>/10)·dN/dt for each bin's number and mass (6 s each;
+    <div class="how">Ten forward-Euler sub-steps x ← x + (Δt<sub>m</sub>/10)·dx/dt, x each bin's number and mass (6 s each;
       0.5 s with nucleation on), with the collision kernel fixed over Δt<sub>m</sub>; MNFIX after each <span class="tag mnfix">MNFIX</span>.</div></div>
 
   <div class="step"><div class="num">4</div>
