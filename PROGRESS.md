@@ -1,5 +1,18 @@
 # Progress
 
+## 2026-10-17 (night): review of the Level 3 change across the four repositories
+
+- INSTRUCTORS, "The web app's instructor guide": the web app's branch now runs 6900eb3 too
+  (tomas-api `feat/aaar-tutorial` 5e59c95, tomas-web 01e93c9 with regenerated precomputed
+  examples), so the section no longer says its Level 3 differs from the notebooks. It says that
+  every Level 3 number of the tomas-api guide was re-measured with 6900eb3 and lists the 900 s
+  numbers of 44b6db2 as history. The web app's commit is written without backticks so that
+  `scripts/set_pins.py` does not rewrite it when the notebooks' pin moves.
+- Checked against GitHub: the Level 3 values at 24 h agree in the stored example, tomas-web's
+  precomputed example (nitrate 3.284, SOA 0.0478052, sulfate 5.54197 µg m⁻³, N 2553.11 cm⁻³),
+  the laptop app's check (3.2840, 0.047805), the tomas-api guide (3.28 / 3.3, 0.048) and the
+  notebooks (3.3, 0.05).
+
 ## 2026-10-17 (night): Level 3 coupling interval 300 s (helpers 0.4.9)
 
 - Model pin TOMAS-JAX 6900eb3 (tag aaar-stable-2026-10-17d): the Level 3 preset uses a 300 s

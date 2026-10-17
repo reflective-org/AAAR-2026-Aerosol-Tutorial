@@ -165,20 +165,20 @@ The ones students will run into:
 
 ## The web app's instructor guide
 
-The web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs TOMAS-JAX `44b6db2`
-(with Shantanu's c\* table and the shorter nucleation time steps) on the same 40 size bins
-(1.7 nm to 17.5 µm). The notebooks run `6900eb3`, which differs from `44b6db2` only in the Level 3
-coupling interval: 300 s instead of 900 s (caveat above). Levels 1 and 2 give the same results in
-both. Until the web app moves to `6900eb3`, its Level 3 differs from the notebooks: nitrate 3.1
-against 3.3 µg m⁻³, SOA 0.06 against 0.05 µg m⁻³, day-2 OH 2.4×10⁷ against 2.5×10⁷ cm⁻³. The
-tomas-api guide's numbers were measured through the API's own code path, most of them on
-2026-10-16 with `5227ddd` (which gives the same results for runs without nucleation) and every
-number that involves nucleation again on 2026-10-17 with `0e23da0`, the model code of `44b6db2`.
-Shared numbers: Level 1 geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 OH
-≈ 1.2×10⁷ cm⁻³ on day 1.
-Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3
-nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split; Level 1 86 nm, Level 3 nitrate
-4.96 µg m⁻³). A deployed web app shows the new numbers once it is
+The web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same model as the
+notebooks, TOMAS-JAX 6900eb3 (tag `aaar-stable-2026-10-17d`: Shantanu's c\* table, the shorter
+nucleation time steps and the 300 s Level 3 coupling interval), on the same 40 size bins (1.7 nm
+to 17.5 µm), so both give the same results. The tomas-api guide's numbers were measured through
+the API's own code path. Every Level 3 number was re-measured on 2026-10-17 with 6900eb3. The
+Level 1 and 2 numbers are older (most on 2026-10-16 with 5227ddd, every number that involves
+nucleation on 2026-10-17 with 0e23da0); 6900eb3 changes only the Level 3 interval, so they still
+hold. Shared numbers: Level 1 geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3
+nitrate 3.3 µg m⁻³ and SOA 0.05 µg m⁻³ after 24 h, OH ≈ 1.2×10⁷ cm⁻³ on day 1 and 2.5×10⁷ on
+day 2.
+Before the 300 s interval the web app ran 44b6db2 (Level 3 at 900 s: nitrate 3.1 µg m⁻³, SOA
+0.06 µg m⁻³, day-2 OH 2.4×10⁷ cm⁻³). Before Shantanu's c\* table it ran 2faa391 (Li et al. 2016
+c\*; Level 2 SOA 15.9 µg m⁻³, Level 3 nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split;
+Level 1 86 nm, Level 3 nitrate 4.96 µg m⁻³). A deployed web app shows the new numbers once it is
 redeployed from that branch (its result cache starts empty; prewarm it). The guide counts the 725 species of the MCM file; the notebooks
 say 726 because the model adds the `NA_HET` counter.
 
