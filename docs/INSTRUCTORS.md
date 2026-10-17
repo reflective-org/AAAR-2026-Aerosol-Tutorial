@@ -33,8 +33,8 @@ changing the code.
 | Level 3 | 50 min | Sunlight, day–night radicals, N₂O₅ uptake and the γ sweep, holding NO₂ constant. |
 | Wrap-up | 15 min | Questions; point to notebook 4 and ASSUMPTIONS.md. |
 
-Notebook 4 ("Inside the model") is for students who want to see the numerics (photolysis tables,
-stiff ODEs, the coupling loop). It works well as homework or as a parallel track for advanced
+Notebook 4 ("Inside the model") is for students who want to see how the model and its numerical
+solver work (photolysis tables, stiff ODEs, the coupling loop). It works well as homework or as a parallel track for advanced
 students.
 
 ## Run times
@@ -46,8 +46,8 @@ installation, with the TUV-x data already downloaded. Colab is about twice as sl
 |---|---|---|---|
 | 01 Volatility | 14 Level 1 runs (2 with nucleation) | 50 s | about 1 s (15 s with nucleation) |
 | 02 Limonene SOA | 12 Level 2 runs | 1.5 min | about 6 s |
-| 03 Day & Night | 7 Level 3 runs | 2 min | about 12 s |
-| 04 Inside the model | 1 hand-written Level 3 loop | 30 s | about 17 s |
+| 03 Day & Night | 7 Level 3 runs | 3–4 min | about 25 s |
+| 04 Inside the model | 1 hand-written Level 3 loop | 40 s | about 30 s |
 
 The first run of each level in a session also compiles the model with JAX (about 2 s for
 Level 1; for Levels 2 and 3 compiling plus building the TUV-x table adds about 5 s on this
@@ -68,13 +68,13 @@ a student switches it on.
 
 All these times are for the default 40 size bins. The *Size resolution* cell in each notebook's
 Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results change by under
-1 %), but every run takes longer: Level 1 about 1, 4, 14 and 61 s, Level 3 about 12, 19, 39 and
-136 s.
+1 %), but every run takes longer: Level 1 about 1, 4, 14 and 61 s, Level 3 about 25, 35, 55 and
+165 s (measured with other jobs running on the laptop).
 
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/ASSUMPTIONS.md).
 The ones students will run into:
 
 - **c\* comes from Shantanu's per-species table, and it is still the most uncertain input (A8).**
@@ -110,30 +110,30 @@ The ones students will run into:
   1.8–3.3 % too high; there is no particle-phase chemistry. Any scenario can be rerun with the
   old composition-only estimate for every product (`cstar_table=None`): Level 2 then gives
   15.9 µg m⁻³, 98 % of it nitrogen-containing.
-- **Level 3 makes very little SOA (A8).** It peaks at 0.4 µg m⁻³ about 2 h in and ends at
-  0.06 µg m⁻³ after 24 h, so the SOA panels of notebook 3 and the web app are almost empty. With
+- **Level 3 makes very little SOA (A8).** It peaks at 0.36 µg m⁻³ about 2 h in and ends at
+  0.05 µg m⁻³ after 24 h, so the SOA panels of notebook 3 and the web app are almost empty. With
   2 ppb limonene there is little organic mass for the products to dissolve into. With NO₂ held at
-  1 ppb only about 7 % of the peroxy radicals react with HO₂ in the first two hours (a third in
+  1 ppb only about 5 % of the peroxy radicals react with HO₂ in the first two hours (a third in
   Level 2), so few hydroperoxides form, and the daytime OH and sunlight destroy those in the gas,
-  so the particles give theirs back. Without the hold the SOA ends at 0.8 µg m⁻³. The preset is
+  so the particles give theirs back. Without the hold the SOA ends at 0.85 µg m⁻³. The preset is
   kept on purpose. With 10 ppb limonene the limonene and its products use up OH (first-afternoon
-  peak 2.6×10⁶ instead of 1.2×10⁷ cm⁻³), and the SOA reaches 9.7 µg m⁻³; nitrate falls
-  from 3.1 to 1.3 µg m⁻³ because the extra limonene and its products take up NO₃ that would
-  otherwise form N₂O₅ (night-time N₂O₅ falls by three quarters). Particle nitrate in the preset
-  is 3.1 µg m⁻³ (5.2 with the old c\*), because less SOA and less water on the particles leave
+  peak 2.8×10⁶ instead of 1.2×10⁷ cm⁻³), and the SOA reaches 9.1 µg m⁻³; nitrate falls
+  from 3.3 to 1.5 µg m⁻³ because the extra limonene and its products take up NO₃ that would
+  otherwise form N₂O₅ (night-time N₂O₅ falls by about 70 %). Particle nitrate in the preset
+  is 3.3 µg m⁻³ (5.5 with the old c\*), because less SOA and less water on the particles leave
   less surface for N₂O₅ uptake.
 - **Level 2 light is constant (A10):** TUV-x at a solar zenith angle of 30°, scaled to
   J(NO₂) = 5×10⁻³ s⁻¹.
 - **Level 3 holds NO₂ at 1 ppb (A14)** as a stand-in for NOx emissions: it is reset to 1 ppb after
-  every 15-minute interval and drifts within it (about 0.8–1.2 ppb in daylight, typically 0.9). That is an unlimited
+  every 5-minute coupling interval and drifts within it (about 0.9–1.1 ppb in daylight, typically 0.97). That is an unlimited
   nitrogen source: the box ends the day with about four times more inorganic nitrogen than it
-  started with (1.5 → 6.0 ppb). Notebook 3 compares a run without the hold.
-- **Level 3 daytime OH is high:** 1.2×10⁷ molec cm⁻³ on the first afternoon and 2.4×10⁷ at noon on
+  started with (1.5 → 6.3 ppb). Notebook 3 compares a run without the hold.
+- **Level 3 daytime OH is high:** 1.2×10⁷ molec cm⁻³ on the first afternoon and 2.5×10⁷ at noon on
   day 2, the second several times typical ambient peaks (NO₂ hold, little VOC left, O₃ rising to
-  about 84 ppb without deposition).
+  about 85 ppb without deposition).
 - **Particle nitrate only comes from N₂O₅ uptake (A1, A2, A5).** γ-based uptake replaces the
   chamber's fixed N₂O₅ sink `<34>`; `<33> HNO₃ → NA` stays a gas-phase sink. There is no
-  ammonia and no NH₄NO₃, so the HNO₃ the run makes (3.6 ppb by the end) stays in the gas. Nitrate appearing
+  ammonia and no NH₄NO₃, so the HNO₃ the run makes (3.8 ppb by the end) stays in the gas. Nitrate appearing
   only at night is partly built into the model.
 - **SOA is too hygroscopic (A9):** organics take up water like ammonium bisulfate, so wet surface,
   condensation sink and k_het are overestimated for organic-rich particles. Organics and nitrate
@@ -143,30 +143,39 @@ The ones students will run into:
   10⁶ molec cm⁻³ s⁻¹, N peaks at about 7 100 cm⁻³ at 270 K and 29 000 cm⁻³ at 265 K (with the
   5 s micro-steps; the old 60 s steps gave 7 400 and 30 000). The web
   app's Level 1 prompt and tooltip say the same (fixed 2026-10-14).
-- **Coupling interval (A12):** rate constants, J and the RO₂ sum are frozen for each interval
-  (300 s in Levels 1–2, 900 s in Level 3; at most 60 s with nucleation on). Against 900 s, the Level 3 preset (40 bins) gives
-  +2.6 % nitrate and −10.5 % SOA with 600 s, and +4.7 % nitrate and −20 % SOA with 300 s. The
-  SOA is so small (0.06 µg m⁻³ after 24 h) and so much of it evaporates on the second morning
-  that it reacts strongly to the interval; nitrate and HNO₃ change by a few percent. Because
-  nucleation shortens the interval to 60 s, switching it on in Level 3 changes SOA (−27 %) and
-  nitrate (+6.6 %) at 24 h even though the preset makes no new particles at 293 K; the 60 s values
-  are the accurate ones (within 0.8 % of a 30 s run). A fair on/off comparison runs the case
-  without nucleation at `numerics={"coupling_dt_s": 60}` too.
+- **Coupling interval (A12), a setting of the numerical solver:** rate constants, J and the RO₂
+  sum are frozen for each interval Δt_c, and the aerosol gets the H₂SO₄ and nitrate made in it as
+  constant sources. Every level uses 300 s (at most 60 s with nucleation on). Level 3 used 900 s
+  until 2026-10-17, when Ali chose 300 s for the tutorial: "15mins seems to be a bit long in my
+  opinion, it really depends how fast the chemistry is and how much emissions exist. I think that
+  should be defined in the numerics/solver." The splitting error of a result X grows in proportion
+  to the interval, X(Δt_c) ≈ X₀ + a·Δt_c, with X₀ the result with continuous coupling and a how
+  strongly X depends on the interval. For the Level 3 preset (40 bins), against a run with 30 s
+  intervals, 300 s puts the nitrate at 24 h 2.0 % low and the SOA 10 % high; 900 s put them 6.4 %
+  low and 38 % high (300 s against 900 s: nitrate +4.7 %, SOA −20 %). The SOA is so small
+  (0.05 µg m⁻³ after 24 h) and so much of it evaporates on the second morning that it reacts
+  strongly to the interval. After the tutorial the numerical solver is to choose the interval
+  itself, from how fast the chemistry changes and how much is emitted. Because nucleation
+  shortens the interval to 60 s and the micro-step to 5 s, switching it on in Level 3 changes SOA
+  (−8.6 %) and nitrate (+1.8 %) at 24 h even though the preset makes no new particles at 293 K;
+  the 60 s values are the accurate ones (within 0.8 % of a 30 s run). A fair on/off comparison
+  runs the case without nucleation at `numerics={"coupling_dt_s": 60}` too.
 - **Photolysis:** TUV-x gives 10–35 % more J than the MCM formula with the sun high, and 2–4× more
   J(O¹D) at solar zenith angles of 75–80° (notebook 4, Section 1).
 
 ## The web app's instructor guide
 
-Since 2026-10-17 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
-TOMAS-JAX commit as the notebooks (`44b6db2`, with Shantanu's c\* table and the shorter nucleation
-time steps) on the same 40 size bins (1.7 nm to 17.5 µm). The tomas-api guide's numbers were
-measured through the API's own code path, most of them on 2026-10-16 with `5227ddd` (which gives
-the same results for runs without nucleation) and every number that involves nucleation again on
-2026-10-17 with `0e23da0`, so the two agree (`44b6db2` runs the same model code; it only moves
-to a newer tuvx-jax, which opens its data files in a way that also works in Windows folders with
-accented names and gives the same photolysis rates). Shared numbers: Level 1 geometric mean
-diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3 OH ≈ 1.2×10⁷
-(day 1) / 2.4×10⁷ cm⁻³ (day 2).
+The web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs TOMAS-JAX `44b6db2`
+(with Shantanu's c\* table and the shorter nucleation time steps) on the same 40 size bins
+(1.7 nm to 17.5 µm). The notebooks run `6900eb3`, which differs from `44b6db2` only in the Level 3
+coupling interval: 300 s instead of 900 s (caveat above). Levels 1 and 2 give the same results in
+both. Until the web app moves to `6900eb3`, its Level 3 differs from the notebooks: nitrate 3.1
+against 3.3 µg m⁻³, SOA 0.06 against 0.05 µg m⁻³, day-2 OH 2.4×10⁷ against 2.5×10⁷ cm⁻³. The
+tomas-api guide's numbers were measured through the API's own code path, most of them on
+2026-10-16 with `5227ddd` (which gives the same results for runs without nucleation) and every
+number that involves nucleation again on 2026-10-17 with `0e23da0`, the model code of `44b6db2`.
+Shared numbers: Level 1 geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 OH
+≈ 1.2×10⁷ cm⁻³ on day 1.
 Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3
 nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split; Level 1 86 nm, Level 3 nitrate
 4.96 µg m⁻³). A deployed web app shows the new numbers once it is
@@ -195,7 +204,7 @@ Every version lives in one place per file, and the tests check that they agree.
   python scripts/set_pins.py --tomas-jax <40-character commit> [--tuvx-jax <commit>]
   uv sync --extra dev                    # or: pip install -e ".[dev]"
   python scripts/make_examples.py        # regenerates aaar_tutorial/examples/ (about 1 min)
-  pytest && pytest -m notebooks          # unit tests, then every notebook (about 4 min)
+  pytest && pytest -m notebooks          # unit tests, then every notebook (about 6 min)
   ```
 
   Also raise the helpers' version (below), update `VBS_JAX_COMMIT` and `TESTED_VERSIONS` in
@@ -220,7 +229,7 @@ Every version lives in one place per file, and the tests check that they agree.
 
 ```bash
 uv run pytest                          # unit tests and notebook checks, about 10 s
-uv run pytest -m notebooks             # every notebook top to bottom, about 4 min on a laptop
+uv run pytest -m notebooks             # every notebook top to bottom, about 6 min on a laptop
 ```
 
 GitHub Actions (`.github/workflows/notebooks.yml`) runs both on every push.

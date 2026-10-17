@@ -16,7 +16,7 @@ is explained as you go.
 |---|---|---|---|
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/01_volatility.ipynb) | [Level 1 · Volatility](notebooks/01_volatility.ipynb) | Saturation concentration c\*, absorptive partitioning, condensation of a semivolatile vs a non-volatile vapor (H₂SO₄), coagulation, nucleation. One made-up organic vapor, no gas chemistry. | about 50 s |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/02_limonene_soa.ipynb) | [Level 2 · Limonene SOA](notebooks/02_limonene_soa.ipynb) | An explicit mechanism, which oxidant removes limonene, how products get a c\* and are lumped into volatility classes, the top SOA species, and NOx, O₃, limonene and seed experiments. Constant chamber-like light. | about 1.5 min |
-| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/03_day_and_night.ipynb) | [Level 3 · Day & Night](notebooks/03_day_and_night.ipynb) | Solar zenith angle and photolysis rates for a site and date, the day–night cycle of OH and NO₃, N₂O₅ uptake (γ) making particle nitrate, sites and seasons, and what holding NO₂ constant does. | about 2 min |
+| [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/03_day_and_night.ipynb) | [Level 3 · Day & Night](notebooks/03_day_and_night.ipynb) | Solar zenith angle and photolysis rates for a site and date, the day–night cycle of OH and NO₃, N₂O₅ uptake (γ) making particle nitrate, sites and seasons, and what holding NO₂ constant does. | about 3–4 min |
 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/reflective-org/AAAR-2026-Aerosol-Tutorial/blob/main/notebooks/04_inside_the_model.ipynb) | [Inside the model](notebooks/04_inside_the_model.ipynb) | TUV-x vs MCM photolysis, from a KPP mechanism to stiff ODEs and the solver, Pankow partitioning in the model code, N₂O₅ uptake from γ and surface area, and the operator-splitting loop written out. | under 1 min |
 
 Run times are for running every cell once on a laptop (Apple Silicon), after installation, with
@@ -107,20 +107,25 @@ notebook and pick the `.venv` kernel.
 **[How the model works](docs/model_flowchart.pdf)**: a two-page flowchart of one coupling interval (chemistry,
 hand-off to the aerosol, hand-back) and of one aerosol micro-step, showing where particles move between size
 bins (PPM), what each level switches on, and why the time steps are shorter with nucleation on
-(at most 60 s intervals and 5 s micro-steps instead of 5 or 15 min and 60 s).
+(at most 60 s intervals and 5 s micro-steps instead of 5 min and 60 s). The coupling interval is a
+setting of the numerical solver, and the error of splitting the processes grows in proportion to it
+(X ≈ X₀ + a·Δt, with X a result, X₀ its value with continuous coupling and Δt the interval). Every
+level uses 5 minutes. Level 3 used 15 minutes until 17 October 2026, which put its nitrate after
+24 hours 6 % low and its SOA 38 % high against a run with 30-second intervals; at 5 minutes the
+errors are 2 % and 10 %. An interval chosen by the numerical solver itself is planned.
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
-- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e)
+- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2)
   (the box model; pinned in `pyproject.toml`). Its tutorial documentation:
-  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/gaschem.md),
-  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/coupling.md),
-  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/aerosol_step.md),
-  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/soa_partitioning.md),
-  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/heterogeneous.md).
+  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/docs/aaar/gaschem.md),
+  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/docs/aaar/coupling.md),
+  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/docs/aaar/aerosol_step.md),
+  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/docs/aaar/soa_partitioning.md),
+  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/docs/aaar/heterogeneous.md).
 - [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `655668c`) and
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
-- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/ASSUMPTIONS.md)
+- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2/ASSUMPTIONS.md)
   lists every simplification.** Three matter most for interpreting results:
   - The c\* of each Level 2 and 3 product comes from a per-species table supplied by Shantanu
     Jathar (A8): the pure-component vapour pressure at 298.15 K from the group-contribution method
@@ -132,13 +137,13 @@ The notebooks pin every model package to a commit, so the results do not change 
     it forms without NOx, and high NOx suppresses it. c\* is still the most uncertain input: other
     group-contribution methods can differ by a decade or more for multifunctional products, and
     raising every c\* by one decade removes about three quarters of the Level 2 SOA.
-  - Level 3 makes very little SOA (0.4 µg m⁻³ at its peak after 2 h, 0.06 µg m⁻³ after 24 h).
+  - Level 3 makes very little SOA (0.36 µg m⁻³ at its peak after 2 h, 0.05 µg m⁻³ after 24 h).
     With 2 ppb limonene there is little organic mass for the products to dissolve into. With NO₂ held
     at 1 ppb most peroxy radicals react with NO rather than HO₂, so few hydroperoxides form, and the
     daytime OH and sunlight destroy those in the gas, so the particles give theirs back. This is the
-    preset on purpose. Without the NO₂ hold the SOA ends at about 0.8 µg m⁻³, and with 10 ppb limonene
-    at about 10 µg m⁻³.
-  - Level 2 light is constant (A10). Level 3 holds NO₂ at 1 ppb (reset after every 15-minute interval) as a stand-in for NOx emissions, and
+    preset on purpose. Without the NO₂ hold the SOA ends at about 0.85 µg m⁻³, and with 10 ppb limonene
+    at about 9 µg m⁻³.
+  - Level 2 light is constant (A10). Level 3 holds NO₂ at 1 ppb (reset after every 5-minute coupling interval) as a stand-in for NOx emissions, and
     N₂O₅ uptake (γ) is the only route to particle nitrate (A1, A2, A5, A14).
 
 ## What is in this repository
@@ -155,7 +160,7 @@ docs/model_flowchart.pdf  how the model works, in two pages (source: docs/flowch
 ```
 
 Tests: `uv run pytest` (about 10 s), and `uv run pytest -m notebooks` runs every notebook top to
-bottom (about 4 minutes). GitHub Actions runs both on every push.
+bottom (about 6 minutes). GitHub Actions runs both on every push.
 
 Instructors: see [docs/INSTRUCTORS.md](docs/INSTRUCTORS.md).
 

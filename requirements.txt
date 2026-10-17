@@ -2,7 +2,7 @@
 # pip install -r requirements.txt installs the model only. For the notebooks also run
 # `pip install -e .` (or `pip install -e ".[dev]"` for Jupyter and the tests) so that
 # `import aaar_tutorial` works; see the README.
-tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@44b6db2f13caab8c8ba5296d7aae346f3e0dd65e
+tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2
 jax==0.11.2
 jaxlib==0.11.2
 diffrax==0.7.2

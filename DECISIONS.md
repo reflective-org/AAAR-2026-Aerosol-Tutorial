@@ -2,6 +2,32 @@
 
 Why the tutorial repository looks the way it does. Newest first.
 
+## Level 3 coupling interval 300 s, a setting of the numerical solver (2026-10-17)
+
+Ali, on the flowchart in Figma (comments 4 and 5): "15mins seems to be a bit long in my opinion, it
+really depends how fast the chemistry is and how much emissions exist. I think that should be
+defined in the numerics/solver." and "change "numerics" to "numerical solver" or something that is
+clear." Asked for the Level 3 interval before the tutorial, Ali chose "300 s now, automatic later".
+TOMAS-JAX 6900eb3 (tag aaar-stable-2026-10-17d) changes the Level 3 preset from 900 s to 300 s;
+the tutorial moves its pin and its text:
+
+- Why shorter is better: within one interval the rate constants, J and the RO₂ sum are frozen and
+  the aerosol gets the H₂SO₄ and nitrate made in it as constant sources. That splitting is a
+  first-order method, so a result X behaves as X(Δt_c) ≈ X₀ + a·Δt_c, with X₀ the result with
+  continuous coupling. Against a run with 30 s intervals (TOMAS-JAX `docs/aaar/coupling.md`), the
+  Level 3 nitrate at 24 h is 6.4 % low at 900 s, 2.0 % at 300 s and 0.2 % at 60 s, and the SOA
+  38 %, 10 % and 1.8 % high.
+- Why not shorter: a 24 h Level 3 run takes about 25 s at 300 s and about 90 s at 60 s on a laptop
+  (13 s at 900 s), and notebook 3 makes 7 runs in a 50-minute session.
+- Words: where the text explains the interval it calls it a setting of the numerical solver and
+  gives the equation above; `numerics={...}` stays in code because that is what students type.
+- Planned after 2026-10-27, not part of this change: the numerical solver chooses the interval
+  itself, from how fast the chemistry changes and how much is emitted. The notebooks, README,
+  INSTRUCTORS and the flowchart say so where they discuss the interval.
+- Every Level 3 number in the text was measured again at 300 s; the scripts reproduced the old
+  numbers at 900 s first (PROGRESS lists both).
+- Helpers 0.4.9: the pin changed, and pip keeps installed helpers whose version is unchanged.
+
 ## TUV-x data that opens in any Windows folder: tuvx-jax 655668c (2026-10-17)
 
 On Windows, the netCDF library that tuvx-jax used to open its data files cannot open a file

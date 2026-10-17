@@ -24,7 +24,7 @@ from .results import (available_series, cstar_at, geometric_mean_diameter_nm, is
                       save_result, series, summary, ugm3_per_ppb, value_at)
 from .sun import site_overrides, sunlight_over_day  # noqa: E402
 
-__version__ = "0.4.8"
+__version__ = "0.4.9"
 
 __all__ = [
     "available_series", "config", "cstar_at", "describe", "ensure_photolysis_data",

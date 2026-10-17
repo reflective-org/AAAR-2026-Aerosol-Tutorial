@@ -4,7 +4,7 @@ from pathlib import Path
 
 # --- Model pins (keep in step with pyproject.toml and requirements.txt) -------------------
 GITHUB_ORG_URL = "https://github.com/reflective-org"
-TOMAS_JAX_COMMIT = "44b6db2f13caab8c8ba5296d7aae346f3e0dd65e"
+TOMAS_JAX_COMMIT = "6900eb3271bcaa672e8af5cd67c236e4dd9dc5a2"
 TUVX_JAX_COMMIT = "655668c0ca01c8127ae17c51916ecf55be192a9f"
 VBS_JAX_COMMIT = "4a67f16d5585aee198c62819f1bd52fc0daed9d5"   # pinned by tomas-jax itself
 TOMAS_JAX_REQUIREMENT = (
@@ -71,8 +71,10 @@ RUN_TIMEOUT_S = 900.0              # run() stops a model run after this wall tim
 # run(numerics={"nbins": ...}) for one run). Same diameter range, 1.7 nm to 17.5 µm, for every
 # choice. With the PPM bin transfer (TOMAS-JAX 1f519e9) the presets' 40 bins are within 0.6 % of
 # 160-320 bins in mean diameter, SOA and nitrate, so 40 (also the web app's grid) is the default;
-# more bins draw finer curves. Measured 2026-10-16, laptop, repeat runs, at 40 / 80 / 160 / 320
-# bins: Level 1 1.1 / 4.1 / 14 / 61 s, Level 3 12 / 19 / 39 / 136 s; Colab about twice as slow.
+# more bins draw finer curves. Measured on a laptop, repeat runs, at 40 / 80 / 160 / 320 bins:
+# Level 1 1.1 / 4.1 / 14 / 61 s (2026-10-16); Level 3 with its 300 s coupling interval
+# 25 / 33 / 56 / 167 s (2026-10-17, laptop busy with other jobs; 12 / 19 / 39 / 136 s at the
+# old 900 s). Colab about twice as slow.
 NBINS = 40
 NBINS_CHOICES = (40, 80, 160, 320)
 PROGRESS_MIN_INTERVAL_S = 0.25     # throttle for progress display updates

@@ -52,8 +52,8 @@
   <div class="bar"></div>
   <div class="eyebrow">AAAR 2026 · Photochemical box modeling tutorial · How the model works</div>
   <h1>One coupling interval, repeated for the whole run</h1>
-  <div class="sub">Gas chemistry and aerosol take turns (operator splitting). In each interval Δt<sub>c</sub> (5 min in Levels 1–2,
-    15 min in Level 3, 1 min with nucleation on) the chemistry runs first, its products go to the aerosol model, and the vapors the particles took up or
+  <div class="sub">Gas chemistry and aerosol take turns (operator splitting). In each interval Δt<sub>c</sub> (5 min in every level,
+    1 min with nucleation on) the chemistry runs first, its products go to the aerosol model, and the vapors the particles took up or
     released go back to the gas. <span class="tag ppm">PPM</span> marks where particles move between size bins with the
     piecewise-parabolic method.</div>
 
@@ -121,7 +121,7 @@
     <text x="618" y="489" class="lbl" text-anchor="middle" style="fill:#5d6163">particle surface area → k<tspan font-size="7" dy="2">het</tspan><tspan dy="-2">(N₂O₅) and each bin's nitrate share, for the next interval</tspan></text>
   </svg>
 
-  <div class="panel" style="left:32px; top:534px; width:290px; height:196px; background:#F7F3EE; border:1px solid var(--beige);">
+  <div class="panel" style="left:32px; top:528px; width:290px; height:238px; background:#F7F3EE; border:1px solid var(--beige);">
     <h3>What the particles carry</h3>
     <ul>
       <li><b>sulfate</b>: the seed plus condensed H₂SO₄</li>
@@ -133,21 +133,23 @@
     <div class="small" style="margin-top:6px">Not in the model: ammonium nitrate and NH₃, HNO₃ partitioning, sea salt, dust; dilution, deposition and wall loss.</div>
   </div>
 
-  <div class="panel" style="left:338px; top:534px; width:330px; height:196px; background:#F7F3EE; border:1px solid var(--beige);">
+  <div class="panel" style="left:338px; top:528px; width:300px; height:238px; background:#F7F3EE; border:1px solid var(--beige);">
     <h3>The three levels</h3>
     <ul>
       <li><b>Level 1, Volatility</b>: no chemistry (steps 1, 2 and 4 are skipped). A surrogate organic with the c* you choose
         is produced straight into one class; H₂SO₄ at a production rate you choose.</li>
       <li><b>Level 2, Limonene SOA</b>: full chemistry, constant light, 6 h.</li>
       <li><b>Level 3, Day and night</b>: TUV-x light over 24 h, N₂O₅ uptake (γ) makes nitrate at night,
-        NO₂ reset to 1 ppb every interval Δt<sub>c</sub> (15 min; 1 min with nucleation on).</li>
+        NO₂ reset to 1 ppb every interval Δt<sub>c</sub> (5 min; 1 min with nucleation on).</li>
     </ul>
   </div>
 
-  <div class="panel" style="left:684px; top:534px; width:340px; height:196px; background:#F7F3EE; border:1px solid var(--beige);">
+  <div class="panel" style="left:654px; top:528px; width:370px; height:238px; background:#F7F3EE; border:1px solid var(--beige);">
     <h3>Clocks and grids</h3>
     <ul>
-      <li>coupling interval Δt<sub>c</sub>: 300 s (Levels 1–2), 900 s (Level 3)</li>
+      <li>coupling interval Δt<sub>c</sub>, a numerical solver setting: 300 s in every level (Level 3 used 900 s
+        until 17 Oct 2026). A result X has a splitting error that grows with it,
+        <span style="white-space:nowrap">X ≈ X₀ + a·Δt<sub>c</sub></span> (X₀: X without splitting). Planned: the solver picks Δt<sub>c</sub>.</li>
       <li>aerosol micro-step Δt<sub>m</sub>: 60 s; vbs-jax sub-steps inside it</li>
       <li>with nucleation on: Δt<sub>m</sub> = 5 s, and the requested interval Δt<sub>req</sub> is cut into
         m = ⌈Δt<sub>req</sub> / 60 s⌉ equal parts, Δt<sub>c</sub> = Δt<sub>req</sub> / m (60 s for 300, 600 or 900 s); output times unchanged</li>
@@ -157,7 +159,7 @@
     </ul>
   </div>
 
-  <div class="foot">TOMAS-JAX 44b6db2 (aaar-stable-2026-10-17c) · vbs-jax 4a67f16 · tuvx-jax 655668c · Details: TOMAS-JAX docs/aaar/coupling.md,
+  <div class="foot">TOMAS-JAX 6900eb3 (aaar-stable-2026-10-17d) · vbs-jax 4a67f16 · tuvx-jax 655668c · Details: TOMAS-JAX docs/aaar/coupling.md,
     aerosol_step.md, soa_partitioning.md · Assumptions: ASSUMPTIONS.md</div>
   <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
 </div>
@@ -277,7 +279,7 @@
     </div>
   </div>
 
-  <div class="foot">TOMAS-JAX 44b6db2 (aaar-stable-2026-10-17c) · Details: TOMAS-JAX docs/aaar/aerosol_step.md, coupling.md
+  <div class="foot">TOMAS-JAX 6900eb3 (aaar-stable-2026-10-17d) · Details: TOMAS-JAX docs/aaar/aerosol_step.md, coupling.md
     · Assumptions: ASSUMPTIONS.md (A12, A13: time steps)</div>
   <img class="badge" src="../../assets/supported-by-reflective.png" alt="Supported by Reflective">
 </div>

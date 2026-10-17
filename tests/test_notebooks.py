@@ -1,6 +1,6 @@
 """Notebook checks: shared install cell, Colab refs, cleared outputs, pinned links; and execution.
 
-Run the notebooks themselves with: pytest -m notebooks (about 5 minutes on a laptop).
+Run the notebooks themselves with: pytest -m notebooks (about 6 minutes on a laptop).
 """
 import json
 import re

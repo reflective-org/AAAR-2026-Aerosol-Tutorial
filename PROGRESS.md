@@ -1,5 +1,55 @@
 # Progress
 
+## 2026-10-17 (night): Level 3 coupling interval 300 s (helpers 0.4.9)
+
+- Model pin TOMAS-JAX 6900eb3 (tag aaar-stable-2026-10-17d): the Level 3 preset uses a 300 s
+  coupling interval instead of 900 s, as Levels 1–2 already did (Ali's Figma comments 4 and 5;
+  ASSUMPTIONS A12). tuvx-jax stays at 655668c and vbs-jax at 4a67f16; nothing else in the model
+  changed.
+- Stored examples regenerated: Levels 1 and 2 agree with the old files in every stored value (6987
+  and 5416 values; only the code version and the run time differ). Level 3 at 24 h: nitrate
+  3.1373 → 3.2840 µg m⁻³, SOA 0.05982 → 0.04781, sulfate 5.5004 → 5.5420, N 2551.8 → 2553.1 cm⁻³,
+  GMD 149.57 → 150.62 nm, gas solver steps 1047 → 2446.
+- Text: every place that said Level 3 uses 900 s or 15 minutes (notebooks 3 and 4, the comment in
+  notebook 4's hand-written loop, README, INSTRUCTORS, flowchart) now says 300 s or 5 minutes,
+  calls the interval a setting of the numerical solver and gives its error,
+  X(Δt_c) ≈ X₀ + a·Δt_c, with the measured errors (30 s reference: 300 s nitrate −2.0 %, SOA
+  +10 %; 900 s −6.4 %, +38 %). Notebook 3, notebook 4, README and INSTRUCTORS say that an interval
+  chosen by the numerical solver itself is planned. Notebook 4's interval exercise now tries 900 s
+  (and mentions 60 s) instead of 300 s.
+- Level 3 numbers re-measured at 300 s on 2026-10-17 (laptop, 40 bins, 24 h; the old value in
+  brackets, which the same scripts reproduced at 900 s): SOA peak 0.36 µg m⁻³ at 2 h (0.39), at
+  sunset 0.12 (0.15), at 24 h 0.048 (0.060); OH 1.19×10⁷ cm⁻³ on day 1 (1.18×10⁷) and 2.47×10⁷ at
+  noon on day 2 (2.37×10⁷); O₃ 84.7 ppb at the end (83.7); HNO₃ 3.78 ppb (3.56); inorganic
+  nitrogen 1.5 → 6.29 ppb (5.98); NO₂ before each reset 0.89–1.13 ppb in daylight, median 0.97
+  (0.78–1.20, 0.92); HNO₃ lost through `<33>` 0.92 ppb N (0.87); γ 0.002 / 0.02 / 0.1 → nitrate
+  0.40 / 3.28 / 7.15 µg m⁻³ (0.39 / 3.14 / 6.81); Hyytiälä 1.52 (1.44) and Buffalo in January
+  1.63 (1.57) µg m⁻³ nitrate; without the NO₂ hold SOA peak 1.20 and 0.85 at 24 h (1.16, 0.83);
+  with 10 ppb limonene SOA 9.07 µg m⁻³ (9.73), yield 0.16 (0.17), day-1 OH peak 2.8×10⁶ (2.6×10⁶),
+  nitrate 1.48 (1.28), night-time N₂O₅ −71 % (−75 %); limonene RO₂ + HO₂ share over the first 2 h,
+  notebook 2's f_HO₂ from the 30-minute outputs, 5.4 % (6.6 %); k_het 1.55 → 1.89×10⁻⁴ s⁻¹ over
+  the first 4 h (the same), 3.11×10⁻⁴ s⁻¹ at the end (3.05×10⁻⁴); after 4 h +0.87 µg m⁻³ sulfate,
+  +0.53 water, +0.24 SOA (+0.85, +0.53, +0.28); notebook 3's k_het estimate within 20 % (the
+  same). Nucleation on against off (from TOMAS-JAX A13, measured the same day): SOA −8.6 %, nitrate
+  +1.8 % (−27 %, +6.6 % against 900 s).
+- Run times (laptop busy with other jobs, load average 6–9): a 24 h Level 3 run 25–29 s (13–15 s
+  at 900 s); at 80 / 160 / 320 bins 33 / 56 / 167 s. Notebook text gives about 25 s per run.
+- Flowchart: subtitle, Level 3 panel and Clocks panel say 5 min / 300 s in every level, with the
+  error equation and the planned automatic interval; the three bottom panels are taller and the
+  Clocks panel wider so the new line fits; footers name 6900eb3 (aaar-stable-2026-10-17d).
+  Re-printed with headless Chrome and the brand fonts. The old page printed the same way is
+  pixel-identical to the old PDF at 80 dpi; on the new PDF page 2 differs only in its footer.
+- INSTRUCTORS: the web app's branch (tomas-api `feat/aaar-tutorial`, b3b2971) still runs 44b6db2
+  with Level 3 at 900 s; the section now says so and gives both sets of Level 3 numbers. The word
+  "numerics" is gone from the text except in Ali's quoted comment (comment 5); `numerics={...}`
+  stays where students type it.
+- Test data: the TUV-x cache for 655668c was copied from the previous session's, which was filled
+  from a `git archive` of the local tuvx-jax at 655668c (no download).
+- Notebook 4's hand-written loop agrees with the model to 6 digits at 300 s (nitrate 3.284 µg m⁻³,
+  SOA 0.0478052, N 2553.11 cm⁻³, O₃ 84.6628 ppb, HNO₃ 3.78399 ppb, 2446 solver steps); loop 29 s.
+- Tests (new venv, Python 3.12, laptop busy with other jobs): pytest 157 passed; pytest -m
+  notebooks 4 passed in 6 min 17 s (01 61 s, 02 81 s, 03 194 s, 04 41 s).
+
 ## 2026-10-17 (evening): tuvx-jax 655668c, TUV-x data in any Windows folder (helpers 0.4.8)
 
 - Model pin TOMAS-JAX 44b6db2 (tag aaar-stable-2026-10-17c) with tuvx-jax 655668c, and
