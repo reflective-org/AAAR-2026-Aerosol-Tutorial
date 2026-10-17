@@ -1,13 +1,13 @@
 [project]
 name = "aaar-tutorial"
-version = "0.4.7"
+version = "0.4.8"
 description = "Helpers for the AAAR 2026 photochemical box-modeling tutorial notebooks (TOMAS-JAX)"
 readme = "README.md"
 license = "MIT"
 # jax/jaxlib 0.11.2 and scipy >= 1.15 need Python 3.12 or newer.
 requires-python = ">=3.12"
 dependencies = [
-    "tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@0e23da0da79a5a080baa02447e47951b75f796fe",
+    "tomas-jax[photolysis] @ git+https://github.com/reflective-org/TOMAS-JAX@44b6db2f13caab8c8ba5296d7aae346f3e0dd65e",
     "jax==0.11.2",
     "jaxlib==0.11.2",
     "diffrax==0.7.2",

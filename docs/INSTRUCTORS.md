@@ -74,7 +74,7 @@ Setup (`N_BINS`: 40, 80, 160 or 320) draws finer size distributions (results cha
 ## Known caveats (say these out loud)
 
 All model simplifications are in TOMAS-JAX
-[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/ASSUMPTIONS.md).
+[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/ASSUMPTIONS.md).
 The ones students will run into:
 
 - **c\* comes from Shantanu's per-species table, and it is still the most uncertain input (A8).**
@@ -158,13 +158,15 @@ The ones students will run into:
 ## The web app's instructor guide
 
 Since 2026-10-17 the web app (tomas-api and tomas-web, branch `feat/aaar-tutorial`) runs the same
-TOMAS-JAX commit as the notebooks (`0e23da0`, with Shantanu's c\* table and the shorter nucleation
+TOMAS-JAX commit as the notebooks (`44b6db2`, with Shantanu's c\* table and the shorter nucleation
 time steps) on the same 40 size bins (1.7 nm to 17.5 µm). The tomas-api guide's numbers were
 measured through the API's own code path, most of them on 2026-10-16 with `5227ddd` (which gives
 the same results for runs without nucleation) and every number that involves nucleation again on
-2026-10-17 with `0e23da0`, so the two agree. Shared numbers: Level 1
-geometric mean diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3
-OH ≈ 1.2×10⁷ (day 1) / 2.4×10⁷ cm⁻³ (day 2).
+2026-10-17 with `0e23da0`, so the two agree (`44b6db2` runs the same model code; it only moves
+to a newer tuvx-jax, which opens its data files in a way that also works in Windows folders with
+accented names and gives the same photolysis rates). Shared numbers: Level 1 geometric mean
+diameter 111 nm, Level 2 SOA 8.7 µg m⁻³, Level 3 nitrate 3.1 µg m⁻³, Level 3 OH ≈ 1.2×10⁷
+(day 1) / 2.4×10⁷ cm⁻³ (day 2).
 Before the table the web app ran 2faa391 (Li et al. 2016 c\*; Level 2 SOA 15.9 µg m⁻³, Level 3
 nitrate 5.16 µg m⁻³), and before that 8753736 (MNFIX split; Level 1 86 nm, Level 3 nitrate
 4.96 µg m⁻³). A deployed web app shows the new numbers once it is

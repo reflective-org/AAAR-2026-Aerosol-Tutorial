@@ -1,6 +1,28 @@
 # Decisions
 
-Why the tutorial repository looks the way it does. Newest last.
+Why the tutorial repository looks the way it does. Newest first.
+
+## TUV-x data that opens in any Windows folder: tuvx-jax 655668c (2026-10-17)
+
+On Windows, the netCDF library that tuvx-jax used to open its data files cannot open a file
+whose folder path has non-ASCII characters. The laptop app's Windows test found it with the
+cache folder "cache-José-データ". The tutorial keeps the TUV-x data in the user's home folder
+(`~/.cache/aaar_tutorial`), so a student whose Windows user name has an accent would hit it in
+`at.setup()`. The fix is in tuvx-jax, the code that opens the files: from 655668c it reads each
+file into memory and opens it from there, and all 172 data files give the same arrays as before.
+The notebooks, the web app and the laptop app all get it from that one place; the tutorial only
+moves its pins:
+
+- TOMAS-JAX 44b6db2 (tag aaar-stable-2026-10-17c), whose `[photolysis]` extra pins tuvx-jax
+  655668c. Its model code is that of 0e23da0.
+- `TUVX_JAX_COMMIT` 655668c, so the data download and the installed tuvx-jax come from the same
+  commit.
+- Helpers 0.4.8: the pins changed, and pip keeps installed helpers whose version is unchanged.
+
+Colab runs Linux and was never affected. On their own computers students only need the usual
+update (`git pull`, then `uv sync`), so the README gets no new troubleshooting item. Moving the cache to an ASCII-only
+folder in the helpers would have fixed only the notebooks, and it would need a folder outside the
+home folder that every student can write to.
 
 ## Nucleation runs take the model's short time steps, in notebook 4 too (2026-10-17)
 

@@ -97,7 +97,7 @@ notebook and pick the `.venv` kernel.
   `surrogate={"cstar_ugm3": 10}` or `environment={"rh": 0.8}`. `at.describe("level1_volatility")`
   lists every input of a preset.
 - **TUV-x download fails.** It tries three times with time limits. Behind a firewall, download
-  <https://codeload.github.com/reflective-org/tuvx-jax/tar.gz/e5d9032d22e740d930c578676d726aaa5ba2473a>,
+  <https://codeload.github.com/reflective-org/tuvx-jax/tar.gz/655668c0ca01c8127ae17c51916ecf55be192a9f>,
   unpack it and set `TUVX_JAX_ROOT` to the folder that contains `data/` and `examples/`.
 - **Plots do not show on GitHub.** GitHub renders notebooks without their interactive output, and the
   saved notebooks have no outputs. Open them in Colab or Jupyter.
@@ -111,16 +111,16 @@ bins (PPM), what each level switches on, and why the time steps are shorter with
 
 The notebooks pin every model package to a commit, so the results do not change under you:
 
-- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/0e23da0da79a5a080baa02447e47951b75f796fe)
+- [TOMAS-JAX](https://github.com/reflective-org/TOMAS-JAX/tree/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e)
   (the box model; pinned in `pyproject.toml`). Its tutorial documentation:
-  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/gaschem.md),
-  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/coupling.md),
-  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/aerosol_step.md),
-  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/soa_partitioning.md),
-  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/docs/aaar/heterogeneous.md).
-- [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `e5d9032`) and
+  [gas chemistry](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/gaschem.md),
+  [coupling](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/coupling.md),
+  [aerosol step](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/aerosol_step.md),
+  [SOA partitioning](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/soa_partitioning.md),
+  [N₂O₅ uptake](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/docs/aaar/heterogeneous.md).
+- [tuvx-jax](https://github.com/reflective-org/tuvx-jax) (TUV-x photolysis, commit `655668c`) and
   [vbs-jax](https://github.com/reflective-org/vbs-jax) (kinetic SOA partitioning, commit `4a67f16`).
-- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/0e23da0da79a5a080baa02447e47951b75f796fe/ASSUMPTIONS.md)
+- **[ASSUMPTIONS.md](https://github.com/reflective-org/TOMAS-JAX/blob/44b6db2f13caab8c8ba5296d7aae346f3e0dd65e/ASSUMPTIONS.md)
   lists every simplification.** Three matter most for interpreting results:
   - The c\* of each Level 2 and 3 product comes from a per-species table supplied by Shantanu
     Jathar (A8): the pure-component vapour pressure at 298.15 K from the group-contribution method

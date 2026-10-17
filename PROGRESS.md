@@ -1,5 +1,37 @@
 # Progress
 
+## 2026-10-17 (evening): tuvx-jax 655668c, TUV-x data in any Windows folder (helpers 0.4.8)
+
+- Model pin TOMAS-JAX 44b6db2 (tag aaar-stable-2026-10-17c) with tuvx-jax 655668c, and
+  `TUVX_JAX_COMMIT` 655668c for the data download (`scripts/set_pins.py`). 44b6db2 has the model
+  code of 0e23da0; it adds the new tuvx-jax and documentation only (measured 48 h run times).
+- Why: on Windows the netCDF library cannot open a data file whose folder path has non-ASCII
+  characters (found by the laptop app's Windows test with "cache-José-データ"). The tutorial's
+  data folder is in the user's home folder, so a Windows user name with an accent would have
+  failed in `at.setup()`. tuvx-jax 655668c reads each file into memory and opens it from there.
+- Results unchanged: `scripts/make_examples.py` regenerated the three stored presets and every
+  stored value agrees with the old files (6987, 5416 and 7097 values); only the model's code
+  version (963843d7e5d531e0 → e44d48ef4a83d983) and the run times differ. TOMAS-JAX's own check
+  (Level 3, 2 h, old and new tuvx-jax): photolysis rates, gases and particles bit-identical.
+- Helpers 0.4.8 in `pyproject.toml`, `__init__.py` and every install cell.
+- README and notebook links to the TOMAS-JAX docs and ASSUMPTIONS.md point at 44b6db2; the
+  README's manual-download link points at the 655668c archive. INSTRUCTORS: the web app's branch
+  runs 44b6db2 too (tomas-api b3b2971); the numbers it measured on 2026-10-17 with 0e23da0 stay,
+  since the model code is the same.
+- Flowchart footers name TOMAS-JAX 44b6db2 (aaar-stable-2026-10-17c) and tuvx-jax 655668c.
+  Re-printed with headless Chrome and the brand fonts (Open Sans, Gambarino). Printed the same way,
+  the old page gives a PDF identical to the old file at 80 dpi; the new one differs only in the two
+  footer lines.
+- The README's troubleshooting list has no item about Windows folder names, so nothing to change
+  there.
+- Download: during these tests this computer received GitHub's archive server at 0.5–3 KB/s, so
+  the 5.2 MB TUV-x download hit its 180 s limit three times and two tests failed for that reason
+  only (the helpers retried and reported it as designed). The test cache was then filled by the
+  same download code from the 655668c archive made with `git archive`; its first 1.6 MB matches
+  what the server had sent before the connection stalled.
+- Tests (new venv, Python 3.12, netCDF4 1.7.5): pytest 157 passed; pytest -m notebooks 4 passed in
+  4 min 53 s (01 57 s, 02 88 s, 03 117 s, 04 31 s; the laptop was busy with other jobs).
+
 ## 2026-10-17: nucleation time steps and input checks (helpers 0.4.7)
 
 - Model pin TOMAS-JAX 0e23da0 (tag aaar-stable-2026-10-17b). With nucleation on, the model cuts
